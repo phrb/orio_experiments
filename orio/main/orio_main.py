@@ -18,7 +18,7 @@ OPENCL = 4
 def start(argv, lang):
     '''The orio.main.starting procedure'''
 
-    retcode = 0 
+    retcode = 0
     # check for Fortran source, which is not supported yet now
     if lang == FORTRAN:
         language = 'fortran'
@@ -35,10 +35,10 @@ def start(argv, lang):
 
     # import other required Python packages
     import ann_parser, cmd_line_opts, opt_driver
-    
+
     # process the command line
     cmdline = cmd_line_opts.CmdParser().parse(argv)
-    
+
 
     g = Globals(cmdline)
     Globals().language = language
@@ -67,7 +67,7 @@ def start(argv, lang):
             except:
                 err('orio.main.main: cannot open file for reading: %s' % srcfile)
             info('----- finished reading the source file -----')
-    
+
             # parse the source file and build a symbol table
             #stbuilder = st_builder.STBuilder(srcfile)
             #symtab = stbuilder.build_st()
@@ -86,43 +86,43 @@ def start(argv, lang):
                 else:
                 #tuning_spec_dict = tspec.tspec.TSpec().parseProgram(tspec_prog)
                     info('----- finished reading the tuning specification -----')
-                
+
             # Just add the tuning spec to the file being parsed
             if tspec_prog:
                 src_code = '/*@ begin PerfTuning (' + tspec_prog + ')\n@*/\n' + src_code + '\n/*@ end @*/\n'
-                
+
             # parse the source code and return a sequence of code fragments
             info('\n----- begin parsing annotations -----')
             # for efficiency (e.g., do as little as possible when there are no annotations):
-            if ann_parser.AnnParser.leaderAnnRE().search(src_code): 
+            if ann_parser.AnnParser.leaderAnnRE().search(src_code):
                 cfrags = ann_parser.AnnParser().parse(src_code)     # list of CodeFragment objects
                 annotations_found = True
                 annotated_files += 1
             else:
                 info('----- did not find any Orio annotations -----')
             info('----- finished parsing annotations -----')
-            
+
             # perform optimizations based on information specified in the annotations
             if annotations_found:
                 info('\n----- begin optimizations -----')
                 odriver = opt_driver.OptDriver(src=srcfile, language=language)
                 optimized_code_seq = odriver.optimizeCodeFrags(cfrags, True)
                 info('----- finish optimizations -----')
-        
+
                 # remove all annotations from output
                 if g.erase_annot:
                     info('\n----- begin removing annotations from output-----')
                     optimized_code_seq = [[ann_parser.AnnParser().removeAnns(c), i, e] \
                                           for c, i, e in optimized_code_seq]
                     info('----- finished removing annotations from output-----')
-    
+
                 # write output
                 info('\n----- begin writing the output file(s) -----')
 
                 optimized_code, _, externals = optimized_code_seq[0]
                 if g.out_filename: out_filename = g.out_filename
                 g.tempfilename = out_filename
-                path = os.path.join(out_filename, os.path.basename(srcfile))
+                path = out_filename
                 info('--> writing output to: %s' % path)
                 try:
                     print(path)
@@ -151,7 +151,7 @@ def start(argv, lang):
             genobjfile = '.'.join(genparts[:-1])  + '.o' # the Orio-generated object
             srcparts = srcfile.split('.')
             objfile = '.'.join(srcparts[:-1]) + '.o'     # the object corresponding to the input filename
-            if os.path.exists(genobjfile): 
+            if os.path.exists(genobjfile):
                 info('----- Renaming %s to %s -----' % (genobjfile, objfile))
                 os.system('mv %s %s' % (genobjfile,objfile))
     # ----- end of "for srcfile, out_filename in g.src_filenames.items():" -----

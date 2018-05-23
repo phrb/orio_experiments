@@ -29,14 +29,13 @@ class Randomsearch(orio.main.tuner.search.search.Search):
 
     def __init__(self, params):
         '''To instantiate a random search engine'''
-
         random.seed(1)
 
+        self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
 
         # set all algorithm-specific arguments to their default values
         self.local_distance = 0
-        self.total_runs = 100
 
         # read all algorithm-specific arguments
         self.__readAlgoArgs()

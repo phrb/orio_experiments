@@ -25,7 +25,6 @@ class Search:
         if 'search_time_limit' in params.keys(): self.time_limit = params['search_time_limit']
         else: self.time_limit = -1
         if 'search_total_runs' in params.keys(): self.total_runs = params['search_total_runs']
-        else: self.total_runs = -1
         if 'search_resume' in params.keys(): self.resume = params['search_resume']
         else: self.resume = False
         if 'search_opts' in params.keys(): self.search_opts = params['search_opts']
