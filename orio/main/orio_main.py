@@ -122,14 +122,16 @@ def start(argv, lang):
                 optimized_code, _, externals = optimized_code_seq[0]
                 if g.out_filename: out_filename = g.out_filename
                 g.tempfilename = out_filename
-                info('--> writing output to: %s' % out_filename)
+                path = os.path.join(out_filename, os.path.basename(srcfile))
+                info('--> writing output to: %s' % path)
                 try:
-                    f = open(out_filename, 'w')
+                    print(path)
+                    f = open(path, 'w')
                     f.write(externals)
                     f.write(optimized_code)
                     f.close()
                 except:
-                    err('orio.main.main:  cannot open file for writing: %s' % out_filename)
+                    err('orio.main.main:  cannot open file for writing: %s' % path)
                 info('----- finished writing the output file(s) -----')
         # ----- end of "if not g.disable_orio:" -----
 

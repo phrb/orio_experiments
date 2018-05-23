@@ -1,13 +1,13 @@
 /*@ begin PerfTuning (
   def build
   {
-  arg build_command = 'gcc -O3 -fopenmp -DDYNAMIC'; 
+  arg build_command = 'gcc -O2 -fopenmp -DDYNAMIC'; 
   arg libs = '-lm -lrt';
   }
 
   def performance_counter
   {
-  arg repetitions = 35;
+  arg repetitions = 1;
   }  
   
   def performance_params
@@ -64,7 +64,8 @@
   def search
   {
   arg algorithm = 'Randomsearch';
-  arg total_runs = 10000;
+  arg total_runs = 1;
+  arg time_limit = 10;
   }
 
   def input_params
