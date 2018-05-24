@@ -1,16 +1,16 @@
-/*@ begin PerfTuning (  
+/*@ begin PerfTuning (
   def build
   {
-  arg build_command = 'gcc -O3 -fopenmp -DDYNAMIC'; 
+  arg build_command = 'gcc -O3 -fopenmp -DDYNAMIC';
   arg libs = '-lm';
   }
-  
-  def performance_counter  
-  { 
-  arg repetitions = 1;
+
+  def performance_counter
+  {
+  arg repetitions = 8;
   }
-  
-  def performance_params 
+
+  def performance_params
   {
     # Cache tiling
     param T1_I[] = [1,16,32,64,128,256,512];
@@ -24,8 +24,8 @@
     param ACOPY_x[] = [False,True];
     param ACOPY_y[] = [False,True];
 
-    # Unroll-jam 
-    param U1_I[] = range(1,31); 
+    # Unroll-jam
+    param U1_I[] = range(1,31);
     param U_I[]  = range(1,31);
     param U_J[]  = range(1,31);
     param U_K[]  = range(1,31);
@@ -55,18 +55,17 @@
 
   }
 
-  def search 
-  { 
-    arg algorithm = 'Randomsearch'; 
+  def search
+  {
+    arg algorithm = 'Randomsearch';
     arg total_runs = 10;
+  }
 
-  } 
-  
-  def input_params 
+  def input_params
   {
   param N[] = [10000];
   }
-  
+
   def input_vars
   {
   arg decl_file = 'decl.h';
@@ -88,7 +87,7 @@ int ii, jj, kk;
 int iii, jjj, kkk;
 
 double* tmp=(double*) malloc(nx*sizeof(double));
-  
+
 /*@ begin Loop(
 
   transform Composite(
@@ -111,15 +110,15 @@ double* tmp=(double*) malloc(nx*sizeof(double));
   )
   for (i = 0; i<=nx-1; i++) {
     tmp[i] = 0;
-    for (j = 0; j<=ny-1; j++) 
+    for (j = 0; j<=ny-1; j++)
       tmp[i] = tmp[i] + A[i*ny+j]*x[j];
-    for (k = 0; k<=ny-1; k++) 
+    for (k = 0; k<=ny-1; k++)
       y[k] = y[k] + A[i*ny+k]*tmp[i];
   }
 ) @*/
 /*@ end @*/
 
 /*@ end @*/
-  
+
 
 

@@ -1,31 +1,31 @@
 #
 # The classes for the abstract syntax tree (ASTNode)
 #
-#  ASTNode 
+#  ASTNode
 #   |
-#   +-- Exp 
+#   +-- Exp
 #   |    |
 #   |    +-- NumLitExp
 #   |    +-- StringLitExp
 #   |    +-- IdentExp
-#   |    +-- ArrayRefExp 
-#   |    +-- FunCallExp 
-#   |    +-- UnaryExp 
-#   |    +-- BinOpExp 
+#   |    +-- ArrayRefExp
+#   |    +-- FunCallExp
+#   |    +-- UnaryExp
+#   |    +-- BinOpExp
 #   |    +-- ParenthExp
 #   |
-#   +-- Stmt 
+#   +-- Stmt
 #   |    |
-#   |    +-- ExpStmt 
-#   |    +-- CompStmt 
-#   |    +-- IfStmt 
-#   |    +-- ForStmt 
-#   |    +-- TransformStmt 
+#   |    +-- ExpStmt
+#   |    +-- CompStmt
+#   |    +-- IfStmt
+#   |    +-- ForStmt
+#   |    +-- TransformStmt
 #   |
-#   +-- NewAST 
+#   +-- NewAST
 #        |
-#        +-- VarDecl 
-#        +-- Pragma 
+#        +-- VarDecl
+#        +-- Pragma
 #        +-- Container
 #
 # - The NewAST is an ASTNode used only in the output code generation. Such separation is needed to
@@ -35,125 +35,143 @@
 import os
 import orio.main.parsers.fcodegen
 
-#-----------------------------------------------
+# -----------------------------------------------
 # ASTNode - Abstract Syntax Tree
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class ASTNode:
 
-    def __init__(self, line_no = ''):
-        '''Create an abstract syntax tree node'''
-        self.line_no = line_no           # may be null (i.e. empty string)
-        self.filename = ''
-        
+    def __init__(self, line_no=""):
+        """Create an abstract syntax tree node"""
+        self.line_no = line_no  # may be null (i.e. empty string)
+        self.filename = ""
+
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
-        raise NotImplementedError('%s: abstract function "replicate" not implemented' %
-                                  self.__class__.__name__)
+        """Replicate this abstract syntax tree node"""
+        raise NotImplementedError(
+            '%s: abstract function "replicate" not implemented'
+            % self.__class__.__name__
+        )
 
     def __repr__(self):
-        '''Return a string representation for this ASTNode object'''
+        """Return a string representation for this ASTNode object"""
         return orio.main.parsers.fcodegen.CodeGen().generate(self)
 
     def __str__(self):
-        '''Return a string representation for this ASTNode object'''
+        """Return a string representation for this ASTNode object"""
         return repr(self)
 
-    
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Expression
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class Exp(ASTNode):
 
-    def __init__(self, line_no = ''):
-        '''Create an expression'''
+    def __init__(self, line_no=""):
+        """Create an expression"""
         ASTNode.__init__(self, line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Number Literal
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class NumLitExp(Exp):
 
     INT = 1
     FLOAT = 2
-    
-    def __init__(self, val, lit_type, line_no = ''):
-        '''Create a numeric literal'''
+
+    def __init__(self, val, lit_type, line_no=""):
+        """Create a numeric literal"""
         Exp.__init__(self, line_no)
         self.val = val
         self.lit_type = lit_type
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return NumLitExp(self.val, self.lit_type, self.line_no)
-        
-#-----------------------------------------------
+
+
+# -----------------------------------------------
 # String Literal
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class StringLitExp(Exp):
 
-    def __init__(self, val, line_no = ''):
-        '''Create a string literal'''
+    def __init__(self, val, line_no=""):
+        """Create a string literal"""
         Exp.__init__(self, line_no)
         self.val = val
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return StringLitExp(self.val, self.line_no)
-        
-#-----------------------------------------------
+
+
+# -----------------------------------------------
 # Identifier
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class IdentExp(Exp):
 
-    def __init__(self, name, line_no = ''):
-        '''Create an identifier'''
+    def __init__(self, name, line_no=""):
+        """Create an identifier"""
         Exp.__init__(self, line_no)
         self.name = name
-        
+
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return IdentExp(self.name, self.line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Array Reference
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class ArrayRefExp(Exp):
 
-    def __init__(self, exp, sub_exp, line_no = ''):
-        '''Create an array reference'''
+    def __init__(self, exp, sub_exp, line_no=""):
+        """Create an array reference"""
         Exp.__init__(self, line_no)
         self.exp = exp
         self.sub_exp = sub_exp
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return ArrayRefExp(self.exp.replicate(), self.sub_exp.replicate(), self.line_no)
-        
-#-----------------------------------------------
+
+
+# -----------------------------------------------
 # Function Call
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class FunCallExp(Exp):
 
-    def __init__(self, exp, args, line_no = ''):
-        '''Create a function call'''
+    def __init__(self, exp, args, line_no=""):
+        """Create a function call"""
         Exp.__init__(self, line_no)
         self.exp = exp
         self.args = args
-        
-    def clone(self):
-        '''Replicate this abstract syntax tree node'''
-        return FunCallExp(self.exp.replicate(), [a.replicate() for a in self.args], self.line_no)
 
-#-----------------------------------------------
+    def clone(self):
+        """Replicate this abstract syntax tree node"""
+        return FunCallExp(
+            self.exp.replicate(), [a.replicate() for a in self.args], self.line_no
+        )
+
+
+# -----------------------------------------------
 # Unary Expression
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class UnaryExp(Exp):
     PLUS = 1
@@ -164,19 +182,21 @@ class UnaryExp(Exp):
     POST_INC = 6
     POST_DEC = 7
 
-    def __init__(self, exp, op_type, line_no = ''):
-        '''Create a unary operation expression'''
+    def __init__(self, exp, op_type, line_no=""):
+        """Create a unary operation expression"""
         Exp.__init__(self, line_no)
         self.exp = exp
         self.op_type = op_type
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return UnaryExp(self.exp.replicate(), self.op_type, self.line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Binary Operation
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class BinOpExp(Exp):
     MUL = 1
@@ -195,167 +215,190 @@ class BinOpExp(Exp):
     COMMA = 14
     EQ_ASGN = 15
 
-    def __init__(self, lhs, rhs, op_type, line_no = ''):
-        '''Create a binary operation expression'''
+    def __init__(self, lhs, rhs, op_type, line_no=""):
+        """Create a binary operation expression"""
         Exp.__init__(self, line_no)
         self.lhs = lhs
         self.rhs = rhs
         self.op_type = op_type
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
-        return BinOpExp(self.lhs.replicate(), self.rhs.replicate(), self.op_type, self.line_no)
+        """Replicate this abstract syntax tree node"""
+        return BinOpExp(
+            self.lhs.replicate(), self.rhs.replicate(), self.op_type, self.line_no
+        )
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Parenthesized Expression
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class ParenthExp(Exp):
 
-    def __init__(self, exp, line_no = ''):
-        '''Create a parenthesized expression'''
+    def __init__(self, exp, line_no=""):
+        """Create a parenthesized expression"""
         Exp.__init__(self, line_no)
         self.exp = exp
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return ParenthExp(self.exp.replicate(), self.line_no)
-        
-#-----------------------------------------------
+
+
+# -----------------------------------------------
 # Statement
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class Stmt(ASTNode):
 
-    def __init__(self, line_no = ''):
-        '''Create a statement'''
+    def __init__(self, line_no=""):
+        """Create a statement"""
         ASTNode.__init__(self, line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Expression Statement
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class ExpStmt(Stmt):
 
-    def __init__(self, exp, line_no = ''):
-        '''Create an expression statement'''
+    def __init__(self, exp, line_no=""):
+        """Create an expression statement"""
         Stmt.__init__(self, line_no)
-        self.exp = exp         # may be null
+        self.exp = exp  # may be null
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         r_e = self.exp
         if r_e:
             r_e = r_e.replicate()
         return ExpStmt(r_e, self.line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Compound Statement
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class CompStmt(Stmt):
 
-    def __init__(self, stmts, line_no = ''):
-        '''Create a compound statement'''
+    def __init__(self, stmts, line_no=""):
+        """Create a compound statement"""
         Stmt.__init__(self, line_no)
         self.stmts = stmts
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return CompStmt([s.replicate() for s in self.stmts], self.line_no)
-    
-#-----------------------------------------------
+
+
+# -----------------------------------------------
 # If-Then-Else
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class IfStmt(Stmt):
 
-    def __init__(self, test, true_stmt, false_stmt = None, line_no = ''):
-        '''Create an if statement'''
+    def __init__(self, test, true_stmt, false_stmt=None, line_no=""):
+        """Create an if statement"""
         Stmt.__init__(self, line_no)
         self.test = test
         self.true_stmt = true_stmt
-        self.false_stmt = false_stmt           # may be null
+        self.false_stmt = false_stmt  # may be null
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         f_s = self.false_stmt
         if f_s:
             f_s = f_s.replicate()
-        return IfStmt(self.test.replicate(), self.true_stmt.replicate(), f_s, self.line_no)
+        return IfStmt(
+            self.test.replicate(), self.true_stmt.replicate(), f_s, self.line_no
+        )
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Transformation
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class TransformStmt(Stmt):
 
-    def __init__(self, name, args, stmt, line_no = ''):
-        '''Create a transformation statement'''
+    def __init__(self, name, args, stmt, line_no=""):
+        """Create a transformation statement"""
         Stmt.__init__(self, line_no)
         self.name = name
         self.args = args
         self.stmt = stmt
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
-        return TransformStmt(self.name, self.args[:], self.stmt.replicate(), self.line_no)
+        """Replicate this abstract syntax tree node"""
+        return TransformStmt(
+            self.name, self.args[:], self.stmt.replicate(), self.line_no
+        )
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # New ASTNode
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class NewAST(ASTNode):
 
-    def __init__(self, line_no = ''):
-        '''Create a newly-added statement'''
+    def __init__(self, line_no=""):
+        """Create a newly-added statement"""
         ASTNode.__init__(self, line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Variable Declaration
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class VarDecl(NewAST):
 
-    def __init__(self, type_name, var_names, line_no = ''):
-        '''Create a variable declaration'''
+    def __init__(self, type_name, var_names, line_no=""):
+        """Create a variable declaration"""
         NewAST.__init__(self, line_no)
         self.type_name = type_name
         self.var_names = var_names
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return VarDecl(self.type_name, self.var_names[:], self.line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Pragma Directive
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class Pragma(NewAST):
 
-    def __init__(self, pstring, line_no = ''):
-        '''Create a pragma directive'''
+    def __init__(self, pstring, line_no=""):
+        """Create a pragma directive"""
         NewAST.__init__(self, line_no)
         self.pstring = pstring
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return Pragma(self.pstring, self.line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Container
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class Container(NewAST):
 
-    def __init__(self, ast, line_no = ''):
-        '''Create a container ASTNode (to protect the contained ASTNode from any code transformations)'''
+    def __init__(self, ast, line_no=""):
+        """Create a container ASTNode (to protect the contained ASTNode from any code transformations)"""
         NewAST.__init__(self, line_no)
         self.ast = ast
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return Container(self.ast.replicate(), self.line_no)
-
-
-

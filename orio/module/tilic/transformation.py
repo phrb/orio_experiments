@@ -6,17 +6,23 @@ import sys
 from orio.main.util.globals import *
 import ast, ast_util
 
-#-------------------------------------------------
+# -------------------------------------------------
+
 
 class Transformation:
-    '''The code transformation that performs loop tiling'''
+    """The code transformation that performs loop tiling"""
 
     def __init__(self, tiling_params):
-        '''To instantiate the code transformation'''
+        """To instantiate the code transformation"""
 
         # unpack the tiling parameters
-        (num_tiling_levels, first_depth, last_depth, 
-         max_boundary_tiling_level, affine_lbound_exps) = tiling_params
+        (
+            num_tiling_levels,
+            first_depth,
+            last_depth,
+            max_boundary_tiling_level,
+            affine_lbound_exps,
+        ) = tiling_params
 
         # set the tiling parameters
         self.num_tiling_levels = num_tiling_levels
@@ -31,17 +37,17 @@ class Transformation:
         # used for generating new variable names
         self.counter = 1
 
-    #----------------------------------------------
+    # ----------------------------------------------
 
-    def __tile(self, stmt, loop_depth, tile_level, ):
-        '''To apply tiling transformation on the given statement'''
+    def __tile(self, stmt, loop_depth, tile_level):
+        """To apply tiling transformation on the given statement"""
 
         return ([], [stmt])
 
-    #----------------------------------------------
+    # ----------------------------------------------
 
     def __startTiling(self, stmt):
-        '''To apply tiling transformation on the top-level loop statement'''
+        """To apply tiling transformation on the top-level loop statement"""
 
         # expression statement
         if isinstance(stmt, ast.ExpStmt):
@@ -69,7 +75,7 @@ class Transformation:
             stmt.true_stmt = ts
             if stmt.false_stmt:
                 ivars, ts = self.__startTiling(stmt.false_stmt)
-                int_vars.extend(ivars)                
+                int_vars.extend(ivars)
                 stmt.false_stmt = ts
             return (int_vars, stmt)
 
@@ -84,12 +90,15 @@ class Transformation:
 
         # unknown statement
         else:
-            err('orio.module.tilic.transformation internal error: unknown type of statement: %s' % stmt.__class__.__name__)
+            err(
+                "orio.module.tilic.transformation internal error: unknown type of statement: %s"
+                % stmt.__class__.__name__
+            )
 
-    #----------------------------------------------
+    # ----------------------------------------------
 
     def __removeOneTimeLoops(self, stmt):
-        '''Remove all one-time loops. This is safe (guaranteed by CLooG).'''
+        """Remove all one-time loops. This is safe (guaranteed by CLooG)."""
 
         # expression statement
         if isinstance(stmt, ast.ExpStmt):
@@ -126,12 +135,15 @@ class Transformation:
 
         # unknown statement
         else:
-            err('orio.module.tilic.transformation internal error: unknown type of statement: %s' % stmt.__class__.__name__)
+            err(
+                "orio.module.tilic.transformation internal error: unknown type of statement: %s"
+                % stmt.__class__.__name__
+            )
 
-    #----------------------------------------------
+    # ----------------------------------------------
 
     def transform(self, stmts):
-        '''To apply tiling transformation on the given statements'''
+        """To apply tiling transformation on the given statements"""
 
         # reset the counter
         self.counter = 1
@@ -155,4 +167,3 @@ class Transformation:
 
         # return the tiled statements and the newly declared integer variables
         return (stmts, int_vars)
-

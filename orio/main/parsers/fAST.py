@@ -4,16 +4,27 @@
 import os
 from orio.main.parsers.AST import *
 
+
 class MainProgram(ASTNode):
 
-    def __init__(self, line_no='', spec_part=None, internal_part=None):
-        '''Create a orio.main.program node'''
-        ASTNode.__init__(self,line_no)
+    def __init__(self, line_no="", spec_part=None, internal_part=None):
+        """Create a orio.main.program node"""
+        ASTNode.__init__(self, line_no)
         self.specificationPart = spec_part
         self.internalSubprogramPart = internal_part
 
-    specificationPart = property(getSpecificationPart, setSpecificationPart, delSpecificationPart, "The specification part of the program")
-    internalSubprogramPart = property(getInternalSubprogramPart, setInternalSubprogramPart, delInternalSubprogramPart, "The internal subprogram part of the program")
+    specificationPart = property(
+        getSpecificationPart,
+        setSpecificationPart,
+        delSpecificationPart,
+        "The specification part of the program",
+    )
+    internalSubprogramPart = property(
+        getInternalSubprogramPart,
+        setInternalSubprogramPart,
+        delInternalSubprogramPart,
+        "The internal subprogram part of the program",
+    )
 
     def getSpecificationPart(self):
         return self.__specificationPart
@@ -32,6 +43,3 @@ class MainProgram(ASTNode):
 
     def delInternalSubprogramPart(self):
         del self.__internalSubprogramPart
-
-
-

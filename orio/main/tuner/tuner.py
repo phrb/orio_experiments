@@ -19,12 +19,12 @@ class PerfTuner:
     '''
     The empirical performance tuner.
     This class is responsible for invoking the code generators of the annotation modules,
-    compiling the resulting code, and interfacing with the search interface to run the 
+    compiling the resulting code, and interfacing with the search interface to run the
     tests and collect the results.
     '''
 
     #-------------------------------------------------
-    
+
     def __init__(self, odriver):
         '''To instantiate an empirical performance tuner object'''
 
@@ -35,10 +35,10 @@ class PerfTuner:
         self.num_configs=0
         self.num_bin=0
         self.num_int=0
-        
+
         self.tinfo = None
 
-    
+
     #-------------------------------------------------
 
     def tune(self, module_body_code, line_no, cfrags):
@@ -46,11 +46,11 @@ class PerfTuner:
         Perform empirical performance tuning on the given annotated code. And return the best
         optimized code variant.
         '''
-        
+
         # extract the tuning information specified from the given annotation
         tinfo = self.__extractTuningInfo(module_body_code, line_no)
         self.tinfo = tinfo
-        
+
         # determine if parallel search is required
         use_parallel_search = tinfo.batch_cmd != None
 
@@ -76,21 +76,21 @@ class PerfTuner:
                                                                          tinfo.random_seed, use_parallel_search)
             else:
                 err('main.tuner.tuner:  unknown output language specified: %s' % self.odriver.lang)
-      
+
             ptcodegens.append(c)
 
         # create the performance-testing driver
-        ptdriver = orio.main.tuner.ptest_driver.PerfTestDriver(self.tinfo, use_parallel_search, 
-                                                               self.odriver.lang, 
+        ptdriver = orio.main.tuner.ptest_driver.PerfTestDriver(self.tinfo, use_parallel_search,
+                                                               self.odriver.lang,
                                                                c.getTimerCode(use_parallel_search))
 
         # get the axis names and axis value ranges to represent the search space
-        
+
         axis_names, axis_val_ranges = self.__buildCoordSystem(tinfo.pparam_params, tinfo.cmdline_params)
 
         info('%s' % axis_names)
         info('%s' % axis_val_ranges)
-        
+
 
         # combine the performance parameter constraints
         pparam_constraint = 'True'
@@ -98,13 +98,13 @@ class PerfTuner:
             pparam_constraint += ' and (%s)' % rhs
 
         # dynamically load the search engine class and configure it
-        
+
         #print tinfo.search_algo
         if Globals().extern:
             tinfo.search_algo='Extern'
             info('Running in %s mode' % tinfo.search_algo)
             info('Using parameters %s' % Globals().config)
-            
+
         class_name = tinfo.search_algo
         mod_name = '.'.join([SEARCH_MOD_NAME, class_name.lower(), class_name.lower()])
         search_class = self.dloader.loadClass(mod_name, class_name)
@@ -117,7 +117,7 @@ class PerfTuner:
 
         # get the search-algorithm-specific arguments
         search_opts = dict(tinfo.search_opts)
-        
+
         # perform the performance tuning for each distinct problem size
         optimized_code_seq = []
         for ptcodegen in ptcodegens:
@@ -138,44 +138,44 @@ class PerfTuner:
                                        'axis_names':axis_names,             # performance parameter names
                                        'axis_val_ranges':axis_val_ranges,   # performance parameter values
                                        'pparam_constraint':pparam_constraint,
-                                       'search_time_limit':search_time_limit, 
-                                       'search_total_runs':search_total_runs, 
+                                       'search_time_limit':search_time_limit,
+                                       'search_total_runs':search_total_runs,
                                        'search_resume':search_resume,
                                        'search_opts':search_opts,
-                                       'ptcodegen':ptcodegen, 
+                                       'ptcodegen':ptcodegen,
                                        'ptdriver':ptdriver, 'odriver':self.odriver,
                                        'use_parallel_search':use_parallel_search,
                                        'input_params':ptcodegen.input_params[:]})
 
-            
+
             # search for the best performance parameters
             best_perf_params, best_perf_cost = search_eng.search()
 
             # print the best performance parameters
-            
+
             if Globals().verbose and not Globals().extern:
                 info('----- the obtained best performance parameters -----')
                 pparams = best_perf_params.items()
                 pparams.sort(lambda x,y: cmp(x[0],y[0]))
                 for pname, pvalue in pparams:
                     info(' %s = %s' % (pname, pvalue))
-        
+
             # generate the optimized code using the obtained best performance parameters
             if Globals().extern:
                 best_perf_params=Globals().config
 
-            #print Globals().config    
-            
+            #print Globals().config
+
             cur_optimized_code_seq = self.odriver.optimizeCodeFrags(cfrags, best_perf_params)
 
             # check the optimized code sequence
             if len(cur_optimized_code_seq) != 1:
                 err('orio.main.tuner internal error: the empirically optimized code cannot contain multiple versions')
-            
+
             # get the optimized code
             optimized_code, _, externals = cur_optimized_code_seq[0]
 
-            # insert comments into the optimized code to include information about 
+            # insert comments into the optimized code to include information about
             # the best performance parameters and the input problem sizes
             iproblem_code = ''
             iparams = ptcodegen.input_params[:]
@@ -243,7 +243,7 @@ class PerfTuner:
 
         # return the tuning information
         return tuning_spec_dict
-        
+
     #-------------------------------------------------
 
     def __listAllCombinations(self, seqs):
@@ -251,11 +251,11 @@ class PerfTuner:
         Enumerate all combinations of the given sequences.
           e.g. input: [['a','b'],[1,2]] --> [['a',1],['a',2],['b',1],['b',2]]
         '''
-        
+
         # the base case
         if len(seqs) == 0:
             return []
-        
+
         # the recursive step
         trailing_combs = self.__listAllCombinations(seqs[1:])
         if trailing_combs == []:
@@ -264,10 +264,10 @@ class PerfTuner:
         for i in seqs[0]:
             for c in trailing_combs:
                 combs.append([i] + c)
-                
+
         # return the combinations
         return combs
-    
+
     #-------------------------------------------------
 
     def __getProblemSizes(self, iparam_params, iparam_constraints):
@@ -299,7 +299,7 @@ class PerfTuner:
         if len(prob_sizes) == 0:
             err('orio.main.tuner.tuner: no valid problem sizes exist. please check the input parameter ' +
                    'constraints')
-        
+
         # return all possible combinations of problem sizes
         return prob_sizes
 
@@ -347,7 +347,7 @@ class PerfTuner:
         min_val_str=min_val_str.replace('[','')
         min_val_str=min_val_str.replace(']','')
         min_val_str=min_val_str.replace(',','')
-        
+
 
         max_vals=[len(v)-1 for v in axis_val_ranges]
         max_val_str="%s" % max_vals
@@ -355,23 +355,23 @@ class PerfTuner:
         max_val_str=max_val_str.replace('[','')
         max_val_str=max_val_str.replace(']','')
         max_val_str=max_val_str.replace(',','')
-        
+
 
         info('Search_Space         = %1.3e' % self.num_configs)
         info('Number_of_Parameters = %02d' % self.num_params)
         info('Numeric_Parameters   = %02d' % self.num_int)
         info('Binary_Parameters    = %02d' % self.num_bin)
-        
-        sys.stderr.write('%s\n'% Globals().configfile)   
-        
+
+        sys.stderr.write('%s\n'% Globals().configfile)
+
 #       Azamat on June 10, 2013: commenting this block out until further notice of its use, need a tighter if-condition
 #        if Globals().configfile=='':
 #            srcfilename=Globals().src_filenames.keys()[0]
 #            nomadfile=srcfilename+'.nomad'
 #            nomadfileobj=srcfilename+'.nomad.obj.exe'
-#            
+#
 #            spec_string ="DIMENSION      %02d\n" % (self.num_params)
-#            spec_string+="BB_EXE         %s\n"% nomadfileobj 
+#            spec_string+="BB_EXE         %s\n"% nomadfileobj
 #            spec_string+="BB_INPUT_TYPE  ( %s )\n" % ' '.join(ptype)
 #            spec_string+="BB_OUTPUT_TYPE OBJ CNT_EVAL \n"
 #            spec_string+="X0             ( %s )\n" % min_val_str
@@ -379,15 +379,15 @@ class PerfTuner:
 #            spec_string+="UPPER_BOUND    ( %s )\n" % max_val_str
 #            spec_string+="MAX_BB_EVAL    %s\n" % 1000
 #            spec_string+="DISPLAY_STATS  BBE OBJ EVAL\n"
-#            spec_string+="SEED    1\n" 
-#    
+#            spec_string+="SEED    1\n"
+#
 #            f = open(nomadfile, 'w')
 #            f.write(spec_string)
 #            f.close()
 #
 #            scriptstr="#!/bin/bash\n"
 #            scriptstr=scriptstr+"orcc -x %s --configfile=$1\n" % srcfilename
-#        
+#
 #            f = open(nomadfileobj, 'w')
 #            f.write(scriptstr)
 #            f.close()
@@ -395,7 +395,7 @@ class PerfTuner:
 #            os.system("chmod +x %s" % nomadfileobj)
 
         return (axis_names, axis_val_ranges)
-    
+
     def __sort(self, prange):
         # Remove duplications and then perform sorting
         n_prange = []

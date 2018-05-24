@@ -1,23 +1,22 @@
-#-----------------------------------------------------------------
+# -----------------------------------------------------------------
 # pycparser: __init__.py
 #
-# This package file exports some convenience functions for 
+# This package file exports some convenience functions for
 # interacting with pycparser
 #
 # Copyright (C) 2008-2011, Eli Bendersky
 # License: BSD
-#-----------------------------------------------------------------
+# -----------------------------------------------------------------
 
-__all__ = ['c_lexer', 'c_parser', 'c_ast']
-__version__ = '2.05'
+__all__ = ["c_lexer", "c_parser", "c_ast"]
+__version__ = "2.05"
 
 from subprocess import Popen, PIPE
 
 from .c_parser import CParser
 
 
-def parse_file( filename, use_cpp=False, 
-                cpp_path='cpp', cpp_args=''):
+def parse_file(filename, use_cpp=False, cpp_path="cpp", cpp_args=""):
     """ Parse a C file using pycparser.
     
         filename:
@@ -46,29 +45,25 @@ def parse_file( filename, use_cpp=False,
         
         Errors from cpp will be printed out. 
     """
-    if use_cpp:   
+    if use_cpp:
         path_list = [cpp_path]
         if isinstance(cpp_args, list):
             path_list += cpp_args
-        elif cpp_args != '': 
+        elif cpp_args != "":
             path_list += [cpp_args]
         path_list += [filename]
-        
+
         # Note the use of universal_newlines to treat all newlines
         # as \n for Python's purpose
         #
-        pipe = Popen(   path_list, 
-                        stdout=PIPE, 
-                        universal_newlines=True)
+        pipe = Popen(path_list, stdout=PIPE, universal_newlines=True)
         text = pipe.communicate()[0]
     else:
-        text = open(filename, 'rU').read()
-    
+        text = open(filename, "rU").read()
+
     parser = CParser()
     return parser.parse(text, filename)
-    
+
 
 if __name__ == "__main__":
     pass
-    
-

@@ -6,25 +6,41 @@
 
 import orio.module.module
 
-#-----------------------------------------
+# -----------------------------------------
+
 
 class Inline(orio.module.module.Module):
-    '''A simple rewriting module.'''
+    """A simple rewriting module."""
 
-    def __init__(self, perf_params, module_body_code, annot_body_code, line_no, indent_size, language='C'):
-        '''Constructor'''
+    def __init__(
+        self,
+        perf_params,
+        module_body_code,
+        annot_body_code,
+        line_no,
+        indent_size,
+        language="C",
+    ):
+        """Constructor"""
 
         # Invoke parent constructor
-        orio.module.module.Module.__init__(self, perf_params, module_body_code, annot_body_code,
-                                      line_no, indent_size, language)
+        orio.module.module.Module.__init__(
+            self,
+            perf_params,
+            module_body_code,
+            annot_body_code,
+            line_no,
+            indent_size,
+            language,
+        )
 
-    #---------------------------------------------------------------------
-    
+    # ---------------------------------------------------------------------
+
     def transform(self):
-        '''Inline annotated function calls'''
+        """Inline annotated function calls"""
 
         # to create a comment containing information about the class attributes
-        comment = '''
+        comment = """
         /*
          perf_params = %s
          module_body_code = "%s"
@@ -32,11 +48,16 @@ class Inline(orio.module.module.Module):
          line_no = %s
          indent_size = %s
         */
-        ''' % (self.perf_params, self.module_body_code, self.annot_body_code, self.line_no, self.indent_size)
+        """ % (
+            self.perf_params,
+            self.module_body_code,
+            self.annot_body_code,
+            self.line_no,
+            self.indent_size,
+        )
 
         # to rewrite the annotated code, with the class-attribute comment being prepended
         output_code = comment + self.annot_body_code
 
         # return the output code
         return output_code
-

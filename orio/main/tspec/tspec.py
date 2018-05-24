@@ -1,22 +1,23 @@
 #
 # TSpec (Tuning Specifier) class
-# 
+#
 
 import eval, pparser, tune_info
 
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class TSpec:
-    '''The TSpec (Tuning Specifier)'''
+    """The TSpec (Tuning Specifier)"""
 
     def __init__(self):
-        '''To instantiate a TSpec instance'''
+        """To instantiate a TSpec instance"""
         pass
 
-    #-----------------------------------------------
+    # -----------------------------------------------
 
     def parseSpec(self, spec_code, line_no):
-        '''To parse the given specification body code and to return its tuning information'''
+        """To parse the given specification body code and to return its tuning information"""
 
         # parse and evaluate the specification statement
         stmt_seq = pparser.TSpecParser().parseSpec(spec_code, line_no)
@@ -24,23 +25,24 @@ class TSpec:
 
         # generate tuning information
         tinfo = tune_info.TuningInfoGen().generate(stmt_seq)
-        
+
         # return the tuning information
         return tinfo
-        
-    #-----------------------------------------------
+
+    # -----------------------------------------------
 
     def parseProgram(self, prog_code):
-        '''To parse the entire tuning specification code and to return its tuning information'''
+        """To parse the entire tuning specification code and to return its tuning information"""
 
         # parse and evaluate the entire code
         stmt_seq = pparser.TSpecParser().parseProgram(prog_code)
         stmt_seq = eval.TSpecEvaluator().evaluate(stmt_seq)
 
         # create a generator for performance tuning information
-        #tinfo_gen = tune_info.TuningInfoGen()
+        # tinfo_gen = tune_info.TuningInfoGen()
         tinfo = tune_info.TuningInfoGen().generate(stmt_seq)
         return tinfo
+
 
 #        # generate tuning information for each specification statement and insert it into
 #        # a specifications mapping
@@ -52,4 +54,3 @@ class TSpec:
 #
 #        # return the specifications mapping
 #        return specs_map
-        

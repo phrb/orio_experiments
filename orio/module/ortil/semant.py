@@ -6,13 +6,14 @@ import sys
 import ast, ast_util
 from orio.main.util.globals import *
 
-#---------------------------------------------------------
+# ---------------------------------------------------------
+
 
 class SemanticAnalyzer:
-    '''The semantic analyzer class that provides methods for check and enforcing AST semantics'''
+    """The semantic analyzer class that provides methods for check and enforcing AST semantics"""
 
     def __init__(self, tiling_info):
-        '''To instantiate a semantic analyzer'''
+        """To instantiate a semantic analyzer"""
 
         num_level, iter_names = tiling_info
 
@@ -20,10 +21,10 @@ class SemanticAnalyzer:
         self.iter_names = iter_names
         self.ast_util = ast_util.ASTUtil()
 
-    #-----------------------------------------------------
+    # -----------------------------------------------------
 
     def __normalizeStmt(self, stmt):
-        '''
+        """
         * To change the format of all for-loops to a fixed form as described below:
            for (<id> = <exp>; <id> <= <exp>; <id> += <exp>) {
              <stmts>
@@ -35,7 +36,7 @@ class SemanticAnalyzer:
              <stmts>
            } 
         * To remove meaningless scopings inside each compound statement.
-        '''
+        """
 
         if isinstance(stmt, ast.ExpStmt):
             return stmt
@@ -45,7 +46,7 @@ class SemanticAnalyzer:
             while len(stmt.stmts) == 1 and isinstance(stmt.stmts[0], ast.CompStmt):
                 stmt.stmts = stmt.stmts[0].stmts
             return stmt
-        
+
         elif isinstance(stmt, ast.IfStmt):
             stmt.true_stmt = self.__normalizeStmt(stmt.true_stmt)
             if not isinstance(stmt.true_stmt, ast.CompStmt):
@@ -63,14 +64,17 @@ class SemanticAnalyzer:
                 bod = ast.CompStmt([bod])
             stmt = self.ast_util.createForLoop(id, lb, ub, st, bod)
             return stmt
-        
-        else:
-            err('orio.module.ortil.semant internal error:OrTil: unknown type of statement: %s' % stmt.__class__.__name__)
-                
-    #-----------------------------------------------------
 
-    def __checkStmt(self, stmt, oloop_inames = []):
-        '''
+        else:
+            err(
+                "orio.module.ortil.semant internal error:OrTil: unknown type of statement: %s"
+                % stmt.__class__.__name__
+            )
+
+    # -----------------------------------------------------
+
+    def __checkStmt(self, stmt, oloop_inames=[]):
+        """
         * To complain if there is a sublevel of compound statement directly nested inside
           a compound statement.
         * To complain if there is an illegal loop nest, where an inner loop has the same iterator
@@ -78,7 +82,7 @@ class SemanticAnalyzer:
            for i
             for i
               S
-        '''
+        """
 
         if isinstance(stmt, ast.ExpStmt):
             pass
@@ -88,9 +92,12 @@ class SemanticAnalyzer:
                 self.__checkStmt(s, oloop_inames)
             for s in stmt.stmts:
                 if isinstance(s, ast.CompStmt):
-                    err('orio.module.ortil.semant: does not support a compound statement directly nested ' +
-                           'inside another compound statement', doexit=True)
-        
+                    err(
+                        "orio.module.ortil.semant: does not support a compound statement directly nested "
+                        + "inside another compound statement",
+                        doexit=True,
+                    )
+
         elif isinstance(stmt, ast.IfStmt):
             self.__checkStmt(stmt.true_stmt, oloop_inames)
             if stmt.false_stmt:
@@ -99,19 +106,27 @@ class SemanticAnalyzer:
         elif isinstance(stmt, ast.ForStmt):
             (id, lb, ub, st, bod) = self.ast_util.getForLoopInfo(stmt)
             if id.name in oloop_inames:
-                err('orio.module.ortil.semant: illegal loop nest where an inner loop has the same iterator ' +
-                       'name as the outer loop')
+                err(
+                    "orio.module.ortil.semant: illegal loop nest where an inner loop has the same iterator "
+                    + "name as the outer loop"
+                )
             if id.name not in self.iter_names:
-                err('orio.module.ortil.semant: OrTil: missing tiled-loop iterator name: "%s"' % id.name)
+                err(
+                    'orio.module.ortil.semant: OrTil: missing tiled-loop iterator name: "%s"'
+                    % id.name
+                )
             self.__checkStmt(stmt.stmt, oloop_inames + [id.name])
-            
-        else:
-            err('orio.module.ortil.semant internal error:OrTil: unknown type of statement: %s' % stmt.__class__.__name__)
 
-    #-----------------------------------------------------
+        else:
+            err(
+                "orio.module.ortil.semant internal error:OrTil: unknown type of statement: %s"
+                % stmt.__class__.__name__
+            )
+
+    # -----------------------------------------------------
 
     def analyze(self, stmts):
-        '''To check and enforce AST semantics'''
+        """To check and enforce AST semantics"""
 
         # normalize the given statements
         stmts = [self.__normalizeStmt(s) for s in stmts]
@@ -135,5 +150,3 @@ class SemanticAnalyzer:
 
         # return the semantically correct statements
         return stmts
-        
-        

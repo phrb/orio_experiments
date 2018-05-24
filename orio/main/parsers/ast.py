@@ -1,37 +1,37 @@
-'''
+"""
 Created on Oct 19, 2010
 
 @author: norris
-'''
+"""
 
 #
 # The classes for the abstract syntax tree (ASTNode)
 #
-#  ASTNode 
+#  ASTNode
 #   |
-#   +-- Exp 
+#   +-- Exp
 #   |    |
 #   |    +-- NumLitExp
 #   |    +-- StringLitExp
 #   |    +-- IdentExp
-#   |    +-- ArrayRefExp 
-#   |    +-- FunCallExp 
-#   |    +-- UnaryExp 
-#   |    +-- BinOpExp 
+#   |    +-- ArrayRefExp
+#   |    +-- FunCallExp
+#   |    +-- UnaryExp
+#   |    +-- BinOpExp
 #   |    +-- ParenthExp
 #   |
-#   +-- Stmt 
+#   +-- Stmt
 #   |    |
-#   |    +-- ExpStmt 
-#   |    +-- CompStmt 
-#   |    +-- IfStmt 
-#   |    +-- ForStmt 
-#   |    +-- TransformStmt 
+#   |    +-- ExpStmt
+#   |    +-- CompStmt
+#   |    +-- IfStmt
+#   |    +-- ForStmt
+#   |    +-- TransformStmt
 #   |
-#   +-- NewAST 
+#   +-- NewAST
 #        |
-#        +-- VarDecl 
-#        +-- Pragma 
+#        +-- VarDecl
+#        +-- Pragma
 #        +-- Container
 #
 # - The NewAST is an ASTNode used only in the output code generation. Such separation is needed to
@@ -47,14 +47,15 @@ import orio.tool.graphlib.graph as graph
 # AST - Abstract Syntax Tree class
 # ----------------------------------------------
 class AST(graph.Graph):
-    '''Abstract Syntax Tree class.'''
+    """Abstract Syntax Tree class."""
+
     def __init__(self, name):
-        '''Create a graph'''
+        """Create a graph"""
         graph.Graph.__init__(self, name)
 
-    #@staticmethod
+    # @staticmethod
     def bfs(start, reverse=False, actions=[]):
-        '''
+        """
         Returns a breadth-first search list of vertices connected by edges of edgetype. Note that 
         this is less general than the graphlib graph breadth_first_search method used in 
         the BVertex dependents() and dependencies() methods.
@@ -62,9 +63,9 @@ class AST(graph.Graph):
         @param start_v the initial vertex
         @param reverse the order of the search
         @param edgetype a list of edge types to consider (the possible types are "extends", "implements", "requires", "contains")
-        '''
-        #unprocessed = [start_v]
-        if isinstance(start,list):
+        """
+        # unprocessed = [start_v]
+        if isinstance(start, list):
             unprocessed = start
         else:
             unprocessed = [start]
@@ -73,23 +74,27 @@ class AST(graph.Graph):
             v = unprocessed.pop(0)
             if v not in visited:
                 visited.append(v)
-                if reverse: 
+                if reverse:
                     elist = []
                     for e in v.in_e:
-                        if e.action in actions: elist.extend(e.src_v)
-                    if elist: unprocessed.extend(elist)
-                else: 
+                        if e.action in actions:
+                            elist.extend(e.src_v)
+                    if elist:
+                        unprocessed.extend(elist)
+                else:
                     elist = []
                     for e in v.out_e:
-                        if e.action in actions: elist.extend(e.dest_v)
-                    if elist: unprocessed.extend(elist)
+                        if e.action in actions:
+                            elist.extend(e.dest_v)
+                    if elist:
+                        unprocessed.extend(elist)
         return visited
+
     bfs = staticmethod(bfs)
 
-
-    #@staticmethod
-    def dfs(start, visitor = None, reverse=False, actions=[]):
-        '''
+    # @staticmethod
+    def dfs(start, visitor=None, reverse=False, actions=[]):
+        """
         Returns a depth-first search list of vertices connected by edges of edgetype. Note that 
         this is less general than the graphlib graph depth_first_search method.
 
@@ -97,10 +102,10 @@ class AST(graph.Graph):
         @param visitor a flag indicating whether the visit() method should be called on the vertex.
         @param reverse the order of the search
         @param edgetype a list of edge types to consider (the possible types are "extends", "implements", "requires", "contains")
-        '''
-        if isinstance(start,list):
+        """
+        if isinstance(start, list):
             unprocessed = start
-        else: 
+        else:
             unprocessed = [start]
         visited = []
         while unprocessed:
@@ -109,184 +114,222 @@ class AST(graph.Graph):
                 if visitor:
                     v.visitor()
                 visited.append(v)
-                if reverse: 
+                if reverse:
                     elist = []
-                    #print str(v)
+                    # print str(v)
                     for e in v.in_e:
-                        if e.action in actions: elist.extend(e.src_v)
-                    if elist: unprocessed.extend(elist)
-                else: 
+                        if e.action in actions:
+                            elist.extend(e.src_v)
+                    if elist:
+                        unprocessed.extend(elist)
+                else:
                     elist = []
                     for e in v.out_e:
-                        if e.action in actions: elist.extend(e.dest_v)
-                    if elist: unprocessed.extend(elist)
+                        if e.action in actions:
+                            elist.extend(e.dest_v)
+                    if elist:
+                        unprocessed.extend(elist)
         return visited
-    dfs = staticmethod(dfs)  
-    
+
+    dfs = staticmethod(dfs)
+
     # ---------- end AST class ------------------------------
-     
-#-----------------------------------------------
+
+
+# -----------------------------------------------
 # ASTNode - Abstract Syntax Tree node
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class ASTNode(graph.Vertex):
 
-    def __init__(self, line_no = ''):
-        '''Create an abstract syntax tree node'''
-        self.line_no = line_no           # may be null (i.e. empty string)
-        self.filename = ''
-        
+    def __init__(self, line_no=""):
+        """Create an abstract syntax tree node"""
+        self.line_no = line_no  # may be null (i.e. empty string)
+        self.filename = ""
+
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
-        raise NotImplementedError('%s: abstract function "replicate" not implemented' %
-                                  self.__class__.__name__)
+        """Replicate this abstract syntax tree node"""
+        raise NotImplementedError(
+            '%s: abstract function "replicate" not implemented'
+            % self.__class__.__name__
+        )
 
     def __repr__(self):
-        '''Return a string representation for this ASTNode object'''
+        """Return a string representation for this ASTNode object"""
         return orio.main.parsers.fcodegen.CodeGen().generate(self)
 
     def __str__(self):
-        '''Return a string representation for this ASTNode object'''
+        """Return a string representation for this ASTNode object"""
         return repr(self)
 
-    
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Subroutines and functions
-#-----------------------------------------------
+# -----------------------------------------------
 class SubroutineDeclaration(ASTNode):
+
     def __init__(self, header, varrefs, body, function=False):
-        '''
+        """
         @param header: a tuple of (name, arglist)
         @param body: a tuple of (subroutine statements string, span in source file); 
                 The span is a (startpos, endpos) tuple.
                 
-        '''
+        """
         self.name = header[0]
         self.arglist = header[1]
         self.varrefs = varrefs
         self.body = body[0]
-        self.bodyspan = body[1]         # the location span
-        self.function = function        # designates whether subroutine is function or procedure
+        self.bodyspan = body[1]  # the location span
+        self.function = (
+            function
+        )  # designates whether subroutine is function or procedure
         return
-    
+
     def __repr__(self):
-        buf = 'subroutine:'
-        buf += str(self.name) + '\n' + str(self.arglist) + '\n' + str(self.varrefs) + \
-            '\n' + str(self.body) + '\n' + str(self.bodyspan)
+        buf = "subroutine:"
+        buf += (
+            str(self.name)
+            + "\n"
+            + str(self.arglist)
+            + "\n"
+            + str(self.varrefs)
+            + "\n"
+            + str(self.body)
+            + "\n"
+            + str(self.bodyspan)
+        )
         return buf
-    
+
     def inline(self, params):
-        '''
+        """
         Rewrite the body to contain actual arguments in place of the formal parameters.
         @param params: the list of actual parameters in the same order as the formal 
                     parameters in the subroutine definition
-        '''
+        """
         starpos = self.bodyspan[0]
         for v in self.varrefs:
-            arg = v[0]      # the variable name
-            argspan = v[1]  # begin and end position 
-            
+            arg = v[0]  # the variable name
+            argspan = v[1]  # begin and end position
+
         return
-        
-    
+
     # end of class SubroutineDefinition
-    
+
+
 class SubroutineDefinition(SubroutineDeclaration):
     pass
-#-----------------------------------------------
+
+
+# -----------------------------------------------
 # Expression
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class Exp(ASTNode):
 
-    def __init__(self, line_no = ''):
-        '''Create an expression'''
+    def __init__(self, line_no=""):
+        """Create an expression"""
         ASTNode.__init__(self, line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Number Literal
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class NumLitExp(Exp):
 
     INT = 1
     FLOAT = 2
-    
-    def __init__(self, val, lit_type, line_no = ''):
-        '''Create a numeric literal'''
+
+    def __init__(self, val, lit_type, line_no=""):
+        """Create a numeric literal"""
         Exp.__init__(self, line_no)
         self.val = val
         self.lit_type = lit_type
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return NumLitExp(self.val, self.lit_type, self.line_no)
-        
-#-----------------------------------------------
+
+
+# -----------------------------------------------
 # String Literal
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class StringLitExp(Exp):
 
-    def __init__(self, val, line_no = ''):
-        '''Create a string literal'''
+    def __init__(self, val, line_no=""):
+        """Create a string literal"""
         Exp.__init__(self, line_no)
         self.val = val
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return StringLitExp(self.val, self.line_no)
-        
-#-----------------------------------------------
+
+
+# -----------------------------------------------
 # Identifier
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class IdentExp(Exp):
 
-    def __init__(self, name, line_no = ''):
-        '''Create an identifier'''
+    def __init__(self, name, line_no=""):
+        """Create an identifier"""
         Exp.__init__(self, line_no)
         self.name = name
-        
+
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return IdentExp(self.name, self.line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Array Reference
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class ArrayRefExp(Exp):
 
-    def __init__(self, exp, sub_exp, line_no = ''):
-        '''Create an array reference'''
+    def __init__(self, exp, sub_exp, line_no=""):
+        """Create an array reference"""
         Exp.__init__(self, line_no)
         self.exp = exp
         self.sub_exp = sub_exp
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return ArrayRefExp(self.exp.replicate(), self.sub_exp.replicate(), self.line_no)
-        
-#-----------------------------------------------
+
+
+# -----------------------------------------------
 # Function Call
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class FunCallExp(Exp):
 
-    def __init__(self, exp, args, line_no = ''):
-        '''Create a function call'''
+    def __init__(self, exp, args, line_no=""):
+        """Create a function call"""
         Exp.__init__(self, line_no)
         self.exp = exp
         self.args = args
-        
-    def clone(self):
-        '''Replicate this abstract syntax tree node'''
-        return FunCallExp(self.exp.replicate(), [a.replicate() for a in self.args], self.line_no)
 
-#-----------------------------------------------
+    def clone(self):
+        """Replicate this abstract syntax tree node"""
+        return FunCallExp(
+            self.exp.replicate(), [a.replicate() for a in self.args], self.line_no
+        )
+
+
+# -----------------------------------------------
 # Unary Expression
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class UnaryExp(Exp):
     PLUS = 1
@@ -297,19 +340,21 @@ class UnaryExp(Exp):
     POST_INC = 6
     POST_DEC = 7
 
-    def __init__(self, exp, op_type, line_no = ''):
-        '''Create a unary operation expression'''
+    def __init__(self, exp, op_type, line_no=""):
+        """Create a unary operation expression"""
         Exp.__init__(self, line_no)
         self.exp = exp
         self.op_type = op_type
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return UnaryExp(self.exp.replicate(), self.op_type, self.line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Binary Operation
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class BinOpExp(Exp):
     MUL = 1
@@ -328,129 +373,150 @@ class BinOpExp(Exp):
     COMMA = 14
     EQ_ASGN = 15
 
-    def __init__(self, lhs, rhs, op_type, line_no = ''):
-        '''Create a binary operation expression'''
+    def __init__(self, lhs, rhs, op_type, line_no=""):
+        """Create a binary operation expression"""
         Exp.__init__(self, line_no)
         self.lhs = lhs
         self.rhs = rhs
         self.op_type = op_type
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
-        return BinOpExp(self.lhs.replicate(), self.rhs.replicate(), self.op_type, self.line_no)
+        """Replicate this abstract syntax tree node"""
+        return BinOpExp(
+            self.lhs.replicate(), self.rhs.replicate(), self.op_type, self.line_no
+        )
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Parenthesized Expression
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class ParenthExp(Exp):
 
-    def __init__(self, exp, line_no = ''):
-        '''Create a parenthesized expression'''
+    def __init__(self, exp, line_no=""):
+        """Create a parenthesized expression"""
         Exp.__init__(self, line_no)
         self.exp = exp
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return ParenthExp(self.exp.replicate(), self.line_no)
-        
-#-----------------------------------------------
+
+
+# -----------------------------------------------
 # Statement
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class Stmt(ASTNode):
 
-    def __init__(self, line_no = ''):
-        '''Create a statement'''
+    def __init__(self, line_no=""):
+        """Create a statement"""
         ASTNode.__init__(self, line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Expression Statement
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class ExpStmt(Stmt):
 
-    def __init__(self, exp, line_no = ''):
-        '''Create an expression statement'''
+    def __init__(self, exp, line_no=""):
+        """Create an expression statement"""
         Stmt.__init__(self, line_no)
-        self.exp = exp         # may be null
+        self.exp = exp  # may be null
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         r_e = self.exp
         if r_e:
             r_e = r_e.replicate()
         return ExpStmt(r_e, self.line_no)
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Compound Statement
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class CompStmt(Stmt):
 
-    def __init__(self, stmts, line_no = ''):
-        '''Create a compound statement'''
+    def __init__(self, stmts, line_no=""):
+        """Create a compound statement"""
         Stmt.__init__(self, line_no)
         self.stmts = stmts
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         return CompStmt([s.replicate() for s in self.stmts], self.line_no)
-    
-#-----------------------------------------------
+
+
+# -----------------------------------------------
 # If-Then-Else
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class IfStmt(Stmt):
 
-    def __init__(self, test, true_stmt, false_stmt = None, line_no = ''):
-        '''Create an if statement'''
+    def __init__(self, test, true_stmt, false_stmt=None, line_no=""):
+        """Create an if statement"""
         Stmt.__init__(self, line_no)
         self.test = test
         self.true_stmt = true_stmt
-        self.false_stmt = false_stmt           # may be null
+        self.false_stmt = false_stmt  # may be null
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
+        """Replicate this abstract syntax tree node"""
         f_s = self.false_stmt
         if f_s:
             f_s = f_s.replicate()
-        return IfStmt(self.test.replicate(), self.true_stmt.replicate(), f_s, self.line_no)
+        return IfStmt(
+            self.test.replicate(), self.true_stmt.replicate(), f_s, self.line_no
+        )
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 # Transformation
-#-----------------------------------------------
+# -----------------------------------------------
+
 
 class TransformStmt(Stmt):
 
-    def __init__(self, name, args, stmt, line_no = ''):
-        '''Create a transformation statement'''
+    def __init__(self, name, args, stmt, line_no=""):
+        """Create a transformation statement"""
         Stmt.__init__(self, line_no)
         self.name = name
         self.args = args
         self.stmt = stmt
 
     def clone(self):
-        '''Replicate this abstract syntax tree node'''
-        return TransformStmt(self.name, self.args[:], self.stmt.replicate(), self.line_no)
-
+        """Replicate this abstract syntax tree node"""
+        return TransformStmt(
+            self.name, self.args[:], self.stmt.replicate(), self.line_no
+        )
 
 
 # ==========================================================
 # AST edge
 # ==========================================================
 class ASTEdge(graph.DirEdge):
+
     def __init__(self, v1, v2, graph=None, name=None):
         if name is None:
             # generate as unique a name as possible
-            name = v1.name + ':' + v2.name
+            name = v1.name + ":" + v2.name
         self.name = name
-        debug("Creating edge from %s to %s" % (v1.name,v2.name),level=5)
+        debug("Creating edge from %s to %s" % (v1.name, v2.name), level=5)
         graph.DirEdge.__init__(self, name, v1, v2)
 
         if graph != None:
-            if v1.name not in graph.v.keys(): graph.add_v(v1)
-            if v2.name not in graph.v.keys(): graph.add_v(v2)
-            if self.name not in graph.e.keys(): graph.add_e(self)
+            if v1.name not in graph.v.keys():
+                graph.add_v(v1)
+            if v2.name not in graph.v.keys():
+                graph.add_v(v2)
+            if self.name not in graph.e.keys():
+                graph.add_e(self)
 
-        pass        
+        pass

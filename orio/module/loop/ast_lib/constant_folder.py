@@ -6,20 +6,21 @@ import sys
 import orio.module.loop.ast
 from orio.main.util.globals import *
 
-#-----------------------------------------
+# -----------------------------------------
+
 
 class ConstFolder:
-    '''A constant-folding optimizer'''
+    """A constant-folding optimizer"""
 
     def __init__(self):
-        '''To instantiate a constant-folding optimizer'''
+        """To instantiate a constant-folding optimizer"""
         pass
 
-    #------------------------------------------
+    # ------------------------------------------
 
     def fold(self, tnode):
-        '''To perform a constant folding on the given AST'''
-        
+        """To perform a constant folding on the given AST"""
+
         if isinstance(tnode, orio.module.loop.ast.Stmt):
             return self.__constantFoldStmt(tnode)
 
@@ -28,17 +29,20 @@ class ConstFolder:
 
         elif isinstance(tnode, orio.module.loop.ast.NewAST):
             return tnode
-        
+
         elif isinstance(tnode, orio.module.loop.ast.Comment):
             return tnode
-        
-        else:
-            err('orio.module.loop.ast_lib.constant_folder internal error: unexpected AST type: "%s"' % tnode.__class__.__name__)
 
-    #-----------------------------------------
+        else:
+            err(
+                'orio.module.loop.ast_lib.constant_folder internal error: unexpected AST type: "%s"'
+                % tnode.__class__.__name__
+            )
+
+    # -----------------------------------------
 
     def __constantFoldStmt(self, stmt):
-        '''Perform constant folding on the given statement'''
+        """Perform constant folding on the given statement"""
 
         if isinstance(stmt, orio.module.loop.ast.ExpStmt):
             stmt.exp = self.__constantFoldExp(stmt.exp)
@@ -46,7 +50,7 @@ class ConstFolder:
 
         if isinstance(stmt, orio.module.loop.ast.GotoStmt):
             return stmt
-        
+
         elif isinstance(stmt, orio.module.loop.ast.CompStmt):
             stmt.stmts = [self.__constantFoldStmt(s) for s in stmt.stmts]
             return stmt
@@ -69,28 +73,35 @@ class ConstFolder:
             return stmt
 
         elif isinstance(stmt, orio.module.loop.ast.TransformStmt):
-            err('orio.module.loop.ast_lib.constant_folder:%s: a constant folding is never applied to a transformation statement' %
-                   stmt.line_no)
+            err(
+                "orio.module.loop.ast_lib.constant_folder:%s: a constant folding is never applied to a transformation statement"
+                % stmt.line_no
+            )
 
         elif isinstance(stmt, orio.module.loop.ast.Comment):
             return stmt
-        
+
         elif isinstance(stmt, orio.module.loop.ast.NewAST):
             return stmt
-         
+
         elif isinstance(stmt, orio.module.loop.ast.Comment):
             return stmt
-           
+
         else:
-            err('orio.module.loop.ast_lib.constant_folder internal error: unexpected AST type: "%s"' % stmt.__class__.__name__)
-        
-    #-----------------------------------------
+            err(
+                'orio.module.loop.ast_lib.constant_folder internal error: unexpected AST type: "%s"'
+                % stmt.__class__.__name__
+            )
+
+    # -----------------------------------------
 
     def __flattenAdditiveTree(self, exp, sign):
-        '''Flatten an additive expression tree'''
-        
-        if (isinstance(exp, orio.module.loop.ast.BinOpExp) and
-            exp.op_type in (orio.module.loop.ast.BinOpExp.ADD, orio.module.loop.ast.BinOpExp.SUB)):
+        """Flatten an additive expression tree"""
+
+        if isinstance(exp, orio.module.loop.ast.BinOpExp) and exp.op_type in (
+            orio.module.loop.ast.BinOpExp.ADD,
+            orio.module.loop.ast.BinOpExp.SUB,
+        ):
             if exp.op_type == orio.module.loop.ast.BinOpExp.ADD:
                 if sign > 0:
                     lsign = 1
@@ -116,17 +127,19 @@ class ConstFolder:
                 return [(cur_sign, orio.module.loop.ast.ParenthExp(cur_node))]
             else:
                 return nodes
-        
+
         else:
             return [(sign, exp)]
-    
-    #-----------------------------------------
+
+    # -----------------------------------------
 
     def __flattenMultiplicativeTree(self, exp, sign):
-        '''Flatten a multiplicative expression tree'''
+        """Flatten a multiplicative expression tree"""
 
-        if (isinstance(exp, orio.module.loop.ast.BinOpExp) and
-            exp.op_type in (orio.module.loop.ast.BinOpExp.MUL, orio.module.loop.ast.BinOpExp.DIV)):
+        if isinstance(exp, orio.module.loop.ast.BinOpExp) and exp.op_type in (
+            orio.module.loop.ast.BinOpExp.MUL,
+            orio.module.loop.ast.BinOpExp.DIV,
+        ):
             if exp.op_type == orio.module.loop.ast.BinOpExp.MUL:
                 if sign > 0:
                     lsign = 1
@@ -144,7 +157,7 @@ class ConstFolder:
             lnodes = self.__flattenMultiplicativeTree(exp.lhs, lsign)
             rnodes = self.__flattenMultiplicativeTree(exp.rhs, rsign)
             return lnodes + rnodes
-        
+
         elif isinstance(exp, orio.module.loop.ast.ParenthExp):
             nodes = self.__flattenMultiplicativeTree(exp.exp, sign)
             if len(nodes) == 1:
@@ -152,24 +165,24 @@ class ConstFolder:
                 return [(cur_sign, orio.module.loop.ast.ParenthExp(cur_node))]
             else:
                 return nodes
-            
+
         else:
             return [(sign, exp)]
-    
-    #-----------------------------------------
+
+    # -----------------------------------------
 
     def __constantFoldExp(self, exp):
-        '''Perform constant folding on the given expression'''
+        """Perform constant folding on the given expression"""
 
         if isinstance(exp, orio.module.loop.ast.NumLitExp):
             return exp
-        
+
         elif isinstance(exp, orio.module.loop.ast.StringLitExp):
             return exp
-        
+
         elif isinstance(exp, orio.module.loop.ast.IdentExp):
             return exp
-        
+
         elif isinstance(exp, orio.module.loop.ast.ArrayRefExp):
             exp.exp = self.__constantFoldExp(exp.exp)
             exp.sub_exp = self.__constantFoldExp(exp.sub_exp)
@@ -179,7 +192,7 @@ class ConstFolder:
             exp.exp = self.__constantFoldExp(exp.exp)
             exp.args = [self.__constantFoldExp(a) for a in exp.args]
             return exp
-        
+
         elif isinstance(exp, orio.module.loop.ast.UnaryExp):
             exp.exp = self.__constantFoldExp(exp.exp)
             if isinstance(exp.exp, orio.module.loop.ast.NumLitExp):
@@ -196,8 +209,11 @@ class ConstFolder:
         elif isinstance(exp, orio.module.loop.ast.BinOpExp):
             exp.lhs = self.__constantFoldExp(exp.lhs)
             exp.rhs = self.__constantFoldExp(exp.rhs)
-            
-            if exp.op_type in (orio.module.loop.ast.BinOpExp.ADD, orio.module.loop.ast.BinOpExp.SUB):
+
+            if exp.op_type in (
+                orio.module.loop.ast.BinOpExp.ADD,
+                orio.module.loop.ast.BinOpExp.SUB,
+            ):
 
                 # flatten the expression tree
                 nodes = self.__flattenAdditiveTree(exp.lhs, 1)
@@ -219,57 +235,77 @@ class ConstFolder:
                         non_num_nodes.append((sign, node))
 
                 # put a positive non-numeric node at the first element
-                non_num_nodes.sort(lambda x,y: -cmp(x[0],y[0]))
-                
+                non_num_nodes.sort(lambda x, y: -cmp(x[0], y[0]))
+
                 # build the numeric expression
                 num_exp = None
                 if num_val != 0:
                     if num_val % 1 == 0:
-                        num_exp = orio.module.loop.ast.NumLitExp(int(num_val),
-                                                            orio.module.loop.ast.NumLitExp.INT)
+                        num_exp = orio.module.loop.ast.NumLitExp(
+                            int(num_val), orio.module.loop.ast.NumLitExp.INT
+                        )
                     else:
-                        num_exp = orio.module.loop.ast.NumLitExp(num_val, orio.module.loop.ast.NumLitExp.FLOAT)
+                        num_exp = orio.module.loop.ast.NumLitExp(
+                            num_val, orio.module.loop.ast.NumLitExp.FLOAT
+                        )
 
                 # build the non-numeric expression
                 non_num_exp = None
                 for sign, node in non_num_nodes:
                     if non_num_exp:
                         if sign > 0:
-                            non_num_exp = orio.module.loop.ast.BinOpExp(non_num_exp, node,
-                                                                   orio.module.loop.ast.BinOpExp.ADD)
+                            non_num_exp = orio.module.loop.ast.BinOpExp(
+                                non_num_exp, node, orio.module.loop.ast.BinOpExp.ADD
+                            )
                         else:
-                            non_num_exp = orio.module.loop.ast.BinOpExp(non_num_exp, node,
-                                                                   orio.module.loop.ast.BinOpExp.SUB)
+                            non_num_exp = orio.module.loop.ast.BinOpExp(
+                                non_num_exp, node, orio.module.loop.ast.BinOpExp.SUB
+                            )
                     else:
                         non_num_exp = node
                         if sign < 0:
                             if num_exp:
-                                non_num_exp = orio.module.loop.ast.BinOpExp(num_exp, non_num_exp,
-                                                                       orio.module.loop.ast.BinOpExp.SUB)
+                                non_num_exp = orio.module.loop.ast.BinOpExp(
+                                    num_exp,
+                                    non_num_exp,
+                                    orio.module.loop.ast.BinOpExp.SUB,
+                                )
                                 num_exp = None
                             else:
-                                if isinstance(non_num_exp, orio.module.loop.ast.BinOpExp):
-                                    non_num_exp = orio.module.loop.ast.ParenthExp(non_num_exp)
-                                non_num_exp =orio.module.loop.ast.UnaryExp(non_num_exp,
-                                                                      orio.module.loop.ast.UnaryExp.MINUS)
+                                if isinstance(
+                                    non_num_exp, orio.module.loop.ast.BinOpExp
+                                ):
+                                    non_num_exp = orio.module.loop.ast.ParenthExp(
+                                        non_num_exp
+                                    )
+                                non_num_exp = orio.module.loop.ast.UnaryExp(
+                                    non_num_exp, orio.module.loop.ast.UnaryExp.MINUS
+                                )
 
                 # build the final expression
                 if num_exp and non_num_exp:
                     if num_exp.val < 0:
                         num_exp.val = -num_exp.val
-                        return orio.module.loop.ast.BinOpExp(non_num_exp, num_exp,
-                                                        orio.module.loop.ast.BinOpExp.SUB)
+                        return orio.module.loop.ast.BinOpExp(
+                            non_num_exp, num_exp, orio.module.loop.ast.BinOpExp.SUB
+                        )
                     else:
-                        return orio.module.loop.ast.BinOpExp(non_num_exp, num_exp,
-                                                        orio.module.loop.ast.BinOpExp.ADD)
+                        return orio.module.loop.ast.BinOpExp(
+                            non_num_exp, num_exp, orio.module.loop.ast.BinOpExp.ADD
+                        )
                 elif num_exp:
                     return num_exp
                 elif non_num_exp:
                     return non_num_exp
                 else:
-                    return orio.module.loop.ast.NumLitExp(0, orio.module.loop.ast.NumLitExp.INT)
-                
-            elif exp.op_type in (orio.module.loop.ast.BinOpExp.MUL, orio.module.loop.ast.BinOpExp.DIV):
+                    return orio.module.loop.ast.NumLitExp(
+                        0, orio.module.loop.ast.NumLitExp.INT
+                    )
+
+            elif exp.op_type in (
+                orio.module.loop.ast.BinOpExp.MUL,
+                orio.module.loop.ast.BinOpExp.DIV,
+            ):
 
                 # flatten the expression tree
                 nodes = self.__flattenMultiplicativeTree(exp.lhs, 1)
@@ -298,29 +334,34 @@ class ConstFolder:
                 num_exp = None
                 if num_val != 1:
                     if num_val % 1 == 0:
-                        num_exp = orio.module.loop.ast.NumLitExp(int(num_val),
-                                                            orio.module.loop.ast.NumLitExp.INT)
+                        num_exp = orio.module.loop.ast.NumLitExp(
+                            int(num_val), orio.module.loop.ast.NumLitExp.INT
+                        )
                     else:
-                        num_exp = orio.module.loop.ast.NumLitExp(num_val, orio.module.loop.ast.NumLitExp.FLOAT)
-                        
+                        num_exp = orio.module.loop.ast.NumLitExp(
+                            num_val, orio.module.loop.ast.NumLitExp.FLOAT
+                        )
+
                 # build the dividend expression
                 dividend_exp = num_exp
                 for sign, node in dividend_nodes:
-                    assert (sign > 0), 'dividends must have positive signs'
+                    assert sign > 0, "dividends must have positive signs"
                     if dividend_exp:
-                        dividend_exp = orio.module.loop.ast.BinOpExp(dividend_exp, node,
-                                                                orio.module.loop.ast.BinOpExp.MUL)
+                        dividend_exp = orio.module.loop.ast.BinOpExp(
+                            dividend_exp, node, orio.module.loop.ast.BinOpExp.MUL
+                        )
                     else:
                         dividend_exp = node
 
                 # build the divisor expression
                 divisor_exp = None
-                need_parenth = False 
+                need_parenth = False
                 for sign, node in divisor_nodes:
-                    assert (sign < 0), 'divisors must have negative signs'
+                    assert sign < 0, "divisors must have negative signs"
                     if divisor_exp:
-                        divisor_exp = orio.module.loop.ast.BinOpExp(divisor_exp, node,
-                                                               orio.module.loop.ast.BinOpExp.MUL)
+                        divisor_exp = orio.module.loop.ast.BinOpExp(
+                            divisor_exp, node, orio.module.loop.ast.BinOpExp.MUL
+                        )
                         need_parenth = True
                     else:
                         divisor_exp = node
@@ -329,28 +370,41 @@ class ConstFolder:
 
                 # build the final expression
                 if num_exp and num_exp.val == 0:
-                    return orio.module.loop.ast.NumLitExp(0, orio.module.loop.ast.NumLitExp.INT) 
+                    return orio.module.loop.ast.NumLitExp(
+                        0, orio.module.loop.ast.NumLitExp.INT
+                    )
                 elif dividend_exp and divisor_exp:
-                    return orio.module.loop.ast.BinOpExp(dividend_exp, divisor_exp,
-                                                    orio.module.loop.ast.BinOpExp.DIV)
+                    return orio.module.loop.ast.BinOpExp(
+                        dividend_exp, divisor_exp, orio.module.loop.ast.BinOpExp.DIV
+                    )
                 elif dividend_exp:
                     return dividend_exp
                 elif divisor_exp:
                     return orio.module.loop.ast.BinOpExp(
-                        orio.module.loop.ast.NumLitExp(1, orio.module.loop.ast.NumLitExp.INT),
+                        orio.module.loop.ast.NumLitExp(
+                            1, orio.module.loop.ast.NumLitExp.INT
+                        ),
                         divisor_exp,
-                        orio.module.loop.ast.BinOpExp.DIV)
+                        orio.module.loop.ast.BinOpExp.DIV,
+                    )
                 else:
-                    return orio.module.loop.ast.NumLitExp(1, orio.module.loop.ast.NumLitExp.INT)
+                    return orio.module.loop.ast.NumLitExp(
+                        1, orio.module.loop.ast.NumLitExp.INT
+                    )
 
             elif exp.op_type == orio.module.loop.ast.BinOpExp.MOD:
-                if (isinstance(exp.lhs, orio.module.loop.ast.NumLitExp) and
-                    isinstance(exp.rhs, orio.module.loop.ast.NumLitExp)):
+                if isinstance(exp.lhs, orio.module.loop.ast.NumLitExp) and isinstance(
+                    exp.rhs, orio.module.loop.ast.NumLitExp
+                ):
                     new_val = exp.lhs.val % exp.rhs.val
                     if new_val % 1 == 0:
-                        return orio.module.loop.ast.NumLitExp(int(new_val), orio.module.loop.ast.NumLitExp.INT)
+                        return orio.module.loop.ast.NumLitExp(
+                            int(new_val), orio.module.loop.ast.NumLitExp.INT
+                        )
                     else:
-                        return orio.module.loop.ast.NumLitExp(new_val, orio.module.loop.ast.NumLitExp.FLOAT)
+                        return orio.module.loop.ast.NumLitExp(
+                            new_val, orio.module.loop.ast.NumLitExp.FLOAT
+                        )
                 else:
                     return exp
             else:
@@ -359,13 +413,15 @@ class ConstFolder:
         elif isinstance(exp, orio.module.loop.ast.ParenthExp):
             exp.exp = self.__constantFoldExp(exp.exp)
             return exp
-        
+
         elif isinstance(exp, orio.module.loop.ast.NewAST):
             return exp
-        
+
         elif isinstance(exp, orio.module.loop.ast.Comment):
             return exp
 
         else:
-            err('orio.module.loop.ast_lib.constant_folder internal error: unexpected AST type: "%s"' % exp.__class__.__name__)
-    
+            err(
+                'orio.module.loop.ast_lib.constant_folder internal error: unexpected AST type: "%s"'
+                % exp.__class__.__name__
+            )

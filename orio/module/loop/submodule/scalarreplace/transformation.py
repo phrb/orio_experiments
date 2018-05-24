@@ -6,16 +6,17 @@ import sys
 from orio.main.util.globals import *
 import orio.module.loop.ast, orio.module.loop.ast_lib.common_lib, orio.module.loop.ast_lib.forloop_lib
 
-#-----------------------------------------
+# -----------------------------------------
+
 
 class Transformation:
-    '''Code transformation implementation'''
+    """Code transformation implementation"""
 
     def __init__(self, dtype, prefix, stmt):
-        '''Instantiate a code transformation object'''
+        """Instantiate a code transformation object"""
 
-        self.dtype = 'double'
-        self.prefix = 'scv_'
+        self.dtype = "double"
+        self.prefix = "scv_"
         if dtype != None:
             self.dtype = dtype
         if prefix != None:
@@ -25,21 +26,21 @@ class Transformation:
         self.counter = 1
         self.flib = orio.module.loop.ast_lib.forloop_lib.ForLoopLib()
         self.clib = orio.module.loop.ast_lib.common_lib.CommonLib()
-        
-    #----------------------------------------------------------
 
-    def __collectRefs(self, exp, refs_map, is_output = False):
-        '''Return the array references from the given expression'''
+    # ----------------------------------------------------------
+
+    def __collectRefs(self, exp, refs_map, is_output=False):
+        """Return the array references from the given expression"""
 
         if exp == None:
             return
-        
+
         if isinstance(exp, orio.module.loop.ast.NumLitExp):
             return
-        
+
         elif isinstance(exp, orio.module.loop.ast.StringLitExp):
             return
-        
+
         elif isinstance(exp, orio.module.loop.ast.IdentExp):
             return
 
@@ -47,7 +48,7 @@ class Transformation:
             rkey = str(exp)
             if rkey in refs_map:
                 ifreq, iisoutput, iexp = refs_map[rkey]
-                refs_map[rkey] = (ifreq+1, iisoutput or is_output, iexp)
+                refs_map[rkey] = (ifreq + 1, iisoutput or is_output, iexp)
             else:
                 refs_map[rkey] = (1, is_output, exp.replicate())
 
@@ -55,10 +56,10 @@ class Transformation:
             self.__collectRefs(exp.exp, refs_map, is_output)
             for a in exp.args:
                 self.__collectRefs(a, refs_map, is_output)
-            
+
         elif isinstance(exp, orio.module.loop.ast.UnaryExp):
             self.__collectRefs(exp.exp, refs_map, is_output)
-            
+
         elif isinstance(exp, orio.module.loop.ast.BinOpExp):
             if exp.op_type == orio.module.loop.ast.BinOpExp.EQ_ASGN:
                 self.__collectRefs(exp.lhs, refs_map, True)
@@ -71,17 +72,20 @@ class Transformation:
 
         elif isinstance(exp, orio.module.loop.ast.NewAST):
             return
-        
+
         elif isinstance(exp, orio.module.loop.ast.Comment):
-            return  
-                
+            return
+
         else:
-            err('orio.module.loop.submodule.scalarreplace.transformation internal error: unexpected AST type: "%s"' % exp.__class__.__name__)
-            
-    #----------------------------------------------------------
+            err(
+                'orio.module.loop.submodule.scalarreplace.transformation internal error: unexpected AST type: "%s"'
+                % exp.__class__.__name__
+            )
+
+    # ----------------------------------------------------------
 
     def __createScalars(self, scalars):
-        '''Create prologue and epilogue to declare, initialize, and update the scalars'''
+        """Create prologue and epilogue to declare, initialize, and update the scalars"""
 
         # create declarations, initializations, and updates
         # (also the mapping from references to their corresponding scalars)
@@ -105,21 +109,25 @@ class Transformation:
                 last_decl.var_names.append(vname)
 
             # create initialization
-            iexp = orio.module.loop.ast.BinOpExp(orio.module.loop.ast.IdentExp(vname),
-                                            exp.replicate(),
-                                            orio.module.loop.ast.BinOpExp.EQ_ASGN)
+            iexp = orio.module.loop.ast.BinOpExp(
+                orio.module.loop.ast.IdentExp(vname),
+                exp.replicate(),
+                orio.module.loop.ast.BinOpExp.EQ_ASGN,
+            )
             inits.append(orio.module.loop.ast.ExpStmt(iexp))
-            
+
             # create updates, if needed
             if isoutput:
-                iexp = orio.module.loop.ast.BinOpExp(exp.replicate(),
-                                                orio.module.loop.ast.IdentExp(vname),
-                                                orio.module.loop.ast.BinOpExp.EQ_ASGN)
+                iexp = orio.module.loop.ast.BinOpExp(
+                    exp.replicate(),
+                    orio.module.loop.ast.IdentExp(vname),
+                    orio.module.loop.ast.BinOpExp.EQ_ASGN,
+                )
                 updates.append(orio.module.loop.ast.ExpStmt(iexp))
 
             # update the scalars mapping
             scalars_map[str(exp)] = orio.module.loop.ast.IdentExp(vname)
-                
+
             # increment the counter
             self.counter += 1
 
@@ -127,19 +135,19 @@ class Transformation:
         if last_decl:
             decls.append(last_decl)
 
-        # create prologue and epilogue 
+        # create prologue and epilogue
         prologue = decls + inits
         epilogue = updates
 
         # return prologue and epilogue, and the scalars mapping
         return (prologue, epilogue, scalars_map)
 
-    #----------------------------------------------------------
+    # ----------------------------------------------------------
 
     def __replaceRefs(self, tnode, scalars_map):
-        '''
+        """
         To replace all matching array references with the specified scalars
-        '''
+        """
 
         if tnode == None:
             return None
@@ -164,7 +172,7 @@ class Transformation:
             tnode.exp = self.__replaceRefs(tnode.exp, scalars_map)
             tnode.args = [self.__replaceRefs(a, scalars_map) for a in tnode.args]
             return tnode
-            
+
         elif isinstance(tnode, orio.module.loop.ast.UnaryExp):
             tnode.exp = self.__replaceRefs(tnode.exp, scalars_map)
             return tnode
@@ -191,27 +199,32 @@ class Transformation:
             tnode.true_stmt = self.__replaceRefs(tnode.true_stmt, scalars_map)
             tnode.false_stmt = self.__replaceRefs(tnode.false_stmt, scalars_map)
             return tnode
-            
+
         elif isinstance(tnode, orio.module.loop.ast.ForStmt):
             tnode.stmt = self.__replaceRefs(tnode.stmt, scalars_map)
             return tnode
 
         elif isinstance(tnode, orio.module.loop.ast.TransformStmt):
-            err('orio.module.loop.submodule.scalarreplace.transformation internal error: unprocessed transform statement')
+            err(
+                "orio.module.loop.submodule.scalarreplace.transformation internal error: unprocessed transform statement"
+            )
 
         elif isinstance(tnode, orio.module.loop.ast.NewAST):
             return tnode
-        
-        elif isinstance(tnode, orio.module.loop.ast.Comment):
-            return tnode 
-        
-        else:
-            err('orio.module.loop.submodule.scalarreplace.transformation internal error: unexpected AST type: "%s"' % tnode.__class__.__name__)
 
-    #----------------------------------------------------------
+        elif isinstance(tnode, orio.module.loop.ast.Comment):
+            return tnode
+
+        else:
+            err(
+                'orio.module.loop.submodule.scalarreplace.transformation internal error: unexpected AST type: "%s"'
+                % tnode.__class__.__name__
+            )
+
+    # ----------------------------------------------------------
 
     def __replaceScalars(self, stmt, refs_map):
-        '''Replace array references in the given statement with scalars'''
+        """Replace array references in the given statement with scalars"""
 
         if stmt == None:
             return
@@ -222,12 +235,12 @@ class Transformation:
         elif isinstance(stmt, orio.module.loop.ast.CompStmt):
             for s in stmt.stmts:
                 self.__replaceScalars(s, refs_map)
-                
+
         elif isinstance(stmt, orio.module.loop.ast.IfStmt):
             self.__collectRefs(stmt.test, refs_map)
             self.__replaceScalars(stmt.true_stmt, refs_map)
             self.__replaceScalars(stmt.false_stmt, refs_map)
-            
+
         elif isinstance(stmt, orio.module.loop.ast.ForStmt):
 
             # collect array references from the loop body
@@ -261,31 +274,38 @@ class Transformation:
             if isinstance(stmt.stmt, orio.module.loop.ast.CompStmt):
                 stmt.stmt.stmts = prologue + stmt.stmt.stmts + epilogue
             else:
-                stmt.stmt = orio.module.loop.ast.CompStmt(prologue + [stmt.stmt] + epilogue)
-            
+                stmt.stmt = orio.module.loop.ast.CompStmt(
+                    prologue + [stmt.stmt] + epilogue
+                )
+
         elif isinstance(stmt, orio.module.loop.ast.TransformStmt):
-            err('orio.module.loop.submodule.scalarreplace.transformation internal error: unprocessed transform statement')
-            
+            err(
+                "orio.module.loop.submodule.scalarreplace.transformation internal error: unprocessed transform statement"
+            )
+
         elif isinstance(stmt, orio.module.loop.ast.NewAST):
             return
 
         elif isinstance(stmt, orio.module.loop.ast.Comment):
             return
-               
+
         else:
-            err('orio.module.loop.submodule.scalarreplace.transformation internal error: unexpected AST type: "%s"' % stmt.__class__.__name__)
-            
-    #----------------------------------------------------------
+            err(
+                'orio.module.loop.submodule.scalarreplace.transformation internal error: unexpected AST type: "%s"'
+                % stmt.__class__.__name__
+            )
+
+    # ----------------------------------------------------------
 
     def transform(self):
-        '''To replace array references with scalars'''
-        
+        """To replace array references with scalars"""
+
         # reset counter
         self.counter = 1
 
         # copy the statement to be transformed
         transformed_stmt = self.stmt.replicate()
-        
+
         # perform scalar replacement
         refs_map = {}
         self.__replaceScalars(transformed_stmt, refs_map)
@@ -307,7 +327,9 @@ class Transformation:
         if isinstance(transformed_stmt, orio.module.loop.ast.CompStmt):
             transformed_stmt.stmts = prologue + transformed_stmt.stmts + epilogue
         else:
-            transformed_stmt = orio.module.loop.ast.CompStmt(prologue + [transformed_stmt] + epilogue)
+            transformed_stmt = orio.module.loop.ast.CompStmt(
+                prologue + [transformed_stmt] + epilogue
+            )
 
         # return the transformed statement
         return transformed_stmt

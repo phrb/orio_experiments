@@ -6,31 +6,34 @@ import sys
 from orio.main.util.globals import *
 import ast, ast_util
 
-#-------------------------------------------------
+# -------------------------------------------------
+
 
 class Transformation:
-    '''The code transformation that performs several code optimizations'''
+    """The code transformation that performs several code optimizations"""
 
     def __init__(self, unroll, vectorize, scalar_replacement, constant_folding):
-        '''To instantiate a code transformation'''
-        
+        """To instantiate a code transformation"""
+
         self.ast_util = ast_util.ASTUtil()
 
         # booleans to switch on/off optimizations
         self.unroll = unroll
         self.vectorize = vectorize
         self.scalar_replacement = scalar_replacement
-        self.constant_folding = constant_folding   # constant-folding optimization on array index 
-                                                   # expressions (strict assumption: expressions 
-                                                   # must be affine function)
-        
-    #----------------------------------------------
+        self.constant_folding = (
+            constant_folding
+        )  # constant-folding optimization on array index
+        # expressions (strict assumption: expressions
+        # must be affine function)
+
+    # ----------------------------------------------
 
     def __normalizeExp(self, exp):
-        '''
+        """
         To convert <list> and <tuple> back to addition and multiplication (respectively), after
         performing constant folding
-        '''
+        """
 
         if isinstance(exp, ast.NumLitExp):
             if exp.val < 0:
@@ -69,14 +72,14 @@ class Transformation:
             return exp
 
         # addition
-        elif isinstance(exp, list): 
+        elif isinstance(exp, list):
             n_exp = []
             for e in exp:
                 n_exp.append(self.__normalizeExp(e))
             exp = n_exp
             lhs = exp[0]
             for e in exp[1:]:
-                if isinstance(e, ast.UnaryExp) and e.op_type == ast.UnaryExp.MINUS:                   
+                if isinstance(e, ast.UnaryExp) and e.op_type == ast.UnaryExp.MINUS:
                     lhs = ast.BinOpExp(lhs, e.exp, ast.BinOpExp.SUB)
                 else:
                     lhs = ast.BinOpExp(lhs, e, ast.BinOpExp.ADD)
@@ -106,23 +109,25 @@ class Transformation:
             return lhs
 
         else:
-            err('orio.module.ortildriver.transformation internal error: unknown type of expression: %s' % 
-                   exp.__class__.__name__)
+            err(
+                "orio.module.ortildriver.transformation internal error: unknown type of expression: %s"
+                % exp.__class__.__name__
+            )
 
-    #----------------------------------------------
-        
+    # ----------------------------------------------
+
     def __foldConstantExp(self, exp, up_sign):
-        '''
+        """
         To perform a simple (not full-fledged) constant folding optimization on the given expression
         A list is used to represent a k-ary addition.
         A tuple is used to represent a k-ary multiplication.
-        '''
+        """
 
         if isinstance(exp, ast.NumLitExp):
             if up_sign == -1:
                 exp.val *= -1
             return exp
-            
+
         elif isinstance(exp, ast.StringLitExp):
             if up_sign == -1:
                 return ast.UnaryExp(exp, ast.UnaryExp.MINUS)
@@ -139,7 +144,7 @@ class Transformation:
             if up_sign == -1:
                 return ast.UnaryExp(exp, ast.UnaryExp.MINUS)
             return exp
-            
+
         elif isinstance(exp, ast.FunCallExp):
             exp.exp = self.__foldConstantExp(exp.exp, 1)
             exp.args = [self.__foldConstantExp(a, 1) for a in exp.args]
@@ -150,7 +155,7 @@ class Transformation:
         elif isinstance(exp, ast.UnaryExp):
             if exp.op_type == ast.UnaryExp.MINUS:
                 up_sign *= -1
-            return  self.__foldConstantExp(exp.exp, up_sign)
+            return self.__foldConstantExp(exp.exp, up_sign)
 
         elif isinstance(exp, ast.BinOpExp):
 
@@ -193,7 +198,7 @@ class Transformation:
                     return ops[0]
                 else:
                     return ops
-                
+
             elif exp.op_type == ast.BinOpExp.MUL:
                 lhs = self.__foldConstantExp(exp.lhs, up_sign)
                 rhs = self.__foldConstantExp(exp.rhs, 1)
@@ -222,7 +227,7 @@ class Transformation:
                         o2 = [o.replicate() for o in o2]
                         o = []
                         mul_num = 1
-                        for i in (o1+o2):
+                        for i in o1 + o2:
                             if isinstance(i, ast.NumLitExp):
                                 mul_num *= i.val
                             else:
@@ -254,30 +259,34 @@ class Transformation:
                     return ops
 
             else:
-                err('orio.module.ortildriver.transformation: constant folding cannot handle binary operations other ' +
-                       'than +,-,*')
+                err(
+                    "orio.module.ortildriver.transformation: constant folding cannot handle binary operations other "
+                    + "than +,-,*"
+                )
 
         elif isinstance(exp, ast.ParenthExp):
             return self.__foldConstantExp(exp.exp, up_sign)
-        
-        else:
-            err('orio.module.ortildriver.transformation internal error: unknown type of expression: %s' % 
-                   exp.__class__.__name__)
 
-    #----------------------------------------------
+        else:
+            err(
+                "orio.module.ortildriver.transformation internal error: unknown type of expression: %s"
+                % exp.__class__.__name__
+            )
+
+    # ----------------------------------------------
 
     def __foldConstant(self, exp):
-        '''To perform a simple (not full-fledged) constant folding optimization'''
+        """To perform a simple (not full-fledged) constant folding optimization"""
 
         exp = self.__foldConstantExp(exp, 1)
         exp = self.__normalizeExp(exp)
         return exp
 
-    #----------------------------------------------
+    # ----------------------------------------------
 
     def __addIdentWithConstant(self, tnode, iname, constant):
-        '''Add with the given constant all identifiers that match to the specified name'''
-        
+        """Add with the given constant all identifiers that match to the specified name"""
+
         if isinstance(tnode, ast.NumLitExp):
             return tnode
 
@@ -286,8 +295,11 @@ class Transformation:
 
         elif isinstance(tnode, ast.IdentExp):
             if tnode.name == iname:
-                a = ast.BinOpExp(tnode.replicate(), ast.NumLitExp(constant, ast.NumLitExp.INT), 
-                                 ast.BinOpExp.ADD)
+                a = ast.BinOpExp(
+                    tnode.replicate(),
+                    ast.NumLitExp(constant, ast.NumLitExp.INT),
+                    ast.BinOpExp.ADD,
+                )
                 return ast.ParenthExp(a)
             else:
                 return tnode
@@ -302,7 +314,9 @@ class Transformation:
 
         elif isinstance(tnode, ast.FunCallExp):
             tnode.exp = self.__addIdentWithConstant(tnode.exp, iname, constant)
-            tnode.args = [self.__addIdentWithConstant(a, iname, constant) for a in tnode.args]
+            tnode.args = [
+                self.__addIdentWithConstant(a, iname, constant) for a in tnode.args
+            ]
             return tnode
 
         elif isinstance(tnode, ast.UnaryExp):
@@ -324,14 +338,20 @@ class Transformation:
             return tnode
 
         elif isinstance(tnode, ast.CompStmt):
-            tnode.stmts = [self.__addIdentWithConstant(s, iname, constant) for s in tnode.stmts]
+            tnode.stmts = [
+                self.__addIdentWithConstant(s, iname, constant) for s in tnode.stmts
+            ]
             return tnode
 
         elif isinstance(tnode, ast.IfStmt):
             tnode.test = self.__addIdentWithConstant(tnode.test, iname, constant)
-            tnode.true_stmt = self.__addIdentWithConstant(tnode.true_stmt, iname, constant)
+            tnode.true_stmt = self.__addIdentWithConstant(
+                tnode.true_stmt, iname, constant
+            )
             if tnode.false_stmt:
-                tnode.false_stmt = self.__addIdentWithConstant(tnode.false_stmt, iname, constant)
+                tnode.false_stmt = self.__addIdentWithConstant(
+                    tnode.false_stmt, iname, constant
+                )
             return tnode
 
         elif isinstance(tnode, ast.ForStmt):
@@ -345,21 +365,24 @@ class Transformation:
             return tnode
 
         else:
-            err('orio.module.ortildriver.transformation internal error: unknown type of AST: %s' % tnode.__class__.__name__)
+            err(
+                "orio.module.ortildriver.transformation internal error: unknown type of AST: %s"
+                % tnode.__class__.__name__
+            )
 
-    #----------------------------------------------
+    # ----------------------------------------------
 
     def __unroll(self, stmt, unroll_factor_table):
-        '''
+        """
         To apply loop unrolling on the fully rectangularly tiled loop.
         Assumption: the given loop is perfectly nested, and all loops are fully rectangularly tiled.
-        '''
-        
+        """
+
         # expression statement
         if isinstance(stmt, ast.ExpStmt):
             return stmt
 
-        # compound statement     
+        # compound statement
         elif isinstance(stmt, ast.CompStmt):
             ustmts = []
             for s in stmt.stmts:
@@ -371,19 +394,19 @@ class Transformation:
             stmt.stmts = ustmts
             return stmt
 
-        # if statement    
+        # if statement
         elif isinstance(stmt, ast.IfStmt):
             return stmt
 
-        # for loop statement     
+        # for loop statement
         elif isinstance(stmt, ast.ForStmt):
-            
+
             # extract this loop structure
-            id,_,_,_,lbody = self.ast_util.getForLoopInfo(stmt)
+            id, _, _, _, lbody = self.ast_util.getForLoopInfo(stmt)
 
             # recursively unroll its loop body
             ubody = self.__unroll(lbody, unroll_factor_table)
-            
+
             # unroll the loop body
             ufactor = unroll_factor_table[id.name]
             ustmts = []
@@ -398,19 +421,21 @@ class Transformation:
             # return the unrolled body
             return ast.CompStmt(ustmts)
 
-        # unknown statement      
+        # unknown statement
         else:
-            err('orio.module.ortildriver.transformation internal error: unknown type of statement: %s' % 
-                   stmt.__class__.__name__)
- 
-    #----------------------------------------------
+            err(
+                "orio.module.ortildriver.transformation internal error: unknown type of statement: %s"
+                % stmt.__class__.__name__
+            )
+
+    # ----------------------------------------------
 
     def __replaceScalar(self, tnode):
-        '''
+        """
         To replace identical array references for the purpose of exposing and maximizing 
         register reuse.
-        '''
-        
+        """
+
         # count the occurences of each array references
         count_table = {}
         aref_seq = []
@@ -420,36 +445,35 @@ class Transformation:
         repl_arefs = filter(lambda x: count_table[str(x)] > 1, aref_seq)
 
         # generate new variable names for the more-than-once array references
-        new_var_names = [('aref%s' % i) for i in range(1, len(repl_arefs)+1)]
+        new_var_names = [("aref%s" % i) for i in range(1, len(repl_arefs) + 1)]
 
         # create the replacement table
         replace_table = {}
-        for a,v in zip(repl_arefs, new_var_names): 
+        for a, v in zip(repl_arefs, new_var_names):
             replace_table[str(a)] = v
 
         # replace the array references that occur more than once with the given replacement identifier
         tnode = self.__replaceArrRefs(tnode, replace_table)
 
         # create identifier assignments and array element stores
-        type_name = 'double'
-        assgn_code = '\n'
-        store_code = '\n'
-        for a,v in zip(repl_arefs, new_var_names):
-            assgn_code += '  %s %s = %s; \n' % (type_name, v, a)
-            store_code += '  %s = %s; \n' % (a, v)
-            
+        type_name = "double"
+        assgn_code = "\n"
+        store_code = "\n"
+        for a, v in zip(repl_arefs, new_var_names):
+            assgn_code += "  %s %s = %s; \n" % (type_name, v, a)
+            store_code += "  %s = %s; \n" % (a, v)
 
         # return all needed information about scalar replacement
         return (tnode, assgn_code, store_code)
-            
-    #----------------------------------------------
+
+    # ----------------------------------------------
 
     def __replaceArrRefs(self, tnode, replace_table):
-        '''To replace some array references with specified identifiers'''
+        """To replace some array references with specified identifiers"""
 
         if isinstance(tnode, ast.NumLitExp):
             return tnode
-            
+
         elif isinstance(tnode, ast.StringLitExp):
             return tnode
 
@@ -495,7 +519,9 @@ class Transformation:
             tnode.test = self.__replaceArrRefs(tnode.test, replace_table)
             tnode.true_stmt = self.__replaceArrRefs(tnode.true_stmt, replace_table)
             if tnode.false_stmt:
-                tnode.false_stmt = self.__replaceArrRefs(tnode.false_stmt, replace_table)
+                tnode.false_stmt = self.__replaceArrRefs(
+                    tnode.false_stmt, replace_table
+                )
             return tnode
 
         elif isinstance(tnode, ast.ForStmt):
@@ -509,13 +535,16 @@ class Transformation:
             return tnode
 
         else:
-            err('orio.module.ortildriver.transformation internal error:OrTilDriver: unknown type of AST: %s' % tnode.__class__.__name__)
- 
-    #----------------------------------------------
+            err(
+                "orio.module.ortildriver.transformation internal error:OrTilDriver: unknown type of AST: %s"
+                % tnode.__class__.__name__
+            )
+
+    # ----------------------------------------------
 
     def __countArrRefs(self, tnode, count_table, aref_seq):
-        '''To count the number of occurences of each array reference'''
-        
+        """To count the number of occurences of each array reference"""
+
         if isinstance(tnode, ast.NumLitExp):
             return
 
@@ -572,13 +601,16 @@ class Transformation:
             self.__countArrRefs(tnode.stmt, count_table, aref_seq)
 
         else:
-            err('orio.module.ortildriver.transformation internal error:OrTilDriver: unknown type of AST: %s' % tnode.__class__.__name__)
- 
-    #----------------------------------------------
+            err(
+                "orio.module.ortildriver.transformation internal error:OrTilDriver: unknown type of AST: %s"
+                % tnode.__class__.__name__
+            )
+
+    # ----------------------------------------------
 
     def transform(self, iter_names, iter_vals, stmt):
-        '''To apply code optimizations on the given fully rectangularly tiled loop'''
-        
+        """To apply code optimizations on the given fully rectangularly tiled loop"""
+
         # create a table that maps each tile size variable to its corresponding unroll factors
         unroll_factor_table = dict(zip(iter_names, iter_vals))
 
@@ -589,30 +621,34 @@ class Transformation:
         # apply scalar replacement
         if self.scalar_replacement:
             (stmt, assgn_code, store_code) = self.__replaceScalar(stmt)
-            
+
         # generate the transformed code
         transformed_code = str(stmt)
 
         # insert identifier assignments and array stores for scalar replacements
         if self.scalar_replacement:
-            start_pos = transformed_code.index('{')
-            end_pos = transformed_code.index('}')
-            transformed_code = (transformed_code[:start_pos+1] + assgn_code + 
-                                transformed_code[start_pos+1:end_pos] + store_code +
-                                transformed_code[end_pos:])
+            start_pos = transformed_code.index("{")
+            end_pos = transformed_code.index("}")
+            transformed_code = (
+                transformed_code[: start_pos + 1]
+                + assgn_code
+                + transformed_code[start_pos + 1 : end_pos]
+                + store_code
+                + transformed_code[end_pos:]
+            )
 
         # apply vectorization
         if self.vectorize:
-            transformed_code = '\n#pragma ivdep \n#pragma vector always \n' + transformed_code
+            transformed_code = (
+                "\n#pragma ivdep \n#pragma vector always \n" + transformed_code
+            )
 
         # insert the initializations for the used loop iterators
         if self.unroll:
-            iter_init_code = '\n'
+            iter_init_code = "\n"
             for i in iter_names:
-                iter_init_code += '  %s = %st1; \n' % (i, i)
+                iter_init_code += "  %s = %st1; \n" % (i, i)
             transformed_code = iter_init_code + transformed_code
 
         # return the transformed loop
         return transformed_code
-
-

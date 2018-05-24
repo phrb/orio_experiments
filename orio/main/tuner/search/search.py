@@ -313,7 +313,11 @@ class Search:
         perf_costs.update(new_perf_costs.items())
         # also take the compile time
 
-        info(str(perf_params))
+        experiments = self.database['experiments']
+        measurement = perf_params
+
+        measurement["cost"] = perf_costs.values()[0][0][0]
+        experiments.insert(measurement)
 
         #sys.exit()
 

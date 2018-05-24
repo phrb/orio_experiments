@@ -5,35 +5,50 @@
 import sys
 import ann_parser, code_parser, orio.module.module, pprinter, semant, transformation
 
-#-----------------------------------------
+# -----------------------------------------
+
 
 class Tilic(orio.module.module.Module):
-    '''The class definition for Tilic module.'''
-    
-    def __init__(self, perf_params, module_body_code, annot_body_code,
-                 line_no, indent_size, language='C'):
-        '''To instantiate the Tilic tiling module.'''
-        
-        orio.module.module.Module.__init__(self, perf_params, module_body_code, annot_body_code,
-                                      line_no, indent_size, language)
+    """The class definition for Tilic module."""
 
-    #---------------------------------------------------------------------
-    
+    def __init__(
+        self,
+        perf_params,
+        module_body_code,
+        annot_body_code,
+        line_no,
+        indent_size,
+        language="C",
+    ):
+        """To instantiate the Tilic tiling module."""
+
+        orio.module.module.Module.__init__(
+            self,
+            perf_params,
+            module_body_code,
+            annot_body_code,
+            line_no,
+            indent_size,
+            language,
+        )
+
+    # ---------------------------------------------------------------------
+
     def __generate(self, stmts, int_vars):
-        '''To generate the tiled loop code'''
+        """To generate the tiled loop code"""
 
         # generate the declaration code for the new integer variables
-        code = ''
+        code = ""
         for i, iv in enumerate(int_vars):
-            if i%10 == 0:
-                code += '\n  int '
+            if i % 10 == 0:
+                code += "\n  int "
             code += str(iv)
-            if i%10 == 9 or i == len(int_vars)-1:
-                code += ';'
+            if i % 10 == 9 or i == len(int_vars) - 1:
+                code += ";"
             else:
-                code += ','
+                code += ","
         if int_vars:
-            code += '\n\n'
+            code += "\n\n"
 
         # generate the tiled code
         p = pprinter.PrettyPrinter()
@@ -41,21 +56,23 @@ class Tilic(orio.module.module.Module):
             code += p.pprint(s)
 
         # append and prepend newlines (if necessary)
-        if code[0] != '\n':
-            code = '\n' + code
-        if code[-1] != '\n':
-            code = code + '\n'
+        if code[0] != "\n":
+            code = "\n" + code
+        if code[-1] != "\n":
+            code = code + "\n"
 
         # return the generated code
         return code
 
-    #---------------------------------------------------------------------
-    
+    # ---------------------------------------------------------------------
+
     def transform(self):
-        '''To perform loop tiling'''
+        """To perform loop tiling"""
 
         # parse the text in the annotation orio.module.body to extract the tiling information
-        tiling_params = ann_parser.AnnParser(self.perf_params).parse(self.module_body_code)
+        tiling_params = ann_parser.AnnParser(self.perf_params).parse(
+            self.module_body_code
+        )
 
         # parse the code (in the annotation body) to extract the corresponding AST
         stmts = code_parser.getParser().parse(self.annot_body_code)
@@ -64,11 +81,12 @@ class Tilic(orio.module.module.Module):
         stmts = semant.SemanticChecker().check(stmts)
 
         # perform loop-tiling transformation
-        (stmts, int_vars) = transformation.Transformation(tiling_params).transform(stmts)
+        (stmts, int_vars) = transformation.Transformation(tiling_params).transform(
+            stmts
+        )
 
         # generate the tiled code
         code = self.__generate(stmts, int_vars)
 
         # return the tiled code
         return code
-

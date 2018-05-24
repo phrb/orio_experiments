@@ -1,8 +1,8 @@
 import orio.module.loops.ast as ast
 
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 class Transformation:
-    '''Insertion of pragma directives.'''
+    """Insertion of pragma directives."""
 
     def __init__(self, pragmas, stmt):
 
@@ -11,7 +11,6 @@ class Transformation:
 
         # remove all empty pragma strings
         self.pragmas = filter(lambda x: x.strip(), self.pragmas)
-
 
     def transform(self):
 
@@ -31,6 +30,6 @@ class Transformation:
 
         # return the transformed statement
         return transformed_stmt
-#----------------------------------------------------------------------------------------------------------------------
 
 
+# ----------------------------------------------------------------------------------------------------------------------

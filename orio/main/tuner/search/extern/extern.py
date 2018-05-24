@@ -23,14 +23,14 @@ class Extern(orio.main.tuner.search.search.Search):
 
     # algorithm-specific argument names
     __LOCAL_DIST = 'local_distance'       # default: 0
-    
+
     #--------------------------------------------------
-    
+
     def __init__(self, params):
         '''To instantiate a extern search engine'''
 
         random.seed(1)
-        
+
         orio.main.tuner.search.search.Search.__init__(self, params)
 
         # set all algorithm-specific arguments to their default values
@@ -38,19 +38,19 @@ class Extern(orio.main.tuner.search.search.Search):
 
         # read all algorithm-specific arguments
         self.__readAlgoArgs()
-        
+
         # complain if both the search time limit and the total number of search runs are undefined
         if self.time_limit <= 0 and self.total_runs <= 0:
             err(('orio.main.tuner.search.randomsearch.randomsearch: %s search requires either (both) the search time limit or (and) the ' +
                     'total number of search runs to be defined') % self.__class__.__name__)
-     
+
     # Method required by the search interface
     def searchBestCoord(self, startCoord=None):
         '''
         To explore the search space and retun the coordinate that yields the best performance
         (i.e. minimum performance cost).
         '''
-        
+
         # TODO: implement startCoord support
 
         info('\n----- begin extern eval  -----')
@@ -89,7 +89,7 @@ class Extern(orio.main.tuner.search.search.Search):
 
             for i, p in enumerate(params):
                 param_config[p]=vals[i][0]
-            
+
             for token in config.split(','):
                 param_val=token.split(':')
             if len(param_val)>1:
@@ -101,13 +101,13 @@ class Extern(orio.main.tuner.search.search.Search):
                     param_config[param]=True
                 else:
                     param_config[param]=float(val) if '.' in val else int(val)
-                        
+
             Globals().config=param_config
 
             if configfile != '':
-                f = open(configfile, 'r') 
+                f = open(configfile, 'r')
                 for line in f:
-		    lstr=line.strip() 
+		    lstr=line.strip()
 		    if lstr.startswith('[') and lstr.endswith(']'):
 		      coord=eval(lstr)
 		      break
@@ -116,7 +116,7 @@ class Extern(orio.main.tuner.search.search.Search):
                 perf_params = self.coordToPerfParams(coord)
                 #print perf_params
                 coord_key = str(coord)
-		 
+
 	    perf_costs={}
 	    try:
 	      perf_costs = self.getPerfCosts([coord])
@@ -124,31 +124,31 @@ class Extern(orio.main.tuner.search.search.Search):
 	      perf_costs[str(coords)]=[self.MAXFLOAT]
 	      info('FAILED: %s %s' % (e.__class__.__name__, e))
 	      fruns +=1
-	      
+
 	    # compare to the best result
 	    pcost_items = perf_costs.items()
 	    pcost_items.sort(lambda x,y: cmp(eval(x[0]),eval(y[0])))
 	    for i, (coord_str, pcost) in enumerate(pcost_items):
 	      if type(pcost) == tuple: (perf_cost,_) = pcost    # ignore transfer costs -- GPUs only
 	      else: perf_cost = pcost
-	    
+
 	      try:
 		floatNums = [float(x) for x in perf_cost]
 		mean_perf_cost=sum(floatNums) / len(perf_cost)
 	      except:
 		mean_perf_cost=perf_costs
-              
-            print perf_costs        
-	    
+
+            print perf_costs
+
 	    best_coord = coord
             best_perf_cost = mean_perf_cost
-	    
+
 	    transform_time=self.getTransformTime(coord_key)
-	    compile_time=self.getCompileTime(coord_key)    
-	    
-	    
-	    
-	    
+	    compile_time=self.getCompileTime(coord_key)
+
+
+
+
 	    res_obj={}
 	    res_obj['run']=runs
 	    res_obj['coordinate']=coord
@@ -159,14 +159,14 @@ class Extern(orio.main.tuner.search.search.Search):
 	    info('(run %s) | '%runs+json.dumps(res_obj))
 	    search_time = time.time() - start_time
 	    break
-        
+
         info('----- end extern eval -----')
 
         return best_coord, best_perf_cost, search_time, sruns
-   
+
    # Private methods
    #--------------------------------------------------
-    
+
     def __readAlgoArgs(self):
         '''To read all algorithm-specific arguments'''
 
@@ -202,20 +202,20 @@ class Extern(orio.main.tuner.search.search.Search):
                 coord_records[str(coord)] = None
                 return coord
 
-        
+
         # randomly pick a coordinate that has never been explored before
         while init:
             coord = self.getInitCoord()
             if str(coord) not in coord_records:
                 coord_records[str(coord)] = None
                 return coord
-    
+
         # randomly pick a coordinate that has never been explored before
         while True:
             coord = self.getRandomCoord()
             if str(coord) not in coord_records:
                 coord_records[str(coord)] = None
                 return coord
-    
+
     #--------------------------------------------------
-            
+
