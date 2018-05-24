@@ -7,7 +7,7 @@
 
   def performance_counter
   {
-  arg repetitions = 10;
+  arg repetitions = 35;
   }
 
   def performance_params
@@ -58,7 +58,7 @@
   def search
   {
     arg algorithm = 'Randomsearch';
-    arg total_runs = 100;
+    arg total_runs = 25;
   }
 
   def input_params

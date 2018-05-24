@@ -2,6 +2,7 @@
 # The search engine used for search space exploration
 #
 import sys, math, time, dataset, numpy
+from scipy import stats
 from orio.main.util.globals import *
 
 
@@ -321,16 +322,19 @@ class Search:
         experiments = self.database['experiments']
         measurement = perf_params
 
-        for i in range(len(runs)):
-            measurement["cost_" + str(i)] = runs[i]
+        measurement["cost_mean"] = numpy.mean(runs)
+        measurement["cost_std"] = numpy.std(runs)
+        measurement["runs"] = len(runs)
 
-        measurement["mean_cost"] = numpy.mean(runs)
+        mean_confidence_interval = stats.norm.interval(0.95,
+                                                       loc = numpy.mean(runs),
+                                                       scale = numpy.std(runs) /
+                                                       numpy.sqrt(len(runs)))
+
+        measurement["mean_confidence_interval_inf"] = mean_confidence_interval[0]
+        measurement["mean_confidence_interval_sup"] = mean_confidence_interval[1]
 
         experiments.insert(measurement)
-
-        #sys.exit()
-
-        #return the performance cost
 
         return perf_costs
 
