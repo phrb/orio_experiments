@@ -1,7 +1,7 @@
 #
 # The search engine used for search space exploration
 #
-import sys, math, time, dataset
+import sys, math, time, dataset, numpy
 from orio.main.util.globals import *
 
 
@@ -313,10 +313,19 @@ class Search:
         perf_costs.update(new_perf_costs.items())
         # also take the compile time
 
+        runs = perf_costs.values()[0][0]
+
+        info("perf_costs: " + str(runs))
+        info("perf_costs: " + str(numpy.mean(runs)))
+
         experiments = self.database['experiments']
         measurement = perf_params
 
-        measurement["cost"] = perf_costs.values()[0][0][0]
+        for i in range(len(runs)):
+            measurement["cost_" + str(i)] = runs[i]
+
+        measurement["mean_cost"] = numpy.mean(runs)
+
         experiments.insert(measurement)
 
         #sys.exit()

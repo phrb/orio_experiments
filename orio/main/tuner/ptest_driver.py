@@ -27,7 +27,7 @@ class PerfTestDriver:
     __POWER_WATTPROF = 'wattprof'
 
     #-----------------------------------------------------
-    
+
     def __init__(self, tinfo, use_parallel_search, language="c", timing_code=''):
         '''To instantiate the performance-testing driver'''
 
@@ -35,23 +35,23 @@ class PerfTestDriver:
         self.use_parallel_search = use_parallel_search
         self.compile_time={}
         self.extra_compiler_opts = ''
-        
-        global perftest_counter 
-        perftest_counter += 1 
-        
+
+        global perftest_counter
+        perftest_counter += 1
+
         if not (language == 'c' or language == 'fortran' or language == 'cuda' or language == 'opencl'):
             err('orio.main.tuner.ptest_driver: unknown output language specified: %s' % language)
         self.language = language
 
         self.__PTEST_FNAME=Globals().out_prefix+self.__PTEST_FNAME
 
-        if language == 'c' or language == 'opencl': 
+        if language == 'c' or language == 'opencl':
             self.ext = '.c'
         elif language == 'cuda':
             self.ext = '.cu'
         else:
             self.ext = '.F90'
-        
+
         self.src_name  = self.__PTEST_FNAME + self.ext
         self.src_name2 = self.__PTEST_FNAME + '_preprocessed' + self.ext
         self.original_src_name = self.__PTEST_FNAME + '_original' + self.ext
@@ -67,10 +67,10 @@ class PerfTestDriver:
             else: self.timer_file = None
         else:
             self.timer_file = self.tinfo.timer_file
-        
+
         self.timer_code = timing_code
         if language == 'fortran':  self.timer_code = '' # timer routine is embedded in F90 driver
-        
+
         if self.tinfo.pcount_method not in (self.__PCOUNT_BASIC, self.__PCOUNT_BGP):
             err('orio.main.tuner.ptest_driver:  unknown performance-counting method: "%s"' % self.tinfo.pcount_method)
 
@@ -86,23 +86,23 @@ class PerfTestDriver:
 
         # for efficiency
         self.first = True
-        
+
         # Keep track of failed and succcessful runs
         self.failedRuns = 0
         self.successfulRuns = 0
-        
+
         # For processing output
         self.resultre = re.compile(r'\w*({.*})')
-        
+
         pass
-    
-    
+
+
     #-----------------------------------------------------
 
     def __write(self, test_code, perf_params=None):
         '''Write the test code into a file'''
 
-        global perftest_counter 
+        global perftest_counter
         global last_counter
         suffix = str(perftest_counter)
         last_counter = perftest_counter
@@ -123,17 +123,17 @@ class PerfTestDriver:
             f.close()
         except:
             err('orio.main.tuner.ptest_driver: cannot open file for writing: %s' % self.src_name)
-            
+
         if self.first:
             if self.language != 'cuda' and self.language != 'opencl' and not self.tinfo.timer_file and not (os.path.exists(self.timer_file)):
                 # Generate the timing routine file
-                try: 
+                try:
                     f = open(self.timer_file, 'w')
                     f.write(self.timer_code)
                     f.close()
                 except:
                     err('orio.main.tuner.ptest_driver:  cannot open file for writing: timer_cpu.c')
-  
+
             if not os.path.exists(self.original_src_name):
                 try:
                     f = open(self.original_src_name, 'w')
@@ -172,17 +172,17 @@ class PerfTestDriver:
                         % (Globals().meta,e.__class__.__name__, e), doexit = False)
 
         return
-  
+
     #-----------------------------------------------------
 
     def __preprocess(self):
-        ''' 
-        Apply PBound to generated code. 
-        Some of the build options (include paths, etc.) are used. 
+        '''
+        Apply PBound to generated code.
+        Some of the build options (include paths, etc.) are used.
         '''
         if self.tinfo.pre_build_cmd:
             # apply the pre-build command if defined
-   
+
             cmd = ('%s %s -o %s %s' % (self.tinfo.pre_build_cmd, self.extra_compiler_opts,
                                        self.src_name2, self.src_name))
             # TODO: log all commands
@@ -193,20 +193,20 @@ class PerfTestDriver:
         else:
             self.src_name2 = self.src_name
         return
-    
+
     #-----------------------------------------------------
 
     def __build(self, perf_params=None, coord=None):
         '''Compile the testing code'''
-                
+
         # compile the timing code (if needed)
         if self.timer_file:
             timer_objfile = self.timer_file[:self.timer_file.rfind('.')] + '.o'
-        else: 
+        else:
             timer_objfile = None
-            
+
         if self.use_parallel_search: timer_objfile = ''
-        
+
         # build_cmd
         cflags_tag = '@CFLAGS'
         build_cmd = self.tinfo.build_cmd
@@ -222,15 +222,15 @@ class PerfTestDriver:
                 else:
                     param_val = match_obj.group('alphanum')
                     build_cmd = re.sub(match_obj.group(), str(perf_params.get(param_val, '')), build_cmd)
-        
-        if timer_objfile and not os.path.exists(timer_objfile):  
+
+        if timer_objfile and not os.path.exists(timer_objfile):
             # TODO: Too crude, need to make sure object is newer than source
             cmd = ('%s -O0 -c -o %s %s' % (build_cmd, timer_objfile, self.timer_file))
             info(' compiling timer:\n\t' + cmd)
             status = os.system(cmd)
             if status or not os.path.exists(timer_objfile):
                 err('orio.main.tuner.ptest_driver:  failed to compile the timer code: "%s"' % cmd)
-            
+
         # compile the original code if needed
         if self.first:
             if self.language == 'cuda':
@@ -243,13 +243,13 @@ class PerfTestDriver:
             else:
                 if timer_objfile and os.path.exists(timer_objfile):
                     cmd = ('%s %s -DORIGINAL -o %s %s %s %s' % (build_cmd, self.extra_compiler_opts,
-                                                            self.original_exe_name, self.src_name2, 
+                                                            self.original_exe_name, self.src_name2,
                                                             timer_objfile, self.tinfo.libs))
                 else:
                     cmd = ('%s %s -DORIGINAL -o %s %s %s' % (build_cmd, self.extra_compiler_opts,
-                                                            self.original_exe_name, self.src_name2, 
+                                                            self.original_exe_name, self.src_name2,
                                                             self.tinfo.libs))
-            
+
             info(' building the original code:\n\t' + cmd)
             status = os.system(cmd)
             if status:
@@ -265,22 +265,22 @@ class PerfTestDriver:
             cmd = ('%s %s -o %s %s' % (build_cmd, self.extra_compiler_opts, self.exe_name, self.obj_name))
         elif self.language == 'opencl':
             cmd = ('%s %s -o %s %s %s' % (build_cmd, self.extra_compiler_opts,
-                                             self.exe_name, self.src_name2, 
+                                             self.exe_name, self.src_name2,
                                              self.tinfo.libs))
         else:
             cmd = ('%s %s -o %s %s %s %s' % (build_cmd, self.extra_compiler_opts,
-                                             self.exe_name, self.src_name2, 
+                                             self.exe_name, self.src_name2,
                                              timer_objfile, self.tinfo.libs))
         info(' building test:\n\t' + cmd)
-        
-        
+
+
         start=time.time()
         # TODO: log all commands
         status = os.system(cmd)
         elapsed=time.time()-start
-	if coord is not None:     
-	  self.compile_time[coord]=elapsed
-    
+        if coord is not None:
+            self.compile_time[coord]=elapsed
+
         if status:
             err('orio.main.tuner.ptest_driver:  failed to compile the testing code: "%s"' % cmd)
 
@@ -295,7 +295,7 @@ class PerfTestDriver:
     #-----------------------------------------------------
 
     def __execute(self, perf_params):
-        '''Execute the test to get the performance costs. 
+        '''Execute the test to get the performance costs.
         @param perf_params: a dictionary of current parameter name-value pairs
                             corresponding to a single coordinate in the search space.
         '''
@@ -318,21 +318,21 @@ class PerfTestDriver:
         for pname,pval in perf_params.items():
             if pname.startswith('__cmdline_'):
                 cmdlineargs += pname.replace('__cmdline_','').strip('"') + ' ' + str(pval) + ' '
-        
+
         # execute the search process in parallel
         if self.use_parallel_search:
             cmd = '%s %s %s' % (self.tinfo.batch_cmd, self.exe_name, cmdlineargs)
             info(' running test:\n\t' + cmd)
             # TODO: redo this to take output file name
             try:
-                f = os.popen(cmd)    
+                f = os.popen(cmd)
                 output = f.read()
                 f.close()
                 # TODO: very bad assumption that the last number out is the batch job name
                 jobid = output.strip().split('\n')[-1]
                 status_cmd = '%s %s | grep %s | wc -l' % (self.tinfo.status_cmd, jobid, jobid)
                 status = '1'
-                while status == '1': 
+                while status == '1':
                     time.sleep(3)
                     f = os.popen(status_cmd)
                     status = f.read().strip()
@@ -347,23 +347,26 @@ class PerfTestDriver:
                 if output: perf_costs = eval(output)
             except Exception, e:
                 err('orio.main.tuner.ptest_driver: failed to execute the test code: "%s"\n --> %s: %s' % (cmd,e.__class__.__name__, e))
-                
+
         # execute the search sequentially
         else:
             cmd = '%s ./%s %s' % (Globals().pre_cmd,self.exe_name, cmdlineargs)
             info(' running test:\n\t' + cmd)
+            out = None
             try:
                 #process = sp.Popen(cmd, 'w', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
                 #retCode = process.stdin.close()
                 #out = process.stdout.readlines()
-                f = os.popen(cmd)    
-                out = f.readlines()
-                f.close()
+                #f = os.popen(cmd)
+                #out = f.readlines()
+                #f.close()
+                out = sp.check_output(cmd, shell = True)
+                print(str(out))
             except Exception, e:
-                self.failedruns += 1
+                self.failedRuns += 1
                 err('orio.main.tuner.ptest_driver: failed to execute the test code: "%s"\n --> %s: %s' \
                     % (cmd,e.__class__.__name__, e),doexit = False)
-                
+
             if Globals().post_cmd is not None:
                 try:
                     cmd = Globals().post_cmd
@@ -371,26 +374,27 @@ class PerfTestDriver:
                     cmd = cmd.replace("%unique", uniq)
                     cmd = cmd.replace("%iter", str(last_counter))
                     cmd = cmd.replace("%exe", self.exe_name)
-                    status = os.system(cmd) 
+                    status = os.system(cmd)
                     if status:
                         err('orio.main.tuner.ptest_driver: failed to execute the post-command: "%s"' % Globals().post_cmd, doexit=False)
                 except Exception, e:
                     err('orio.main.tuner.ptest_driver: failed to execute the post-command: "%s"\n --> %s: %s' \
                         % (Globals().post_cmd,e.__class__.__name__, e), doexit = False)
-        
-                
+
+
             # Parse the output to get the times (and in some cases, e.g., for GPU code, the data transfer times)
             try:
                 if out:
-                    #info('out:\n %s' % out)
                     perf_costs={}
                     perf_costs_reps=[]
                     transfers=[]
-                    for line in out: 
+                    out = out.rstrip().split("\n")
+                    info('out:\n %s' % out)
+                    for line in out:
                         #info('the line:\n%s' % line)
                         # Output lines have the form {'[coordinate]' : time} or {'[coordinate]' : (time, transfer_time)}
                         # where [coordinate] is a list of indices, e.g., [2,4,1,0,0]
-                        if line.strip().startswith('{'): 
+                        if line.strip().startswith('{'):
                             output = line.strip()
                             rep=eval(str(output))
                             key=rep.keys()[0]  # the coordinate, e.g., [2,4,1,0,0]
@@ -416,7 +420,7 @@ class PerfTestDriver:
                 err('orio.main.tuner.ptest_driver: failed to process test result, command was "%s", output: "%s\n --> %s: %s' %
                       (cmd+cmdlineargs,perf_costs,e.__class__.__name__,str(e)), doexit=False)
 
-        #exit()        
+        #exit()
         # check if the performance cost is already acquired
         #info(str(perf_costs))
         if not perf_costs:
@@ -431,12 +435,12 @@ class PerfTestDriver:
             status = os.system(cmd)
             if status:
                 infpair = (float('inf'),float('inf'))
-                for k in perf_costs.keys(): perf_costs[k] = infpair 
+                for k in perf_costs.keys(): perf_costs[k] = infpair
                 err('orio.main.tuner.ptest_driver: results of transformed code differ from the original: "%s"' % status, doexit=False)
 
         # return the performance costs dictionary
         return perf_costs
-            
+
     #-----------------------------------------------------
 
     def __cleanup(self):
@@ -445,7 +449,7 @@ class PerfTestDriver:
         if Globals().keep_temps:
             if self.first: self.first = False
             return
-        
+
         if self.first:
             for fname in [self.original_src_name, self.original_exe_name, self.timer_file]:
                 try:
@@ -454,7 +458,7 @@ class PerfTestDriver:
                 except:
                     err('orio.main.tuner.ptest_driver: cannot delete file: %s' % fname)
             self.first = False
-            
+
         for fname in [self.exe_name, self.src_name]:
             try:
                 if fname and os.path.exists(fname):
@@ -463,7 +467,7 @@ class PerfTestDriver:
                 err('orio.main.tuner.ptest_driver: cannot delete file: %s' % fname)
 
     #-----------------------------------------------------
-            
+
     def run(self, test_code, perf_params=None, coord=None):
         '''To compile and to execute the given testing code to get the performance cost
         @param test_code: the code for testing multiple coordinates in the search space
@@ -476,7 +480,7 @@ class PerfTestDriver:
 
         # preprocess source code, e.g., run pbound if enabled
         self.__preprocess()
-        
+
         # compile the testing code
         self.__build(perf_params=perf_params,coord=coord)
 
@@ -487,6 +491,7 @@ class PerfTestDriver:
         self.__cleanup()
 
         # return the performance costs
+        info("returning from 'run': " + str(perf_costs))
         return perf_costs
 
 

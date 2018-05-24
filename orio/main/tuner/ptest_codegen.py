@@ -435,7 +435,7 @@ const char *__wattprof_conf_file = "1_conf.rnp";
             include_validation_code = '#include "%s"' % self.validation_file
             validation_code = """
       if (!%s()) {
-         fprintf(stderr,"validation function %s returned an error code.\\\\n");
+         fprintf(stdout,"validation function %s returned an error code.\\\\n");
          return 1;
       }""" % (
                 self.validation_func_name,
