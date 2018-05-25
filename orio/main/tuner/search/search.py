@@ -197,6 +197,7 @@ class Search:
         # initialize the performance costs mapping
         perf_costs = {}
 
+        info("Length of requested configs: " + str(len(coords)))
 
         # filter out all invalid coordinates and previously evaluated coordinates
         uneval_coords = []
@@ -221,6 +222,15 @@ class Search:
             # get the performance parameters
             perf_params = self.coordToPerfParams(coord)
 
+            # test if parameters are in database
+            experiments = self.database['experiments']
+            result = experiments.find_one(**perf_params)
+            info(str(result))
+
+            if result:
+                perf_costs[coord_key] = (int(result["runs"]) * [float(result["cost_mean"])], int(result["runs"]) * [float("inf")])
+                info("My perf_costs: " + str(perf_costs))
+                return perf_costs
 
             # test if the performance parameters are valid
             try:
@@ -307,35 +317,51 @@ class Search:
             test_code = self.ptcodegen.generate(code_map)
             perf_params = self.coordToPerfParams(uneval_coords[0])
             new_perf_costs = self.ptdriver.run(test_code, perf_params=perf_params,coord=coord_key)
+
         #new_perf_costs = self.getPerfCostConfig(coord_key,perf_params)
         # remember the performance cost of previously evaluated coordinate
         self.perf_cost_records.update(new_perf_costs.items())
+
         # merge the newly obtained performance costs
         perf_costs.update(new_perf_costs.items())
         # also take the compile time
 
-        runs = perf_costs.values()[0][0]
-
-        info("perf_costs: " + str(runs))
-        info("perf_costs: " + str(numpy.mean(runs)))
+        info(str(perf_costs.values()))
 
         experiments = self.database['experiments']
         measurement = perf_params
 
-        measurement["cost_mean"] = numpy.mean(runs)
-        measurement["cost_std"] = numpy.std(runs)
-        measurement["runs"] = len(runs)
+        if perf_costs.values() != []:
+            runs = perf_costs.values()[0][0]
 
-        mean_confidence_interval = stats.norm.interval(0.95,
-                                                       loc = numpy.mean(runs),
-                                                       scale = numpy.std(runs) /
-                                                       numpy.sqrt(len(runs)))
+            measurement["cost_mean"] = numpy.mean(runs)
+            measurement["cost_std"] = numpy.std(runs)
+            measurement["runs"] = len(runs)
 
-        measurement["mean_confidence_interval_inf"] = mean_confidence_interval[0]
-        measurement["mean_confidence_interval_sup"] = mean_confidence_interval[1]
+            mean_confidence_interval = stats.norm.interval(0.95,
+                                                           loc = numpy.mean(runs),
+                                                           scale = numpy.std(runs) /
+                                                           numpy.sqrt(len(runs)))
+
+            measurement["mean_confidence_interval_inf"] = mean_confidence_interval[0]
+            measurement["mean_confidence_interval_sup"] = mean_confidence_interval[1]
+
+            measurement["correct_result"] = True
+
+            info("Stored as a sucessful configuration")
+        else:
+            measurement["runs"]                         = 1
+            measurement["cost_mean"]                    = float("inf")
+            measurement["cost_std"]                     = float("inf")
+            measurement["mean_confidence_interval_inf"] = float("inf")
+            measurement["mean_confidence_interval_sup"] = float("inf")
+
+            measurement["correct_result"] = False
+            info("Stored as a failed configuration")
 
         experiments.insert(measurement)
 
+        info("Final perf_costs: " + str(perf_costs))
         return perf_costs
 
     #----------------------------------------------------------
