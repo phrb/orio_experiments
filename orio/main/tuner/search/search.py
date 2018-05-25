@@ -171,7 +171,12 @@ class Search:
         '''
 
         perf_costs = self.getPerfCosts([coord])
-        [(perf_cost,_),] = perf_costs.values()
+        if perf_costs.values() != []:
+            [(perf_cost,_),] = perf_costs.values()
+            perf_cost = numpy.mean(perf_cost)
+        else:
+            perf_cost = float("inf")
+
         return perf_cost
 
     def getTransformTime(self, key):
@@ -211,11 +216,12 @@ class Search:
                     is_out = True
                     break
             if is_out:
+                info("Coordinate out of search space")
                 perf_costs[coord_key] = ([self.MAXFLOAT],[self.MAXFLOAT])
                 continue
 
-            # if the given coordinate has been computed before
             if coord_key in self.perf_cost_records:
+                info("Coordinate was computed before")
                 perf_costs[coord_key] = self.perf_cost_records[coord_key]
                 continue
 
@@ -225,9 +231,9 @@ class Search:
             # test if parameters are in database
             experiments = self.database['experiments']
             result = experiments.find_one(**perf_params)
-            info(str(result))
 
             if result:
+                info(str(result))
                 perf_costs[coord_key] = (int(result["runs"]) * [float(result["cost_mean"])], int(result["runs"]) * [float("inf")])
                 info("My perf_costs: " + str(perf_costs))
                 return perf_costs
@@ -238,9 +244,9 @@ class Search:
             except Exception, e:
                 err('failed to evaluate the constraint expression: "%s"\n%s %s' % (self.constraint,e.__class__.__name__, e))
 
-            # if invalid performance parameters
             if not is_valid:
                 perf_costs[coord_key] = ([self.MAXFLOAT],[self.MAXFLOAT])
+                info("Invalid performance parameters")
                 continue
 
             # store all unevaluated coordinates
@@ -248,6 +254,7 @@ class Search:
 
         # check the unevaluated coordinates
         if len(uneval_coords) == 0:
+            info("No coordinates to evaluate")
             return perf_costs
 
         #debug('search perf_params=' + str(perf_params))

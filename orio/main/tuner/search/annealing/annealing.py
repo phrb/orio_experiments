@@ -2,7 +2,7 @@
 # Implementation of the simulated-annealing search algorithm
 #
 
-import math, sys, time
+import math, sys, time, random
 import orio.main.tuner.search.search
 from orio.main.util.globals import *
 
@@ -34,6 +34,8 @@ class Annealing(orio.main.tuner.search.search.Search):
 
     def __init__(self, params):
         """To instantiate a simulated-annealing search engine"""
+
+        random.seed(2556)
 
         orio.main.tuner.search.search.Search.__init__(self, params)
 
@@ -356,9 +358,15 @@ class Annealing(orio.main.tuner.search.search.Search):
         best_perf_cost = perf_costs[0]
 
         # compute the average performance-cost difference
-        total_cost_diff = reduce(
-            lambda x, y: x + y, map(lambda x: x - best_perf_cost, perf_costs), 0
-        )
+        info("BPC: " + str(best_perf_cost))
+        info("PC: " + str(perf_costs))
+
+        total_cost_diffs = []
+        for i in range(len(perf_costs)):
+            total_cost_diffs.append(perf_costs[i] - best_perf_cost)
+
+        total_cost_diff = sum(total_cost_diffs)
+
         avg_cost_diff = 0
         if total_cost_diff > 0:
             avg_cost_diff = total_cost_diff / (len(random_coords) - 1)

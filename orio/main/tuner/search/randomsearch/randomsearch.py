@@ -128,9 +128,9 @@ class Randomsearch(orio.main.tuner.search.search.Search):
                 uneval_params.append(perf_params)
 
 
-        print len(coords)
-        print len(uneval_coords)
-        print len(uneval_params)
+        #print len(coords)
+        #print len(uneval_coords)
+        #print len(uneval_params)
 
         eval_coords = []
         eval_params = []
@@ -139,7 +139,7 @@ class Randomsearch(orio.main.tuner.search.search.Search):
 
         indices=random.sample(range(1,len(uneval_coords)),  self.total_dims)
         indices.insert(0,0)
-        print indices
+        #print indices
 
         all_indices=set(range(len(uneval_coords)))
         init_indices=set(indices)
@@ -155,7 +155,7 @@ class Randomsearch(orio.main.tuner.search.search.Search):
             eval_coords.append(coord)
             eval_params.append(params)
 
-            print params
+            #print params
             runs += 1
 
             perf_costs={}
@@ -215,8 +215,8 @@ class Randomsearch(orio.main.tuner.search.search.Search):
                 break
 
 
-        print best_perf_cost
-        print best_coord
+        #print best_perf_cost
+        #print best_coord
         end_time = time.time()
         search_time=start_time-end_time
         speedup=float(eval_cost[0])/float(best_perf_cost)
