@@ -12,8 +12,8 @@
 
   def search
   {
-    arg algorithm = 'Annealing';
-    arg total_runs = 100;
+    arg algorithm = 'Randomsearch';
+    arg total_runs = 200;
   }
 
   def performance_params

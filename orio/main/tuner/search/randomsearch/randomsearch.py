@@ -29,7 +29,7 @@ class Randomsearch(orio.main.tuner.search.search.Search):
 
     def __init__(self, params):
         '''To instantiate a random search engine'''
-        random.seed(1)
+        random.seed(1337)
 
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
