@@ -405,7 +405,7 @@ class Annealing(orio.main.tuner.search.search.Search):
         """
 
         neigh_coord = None
-        total_trials = 1000
+        total_trials = 10
         for trial in range(0, total_trials):
             n_coord = coord[:]
             for i in range(0, self.total_dims):
