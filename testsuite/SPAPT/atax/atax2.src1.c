@@ -7,13 +7,13 @@
 
   def performance_counter
   {
-  arg repetitions = 35;
+  arg repetitions = 2;
   }
 
   def search
   {
-    arg algorithm = 'Randomsearch';
-    arg total_runs = 20000;
+    arg algorithm = 'Doptanova';
+    arg total_runs = 10;
   }
 
   def performance_params

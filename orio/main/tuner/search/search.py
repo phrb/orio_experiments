@@ -20,7 +20,7 @@ class Search:
         #print 'done'
 
         self.params=params
-        debug('[Search] performance parameters: %s\n' % str(params), self)
+        #info("[Search] performance parameters: " + str(params))
 
         # the class variables that are essential to know when developing a new search engine subclass
         if 'search_time_limit' in params.keys(): self.time_limit = params['search_time_limit']
