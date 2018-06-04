@@ -1,10 +1,15 @@
 import sys, time
 import math
 import random
+import numpy
 import orio.main.tuner.search.search
 from orio.main.util.globals import *
 import copy
 import json
+
+import rpy2.robjects as robjects
+from rpy2.robjects.packages import importr
+from rpy2.robjects import DataFrame, IntVector, StrVector, BoolVector, Formula, r
 
 class Doptanova(orio.main.tuner.search.search.Search):
     '''
@@ -21,7 +26,13 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def __init__(self, params):
         '''To instantiate a random search engine'''
-        random.seed(1337)
+        numpy.random.seed(1337)
+
+        self.base      = importr("base")
+        self.utils     = importr("utils")
+        self.stats     = importr("stats")
+        self.algdesign = importr("AlgDesign")
+        self.car       = importr("car")
 
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
@@ -37,36 +48,285 @@ class Doptanova(orio.main.tuner.search.search.Search):
         # complain if both the search time limit and the total number of search runs are undefined
         if self.time_limit <= 0 and self.total_runs <= 0:
             err((
-                'orio.main.tuner.search.randomsearch.randomsearch: %s search requires either (both) the search time limit or (and) the '
+                '%s search requires search time limit or '
                 + 'total number of search runs to be defined') %
                 self.__class__.__name__)
 
-    def searchBestCoord(self, startCoord=None):
+    def isclose(self, a, b, rel_tol = 1e-09, abs_tol = 0.0):
+        return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
+    def opt_federov(self, design_formula, data, trials):
+        output = self.algdesign.optFederov(Formula(design_formula),
+                                           data = data,
+                                           center = True,
+                                           maxIteration = 100,
+                                           nTrials = trials)
+        return output
+
+    def transform_lm(self, design, lm_formula):
+        info("Power Transform Step:")
+        response = lm_formula.split("~")[0].strip()
+        variables = lm_formula.split("~")[1].strip()
+        r_snippet = """boxcox_t <- powerTransform(%s, data = %s)
+        regression <- lm(bcPower(%s, boxcox_t$lambda) ~ %s, data = %s)
+        regression""" %(lm_formula, design.r_repr(), response, variables, design.r_repr())
+        transformed_lm = robjects.r(r_snippet)
+
+        return transformed_lm
+
+    def anova(self, design, formula):
+        regression = self.stats.lm(Formula(formula), data = design)
+        heteroscedasticity_test = self.car.ncvTest(regression)
+        info("Heteroscedasticity Test p-value: " + str(heteroscedasticity_test.rx("p")[0][0]))
+
+        if heteroscedasticity_test.rx("p")[0][0] < 0.05:
+            regression = self.transform_lm(design, formula)
+            heteroscedasticity_test = self.car.ncvTest(regression)
+            info("Heteroscedasticity Test p-value: " + str(heteroscedasticity_test.rx("p")[0][0]))
+
+        summary_regression = self.stats.summary_aov(regression)
+        info("Regression Step:" + str(summary_regression))
+
+        prf_values = {}
+
+        for k, v in zip(self.base.rownames(summary_regression[0]), summary_regression[0][4]):
+            if k.strip() != "Residuals":
+                prf_values[k.strip()] = v
+
+        return regression, prf_values
+
+    def predict_best(self, regression, data):
+        info("Predicting Best")
+        predicted = self.stats.predict(regression, data)
+
+        predicted_min = min(predicted)
+        identical_predictions = 0
+
+        for k in range(len(predicted)):
+            if self.isclose(predicted[k], predicted_min, rel_tol = 1e-5):
+                identical_predictions += 1
+
+        info("Identical predictions (tol = 1e-5): {0}".format(identical_predictions))
+        return data.rx(predicted.ro == self.base.min(predicted), True)
+
+    def prune_data(self, data, predicted_best, fixed_variables):
+        info("Pruning Data")
+        conditions = []
+
+        for k, v in fixed_variables.items():
+            if conditions == []:
+                conditions = data.rx2(str(k)).ro == predicted_best.rx2(str(k))
+            else:
+                conditions = conditions.ro & (data.rx2(str(k)).ro == predicted_best.rx2(str(k)))
+
+        pruned_data = data.rx(conditions, True)
+
+        info("Dimensions of Pruned Data: " + str(self.base.dim(pruned_data)).strip())
+        return pruned_data
+
+    def get_fixed_variables(self, predicted_best, ordered_prf_keys,
+                            fixed_factors, threshold = 2):
+        info("Getting fixed variables")
+        variables = ordered_prf_keys
+        variables = [v.strip("I)(/1 ") for v in variables]
+
+        unique_variables = []
+
+        for v in variables:
+            if v not in unique_variables:
+                unique_variables.append(v)
+            if len(unique_variables) >= threshold:
+                break
+
+        fixed_variables = fixed_factors
+        for v in unique_variables:
+            fixed_variables[v] = predicted_best.rx2(str(v))[0]
+
+        info("Fixed Variables: " + str(fixed_variables))
+        return fixed_variables
+
+    def prune_model(self, factors, inverse_factors, ordered_prf_keys,
+                    threshold = 2):
+        info("Pruning Model")
+        variables = ordered_prf_keys
+        variables = [v.strip("I)(/1 ") for v in variables]
+
+        unique_variables = []
+
+        for v in variables:
+            if v not in unique_variables:
+                unique_variables.append(v)
+            if len(unique_variables) >= threshold:
+                break
+
+        pruned_factors = [f for f in factors if not f in unique_variables]
+        pruned_inverse_factors = [f for f in inverse_factors if not f in unique_variables]
+
+        return pruned_factors, pruned_inverse_factors
+
+    def dopt_anova_step(self, response, factors, inverse_factors, # data, step_data,
+                        fixed_factors, budget):
+        full_model     = "".join([" ~ ",
+                                  " + ".join(factors)])
+
+        if len(inverse_factors) > 0:
+            full_model += " + " + " + ".join(["I(1 / {0})".format(f) for f in
+                inverse_factors])
+
+        low_level = IntVector([0] * (len(factors) + len(inverse_factors)))
+        high_level = IntVector()
+
+        design_formula = full_model
+        lm_formula     = response[0] + full_model
+        trials         = int(round(2 * (len(factors) + len(inverse_factors) + 1)))
+
+        fixed_variables = fixed_factors
+
+        info("Size of Step Data: " + str(len(step_data[0])))
+
+        if budget - len(step_data[0]) < 0:
+            info("Full data does not fit on budget")
+            info("Computing D-Optimal Design with " + str(trials) +
+                 " experiments")
+            if trials < len(step_data[0]):
+                info("Design Formula: " + str(design_formula))
+                output = self.opt_federov(design_formula, step_data, trials)
+                design = output.rx("design")[0]
+            else:
+                info("Too few data points for a D-Optimal design")
+                design = step_data
+
+            info("Measuring design of size " + str(len(design[0])))
+
+            sys.exit()
+
+            try:
+                perf_costs = self.getPerfCosts([coord])
+            except Exception, e:
+                perf_costs[str(full_candidate_set)] = [self.MAXFLOAT]
+                info('FAILED: %s %s' % (e.__class__.__name__, e))
+                fruns += 1
+
+            try:
+                floatNums = [float(x) for x in perf_cost]
+                mean_perf_cost = sum(floatNums) / len(perf_cost)
+            except:
+                mean_perf_cost = perf_cost
+
+            transform_time = self.getTransformTime(coord_key)
+            compile_time = self.getCompileTime(coord_key)
+
+            used_experiments = len(design[0])
+            regression, prf_values = self.anova(design, lm_formula)
+            ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
+            predicted_best         = self.predict_best(regression, step_data)
+            fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
+                                                              fixed_factors)
+            # pruned_data            = self.prune_data(data, predicted_best, fixed_variables)
+
+            pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
+                                                                      ordered_prf_keys)
+        else:
+            info("Full data fits on budget, picking best value")
+
+            info("Measuring design of size " + str(len(step_data[0])))
+
+            sys.exit()
+
+            used_experiments = len(step_data[0])
+            prf_values = []
+            ordered_prf_keys = []
+            # pruned_data = []
+            pruned_factors = []
+            pruned_inverse_factors = []
+            predicted_best = step_data.rx((step_data.rx2(response[0]).ro == min(step_data.rx(response[0])[0])),
+                                      True)
+
+        return {"prf_values": prf_values,
+                "ordered_prf_keys": ordered_prf_keys,
+                "predicted_best": predicted_best,
+                # "pruned_data": pruned_data,
+                "pruned_factors": pruned_factors,
+                "pruned_inverse_factors": pruned_inverse_factors,
+                "fixed_factors": fixed_variables,
+                "used_experiments": used_experiments}
+
+    def dopt_anova(self, initial_factors, initial_inverse_factors):
+        response = ["cost_mean"]
+
+        #info(str(initial_factors))
+
+        data = data.rx(StrVector(initial_factors))
+        #data = data.rx(StrVector(initial_factors + response))
+        #data_best = data.rx((data.rx2(response[0]).ro == min(data.rx(response[0])[0])),
+        #                    True)
+
+        step_factors = initial_factors
+        step_inverse_factors = initial_inverse_factors
+        # step_space = data
+
+        fixed_factors = {}
+
+        initial_budget = 1
+        budget = initial_budget
+        used_experiments = 0
+        iterations = 1
+
+        for i in range(iterations):
+            info("Step {0}".format(i))
+            # if step_space == []:
+            #     break
+
+            step_data = self.dopt_anova_step(response,
+                                             step_factors,
+                                             step_inverse_factors,
+            #                                 data,
+            #                                 step_space,
+                                             fixed_factors,
+                                             budget)
+
+            # step_space = step_data["pruned_data"]
+            step_factors = step_data["pruned_factors"]
+            step_inverse_factors = step_data["pruned_inverse_factors"]
+            budget -= step_data["used_experiments"]
+            used_experiments += step_data["used_experiments"]
+            fixed_factors = step_data["fixed_factors"]
+
+            info("Fixed Factors: " + str(fixed_factors))
+
+            # if step_space != []:
+            #     step_best = step_space.rx((step_space.rx2(response[0]).ro ==
+            #         min(step_space.rx(response[0])[0])), True)
+
+            #     info("Best Step Slowdown: " +
+            #             str(step_best.rx(response[0])[0][0] /
+            #                 data_best.rx(response[0])[0][0]))
+
+            info("Slowdown: " +
+                    str(step_data["predicted_best"].rx(response[0])[0][0] /
+                        data_best.rx(response[0])[0][0]))
+            info("Budget: {0}/{1}".format(used_experiments, initial_budget))
+
+        return True
+
+    def searchBestCoord(self, startCoord = None):
         '''
         To explore the search space and retun the coordinate that yields the best performance
         (i.e. minimum performance cost).
         '''
-        # TODO: implement startCoord support
-
         info('\n----- begin random search -----')
 
         info(str(self.params["axis_names"]))
-        for i in range(0, self.total_dims):
-            info("(0, " + str(self.dim_uplimits[i]) + ")")
-            info(str(self.params["axis_val_ranges"][i]))
+        info(str(self.total_dims))
 
-        # get the total number of coordinates to be tested at the same time
-        coord_count = 1
-        if self.use_parallel_search:
-            coord_count = self.num_procs
+        initial_factors = self.params["axis_names"]
+        initial_inverse_factors = initial_factors
 
-        # initialize a storage to remember all coordinates that have been explored
-        coord_records = {}
+        # d = {"constraints": self.constraint}
+        # d.update(perf_params)
+        # d.update(dict(self.input_params))
+        # exec "def f(): return eval(constraints)" in d
 
-        # initialize a list to store the neighboring coordinates
-        neigh_coords = []
-
-        # record the best coordinate and its best performance cost
         best_coord = None
         best_perf_cost = self.MAXFLOAT
         old_perf_cost = best_perf_cost
@@ -75,168 +335,68 @@ class Doptanova(orio.main.tuner.search.search.Search):
         runs = 0
         sruns = 0
         fruns = 0
-
-        # start the timer
         start_time = time.time()
-        init = True
 
-        # randomly pick coordinates to be empirically tested
-        coords = {}
-        uneval_coords = []
-        uneval_params = []
+        # Trying to generate experiments at random:
+        #
+        # full_candidate_set = {}
+        # search_space = []
 
-        #default code without transformation
-        neigh_coords = [[0] * self.total_dims]
+        # self.seed_space_size = 1000
 
-        invalid = 0
+        # info("Building seed search space (does not spend evaluations)")
+        # while len(search_space) < self.seed_space_size:
+        #     if len(full_candidate_set) % 20000 == 0:
+        #         info("Evaluated coordinates: " + str(len(full_candidate_set)))
 
-        self.init_samp = 100
+        #     candidate_point = self.getRandomCoord()
+        #     candidate_point_key = str(candidate_point)
 
-        while len(uneval_coords) < self.init_samp:
-            if len(coords) % 20000 == 0:
-                info("Evaluated coordinates: " + str(len(coords)))
+        #     if candidate_point_key not in full_candidate_set:
+        #         full_candidate_set[candidate_point_key] = candidate_point
+        #         try:
+        #             perf_params = self.coordToPerfParams(candidate_point)
+        #             is_valid = eval(self.constraint, copy.copy(perf_params),
+        #                             dict(self.input_params))
+        #         except Exception, e:
+        #             err('failed to evaluate the constraint expression: "%s"\n%s %s'
+        #                 % (self.constraint, e.__class__.__name__, e))
 
-            coord = self.__getNextCoord(coord_records, neigh_coords, init)
-            coord_key = str(coord)
+        #         if not is_valid:
+        #             continue
 
-            if not coord or len(coord) == 0:
-                break
+        #         search_space.append(candidate_point)
+        #         if len(search_space) % 10000 == 0:
+        #             info("Valid coordinates: " + str(len(search_space)))
 
-            if coord_key not in coords:
-                coords[coord_key] = coord
-                # if the given coordinate is out of the search space
-                is_out = False
-                for i in range(0, self.total_dims):
-                    if coord[i] < 0 or coord[i] >= self.dim_uplimits[i]:
-                        is_out = True
-                        break
-                if is_out:
-                    continue
-                # test if the performance parameters are valid
-                perf_params = self.coordToPerfParams(coord)
-                #print perf_params
-                perf_params1 = copy.copy(perf_params)
+        # info("Valid/Tested configurations: " + str(len(search_space)) + "/" +
+        #     str(len(full_candidate_set)))
 
-                try:
-                    is_valid = eval(self.constraint, perf_params1,
-                                    dict(self.input_params))
-                except Exception, e:
-                    err('failed to evaluate the constraint expression: "%s"\n%s %s'
-                        % (self.constraint, e.__class__.__name__, e))
-                # if invalid performance parameters
-                if not is_valid:
-                    invalid += 1
-                    continue
+        # info("Starting DOPT-anova")
 
-                temp = []
-                for k in sorted(perf_params):
-                    temp.append(perf_params[k])
-                debug('sample-point:' + str(coord))
-                uneval_coords.append(coord)
-                uneval_params.append(perf_params)
+        # r_search_space = {}
+        # for i in range(len(search_space[0])):
+        #     r_row = [self.dim_uplimits[i] - 1, 0]
+        #     for col in search_space:
+        #         r_row.append(col[i])
 
-                if len(uneval_coords) % 1000 == 0:
-                    info("Valid coordinates: " + str(len(uneval_coords)))
+        #     r_search_space[initial_factors[i]] = IntVector(r_row)
 
+        # data = DataFrame(r_search_space)
 
-        info(str(len(coords)))
-        info(str(len(uneval_coords)))
-        info(str(len(uneval_params)))
-        info(str(invalid))
+        # info(str(search_space))
+        # info(str(self.utils.str(data.rx(StrVector(initial_factors)))))
 
-        eval_coords = []
-        eval_params = []
-        eval_cost = []
-        num_eval_best = 0
-
-        indices = random.sample(range(1, len(uneval_coords)), self.total_dims)
-        indices.insert(0, 0)
-
-        all_indices = set(range(len(uneval_coords)))
-        init_indices = set(indices)
-        remain_indices = list(all_indices.difference(init_indices))
-        random.shuffle(remain_indices)
-        indices.extend(remain_indices)
+        self.dopt_anova(initial_factors, initial_inverse_factors, data)
 
         sys.exit()
 
         perf_cost, mean_perf_cost = self.MAXFLOAT, self.MAXFLOAT
-        for index in indices:
-            coord = uneval_coords[index]
-            coord_key = str(coord)
 
-            params = uneval_params[index]
-            eval_coords.append(coord)
-            eval_params.append(params)
-
-            runs += 1
-
-            perf_costs = {}
-            try:
-                perf_costs = self.getPerfCosts([coord])
-            except Exception, e:
-                perf_costs[str(coords)] = [self.MAXFLOAT]
-                info('FAILED: %s %s' % (e.__class__.__name__, e))
-                fruns += 1
-
-            # compare to the best result
-            pcost_items = perf_costs.items()
-            pcost_items.sort(lambda x, y: cmp(eval(x[0]), eval(y[0])))
-            for i, (coord_str, pcost) in enumerate(pcost_items):
-                if type(pcost) == tuple:
-                    (perf_cost,
-                     _) = pcost  # ignore transfer costs -- GPUs only
-                else:
-                    perf_cost = pcost
-
-                try:
-                    floatNums = [float(x) for x in perf_cost]
-                    mean_perf_cost = sum(floatNums) / len(perf_cost)
-                except:
-                    mean_perf_cost = perf_cost
-
-            transform_time = self.getTransformTime(coord_key)
-            compile_time = self.getCompileTime(coord_key)
-
-            res_obj = {}
-            res_obj['run'] = runs
-            res_obj['coordinate'] = coord
-            res_obj['perf_params'] = params
-            res_obj['transform_time'] = transform_time
-            res_obj['compile_time'] = compile_time
-            res_obj['cost'] = perf_cost
-            info('(run %s) | ' % runs + json.dumps(res_obj))
-            #info('run %s | coordinate: %s | perf_params: %s | transform_time: %s | compile_time: %s | cost: %s' % (runs, coord, params, transform_time, compile_time,perf_cost))
-
-            eval_cost.append(mean_perf_cost)
-
-            if mean_perf_cost < best_perf_cost and mean_perf_cost > 0.0:
-                best_coord = coord
-                best_perf_cost = mean_perf_cost
-                info('>>>> best coordinate found: %s, cost: %e' %
-                     (coord, mean_perf_cost))
-                num_eval_best = runs
-
-            if not math.isinf(mean_perf_cost):
-                sruns += 1
-
-            # check if the time is up
-            # info('%s' % self.time_limit)
-            if self.time_limit > 0 and (
-                    time.time() - start_time) > self.time_limit:
-                break
-
-            # check if the maximum limit of runs is reached
-            if self.total_runs > 0 and runs >= self.total_runs:
-                break
-
-        #print best_perf_cost
-        #print best_coord
+        params = self.coordToPerfParams(coord)
         end_time = time.time()
         search_time = start_time - end_time
         speedup = float(eval_cost[0]) / float(best_perf_cost)
-
-        # compute the total search time
         search_time = time.time() - start_time
 
         info('----- end random search -----')
@@ -273,28 +433,3 @@ class Doptanova(orio.main.tuner.search.search.Search):
             else:
                 err('orio.main.tuner.search.randomsearch: unrecognized %s algorithm-specific argument: "%s"'
                     % (self.__class__.__name__, vname))
-
-    def __getNextCoord(self, coord_records, neigh_coords, init):
-        '''Get the next coordinate to be empirically tested'''
-
-        #if len(coord_records) == 0:
-        #  return [0] * self.total_dims
-
-        #info('neighcoords: %s' % neigh_coords)
-        # check if all coordinates have been explored
-        if len(coord_records) >= self.space_size:
-            return None
-
-        # pick the next neighbor coordinate in the list (if exists)
-        while len(neigh_coords) > 0:
-            coord = neigh_coords.pop(0)
-            if str(coord) not in coord_records:
-                coord_records[str(coord)] = None
-                return coord
-
-        # randomly pick a coordinate that has never been explored before
-        while True:
-            coord = self.getRandomCoord()
-            if str(coord) not in coord_records:
-                coord_records[str(coord)] = None
-                return coord

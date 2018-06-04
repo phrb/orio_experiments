@@ -1,6 +1,7 @@
 #
 # The search engine used for search space exploration
 #
+import numpy as np
 import sys, math, time, dataset, numpy
 from scipy import stats
 from orio.main.util.globals import *
@@ -457,12 +458,11 @@ class Search:
 
     def getRandomInt(self, lbound, ubound):
         '''To generate a random integer N such that lbound <= N <= ubound'''
-        from random import randint
-
-        if lbound > ubound:
+        if lbound > ubound + 1:
             err('orio.main.tuner.search.search internal error: the lower bound of genRandomInt must not be ' +
                    'greater than the upper bound')
-        return randint(lbound, ubound)
+
+        return np.random.randint(lbound, ubound + 1)
 
     def getRandomReal(self, lbound, ubound):
         '''To generate a random real number N such that lbound <= N < ubound'''
@@ -506,7 +506,7 @@ class Search:
         random_coord = []
         for i in range(0, self.total_dims):
             iuplimit = self.dim_uplimits[i]
-            ipoint = self.getRandomInt(0, iuplimit-1)
+            ipoint = self.getRandomInt(0, iuplimit - 1)
             random_coord.append(ipoint)
         return random_coord
 
