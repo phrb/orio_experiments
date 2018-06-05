@@ -301,20 +301,22 @@ class Doptanova(orio.main.tuner.search.search.Search):
         pruned_space = self.prune_data(step_space, predicted_best, fixed_variables)
         pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
                                                                   ordered_prf_keys)
-        result = {"prf_values": prf_values,
-                  "ordered_prf_keys": ordered_prf_keys,
-                  "predicted_best": predicted_best,
-                  "pruned_space": pruned_space,
-                  "pruned_factors": pruned_factors,
-                  "pruned_inverse_factors": pruned_inverse_factors,
-                  "fixed_factors": fixed_variables,
-                  "used_experiments": used_experiments}
-
-        info(str(result))
+        info("Pruned Search Space Size: " + str(len(pruned_space)))
+        info("Best Predicted: " + str(predicted_best))
+        info("Pruned Factors: " + str(pruned_factors))
+        info("Fixed Factors: " + str(fixed_variables))
 
         sys.exit()
 
-        return result
+        return {"prf_values": prf_values,
+                "ordered_prf_keys": ordered_prf_keys,
+                "predicted_best": predicted_best,
+                "pruned_space": pruned_space,
+                "pruned_factors": pruned_factors,
+                "pruned_inverse_factors": pruned_inverse_factors,
+                "fixed_factors": fixed_variables,
+                "used_experiments": used_experiments}
+
 
     def dopt_anova(self, initial_factors, initial_inverse_factors, search_space):
         response = ["cost_mean"]
