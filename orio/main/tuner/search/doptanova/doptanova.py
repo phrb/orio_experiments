@@ -298,7 +298,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
                                                           fixed_factors)
 
-        pruned_space = prune_data(step_space, predicted_best, fixed_variables):
+        pruned_space = prune_data(step_space, predicted_best, fixed_variables)
         pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
                                                                   ordered_prf_keys)
         result = {"prf_values": prf_values,
@@ -400,7 +400,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         full_candidate_set = {}
         search_space = []
 
-        self.seed_space_size = 1000
+        self.seed_space_size = 20000
 
         info("Building seed search space (does not spend evaluations)")
         while len(search_space) < self.seed_space_size:
@@ -445,7 +445,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(search_space))
         info(str(self.utils.str(data.rx(StrVector(initial_factors)))))
 
-        self.dopt_anova(initial_factors, initial_inverse_factors, search_space)
+        self.dopt_anova(initial_factors, initial_inverse_factors, data)
 
         sys.exit()
 
