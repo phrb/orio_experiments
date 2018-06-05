@@ -65,9 +65,15 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
     def opt_federov(self, design_formula, trials, constraint, data):
+        info("Starting \"optMonteCarlo\" run")
+        info(str(data))
+
         output = self.algdesign.optMonteCarlo(frml = Formula(design_formula),
-                                              data = data)
-                                              #nTrials = trials)
+                                              data = data,
+                                              #nCand = 20 * trials,
+                                              constraints = constraint,
+                                              nTrials = trials)
+
         return output
 
     def transform_lm(self, design, lm_formula):
@@ -176,13 +182,15 @@ class Doptanova(orio.main.tuner.search.search.Search):
         full_model     = "".join([" ~ ",
                                   " + ".join(factors)])
 
-        if len(inverse_factors) > 0:
-            full_model += " + " + " + ".join(["I(1 / {0})".format(f) for f in
-                inverse_factors])
+        #if len(inverse_factors) > 0:
+        #    full_model += " + " + " + ".join(["I(1 / {0})".format(f) for f in
+        #        inverse_factors])
+
+        #info(str(full_model))
 
         low_level_limits = IntVector([self.parameter_ranges[f][0] for f in factors])
-        high_level_limits = IntVector([self.parameter_ranges[f][1] for f in factors])
-        factor_centers = IntVector([self.parameter_ranges[f][1] // 2 for f in factors])
+        high_level_limits = IntVector([self.parameter_ranges[f][1] - 1 for f in factors])
+        factor_centers = IntVector([0 for f in factors])
         factor_levels = IntVector([self.parameter_ranges[f][1] for f in factors])
         factor_round = IntVector([0 for f in factors])
         # Find a way to keep track of factor information
@@ -210,23 +218,44 @@ class Doptanova(orio.main.tuner.search.search.Search):
                                                                    "factor",
                                                                    "mix"]))
 
-        info(str(opt_federov_dataframe))
+        #info(str(opt_federov_dataframe))
 
         design_formula = full_model
         lm_formula     = response[0] + full_model
         trials         = int(round(2 * (len(factors) + len(inverse_factors) + 1)))
+        trials         = int(2 * len(factors))
 
         fixed_variables = fixed_factors
         info("Fixed Factors: " + str(fixed_factors))
 
         info("Updating Constraints")
 
+        constraint_text = self.constraint
+        variable_ranges = self.axis_val_ranges
+        variable_names = self.params["axis_names"]
+
+        for k, v in fixed_variables.items():
+            current_value = str(variable_ranges[variable_names.index(k)][int(v)])
+            constraint_text = constraint_text.replace(k, current_value)
+
+        for i in range(len(factors)):
+            current_value = ("variable_ranges[variable_names.index"
+                             "(factors[{0}])][int(round(x[{0}]))]".format(i))
+
+            old_value = variable_names[variable_names.index(factors[i])]
+            constraint_text = constraint_text.replace(old_value, current_value)
+
         @ri.rternalize
         def constraint(x):
-            #print(str(x))
-            return True
+            # Using variables here so they get "rternalized"
+            # There must be a better way
+            type(variable_ranges)
+            type(variable_names)
+            type(factors)
+            result = eval(constraint_text)
+            return result
 
-        info("Constraint: " + str(self.constraint))
+        info("Updated Constraint: " + str(self.constraint))
 
         info("Computing D-Optimal Design with " + str(trials) +
              " experiments")
@@ -235,28 +264,28 @@ class Doptanova(orio.main.tuner.search.search.Search):
         output = self.opt_federov(design_formula, trials, constraint,
                                   opt_federov_dataframe)
 
-        info(str(output))
-
         design = output.rx("design")[0]
-        info("Measuring design of size " + str(len(design[0])))
+
+        info(str(design))
+        info("D-Efficiency Approximation: " + str(output.rx("Dea")[0]))
+        info("Measuring design of size " + str(len(design)))
+
+        measurements = []
+
+        for line in range(len(design[0])):
+            #TODO Update design line with fixed parameters!
+            candidate = [int(v[0]) for v in design.rx(line + 1, True)]
+            info("Testing candidate " + str(line + 1) + ": " + str(candidate))
+
+            measurement = self.getPerfCosts([candidate])
+            if measurement != {}:
+                measurements.append(float(numpy.mean(measurement[str(candidate)][0])))
+            else:
+                measurements.append(float('inf'))
+
+        info("Measurements: " + str(measurements))
 
         sys.exit()
-
-        try:
-            perf_costs = self.getPerfCosts([coord])
-        except Exception, e:
-            perf_costs[str(full_candidate_set)] = [self.MAXFLOAT]
-            info('FAILED: %s %s' % (e.__class__.__name__, e))
-            fruns += 1
-
-        try:
-            floatNums = [float(x) for x in perf_cost]
-            mean_perf_cost = sum(floatNums) / len(perf_cost)
-        except:
-            mean_perf_cost = perf_cost
-
-        transform_time = self.getTransformTime(coord_key)
-        compile_time = self.getCompileTime(coord_key)
 
         used_experiments = len(design[0])
         regression, prf_values = self.anova(design, lm_formula)
@@ -264,19 +293,23 @@ class Doptanova(orio.main.tuner.search.search.Search):
         predicted_best         = self.predict_best(regression, step_data)
         fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
                                                           fixed_factors)
-        # pruned_data            = self.prune_data(data, predicted_best, fixed_variables)
 
         pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
                                                                   ordered_prf_keys)
+        result = {"prf_values": prf_values,
+                  "ordered_prf_keys": ordered_prf_keys,
+                  "predicted_best": predicted_best,
+                  # "pruned_data": pruned_data,
+                  "pruned_factors": pruned_factors,
+                  "pruned_inverse_factors": pruned_inverse_factors,
+                  "fixed_factors": fixed_variables,
+                  "used_experiments": used_experiments}
 
-        return {"prf_values": prf_values,
-                "ordered_prf_keys": ordered_prf_keys,
-                "predicted_best": predicted_best,
-                # "pruned_data": pruned_data,
-                "pruned_factors": pruned_factors,
-                "pruned_inverse_factors": pruned_inverse_factors,
-                "fixed_factors": fixed_variables,
-                "used_experiments": used_experiments}
+        info(str(result))
+
+        sys.exit()
+
+        return result
 
     def dopt_anova(self, initial_factors, initial_inverse_factors):
         response = ["cost_mean"]
