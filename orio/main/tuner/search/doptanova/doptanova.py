@@ -286,7 +286,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         info("Measurements: " + str(measurements))
 
-        sys.exit()
+        design = self.base.cbind(design, DataFrame({response[0]: measurements}))
 
         used_experiments = len(design[0])
         regression, prf_values = self.anova(design, lm_formula)
