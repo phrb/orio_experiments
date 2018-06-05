@@ -298,7 +298,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
                                                           fixed_factors)
 
-        pruned_space = prune_data(step_space, predicted_best, fixed_variables)
+        pruned_space = self.prune_data(step_space, predicted_best, fixed_variables)
         pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
                                                                   ordered_prf_keys)
         result = {"prf_values": prf_values,
@@ -424,7 +424,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
                     continue
 
                 search_space.append(candidate_point)
-                if len(search_space) % 10000 == 0:
+                if len(search_space) % 5000 == 0:
                     info("Valid coordinates: " + str(len(search_space)))
 
         info("Valid/Tested configurations: " + str(len(search_space)) + "/" +
