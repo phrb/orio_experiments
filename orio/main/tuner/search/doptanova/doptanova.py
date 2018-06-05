@@ -178,7 +178,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         return pruned_factors, pruned_inverse_factors
 
-    def dopt_anova_step(self, response, factors, inverse_factors, # data, step_data,
+    def dopt_anova_step(self, response, factors, inverse_factors, step_space, # data,
                         fixed_factors, budget):
         full_model     = "".join([" ~ ",
                                   " + ".join(factors)])
@@ -294,16 +294,17 @@ class Doptanova(orio.main.tuner.search.search.Search):
         used_experiments = len(design[0])
         regression, prf_values = self.anova(design, lm_formula)
         ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
-        predicted_best         = self.predict_best(regression, step_data)
+        predicted_best         = self.predict_best(regression, step_space)
         fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
                                                           fixed_factors)
 
+        pruned_space = prune_data(step_space, predicted_best, fixed_variables):
         pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
                                                                   ordered_prf_keys)
         result = {"prf_values": prf_values,
                   "ordered_prf_keys": ordered_prf_keys,
                   "predicted_best": predicted_best,
-                  # "pruned_data": pruned_data,
+                  "pruned_space": pruned_space,
                   "pruned_factors": pruned_factors,
                   "pruned_inverse_factors": pruned_inverse_factors,
                   "fixed_factors": fixed_variables,
@@ -315,7 +316,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         return result
 
-    def dopt_anova(self, initial_factors, initial_inverse_factors):
+    def dopt_anova(self, initial_factors, initial_inverse_factors, search_space):
         response = ["cost_mean"]
 
         #info(str(initial_factors))
@@ -327,7 +328,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         step_factors = initial_factors
         step_inverse_factors = initial_inverse_factors
-        # step_space = data
+        step_space = search_space
 
         fixed_factors = {}
 
@@ -344,12 +345,12 @@ class Doptanova(orio.main.tuner.search.search.Search):
             step_data = self.dopt_anova_step(response,
                                              step_factors,
                                              step_inverse_factors,
+                                             step_space,
             #                                 data,
-            #                                 step_space,
                                              fixed_factors,
                                              budget)
 
-            # step_space = step_data["pruned_data"]
+            step_space = step_data["pruned_space"]
             step_factors = step_data["pruned_factors"]
             step_inverse_factors = step_data["pruned_inverse_factors"]
             budget -= step_data["used_experiments"]
@@ -386,11 +387,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         initial_factors = self.params["axis_names"]
         initial_inverse_factors = initial_factors
 
-        # d = {"constraints": self.constraint}
-        # d.update(perf_params)
-        # d.update(dict(self.input_params))
-        # exec "def f(): return eval(constraints)" in d
-
         best_coord = None
         best_perf_cost = self.MAXFLOAT
         old_perf_cost = best_perf_cost
@@ -401,57 +397,55 @@ class Doptanova(orio.main.tuner.search.search.Search):
         fruns = 0
         start_time = time.time()
 
-        # Trying to generate experiments at random:
-        #
-        # full_candidate_set = {}
-        # search_space = []
+        full_candidate_set = {}
+        search_space = []
 
-        # self.seed_space_size = 1000
+        self.seed_space_size = 1000
 
-        # info("Building seed search space (does not spend evaluations)")
-        # while len(search_space) < self.seed_space_size:
-        #     if len(full_candidate_set) % 20000 == 0:
-        #         info("Evaluated coordinates: " + str(len(full_candidate_set)))
+        info("Building seed search space (does not spend evaluations)")
+        while len(search_space) < self.seed_space_size:
+            if len(full_candidate_set) % 20000 == 0:
+                info("Evaluated coordinates: " + str(len(full_candidate_set)))
 
-        #     candidate_point = self.getRandomCoord()
-        #     candidate_point_key = str(candidate_point)
+            candidate_point = self.getRandomCoord()
+            candidate_point_key = str(candidate_point)
 
-        #     if candidate_point_key not in full_candidate_set:
-        #         full_candidate_set[candidate_point_key] = candidate_point
-        #         try:
-        #             perf_params = self.coordToPerfParams(candidate_point)
-        #             is_valid = eval(self.constraint, copy.copy(perf_params),
-        #                             dict(self.input_params))
-        #         except Exception, e:
-        #             err('failed to evaluate the constraint expression: "%s"\n%s %s'
-        #                 % (self.constraint, e.__class__.__name__, e))
+            if candidate_point_key not in full_candidate_set:
+                full_candidate_set[candidate_point_key] = candidate_point
+                try:
+                    perf_params = self.coordToPerfParams(candidate_point)
+                    is_valid = eval(self.constraint, copy.copy(perf_params),
+                                    dict(self.input_params))
+                except Exception, e:
+                    err('failed to evaluate the constraint expression: "%s"\n%s %s'
+                        % (self.constraint, e.__class__.__name__, e))
 
-        #         if not is_valid:
-        #             continue
+                if not is_valid:
+                    continue
 
-        #         search_space.append(candidate_point)
-        #         if len(search_space) % 10000 == 0:
-        #             info("Valid coordinates: " + str(len(search_space)))
+                search_space.append(candidate_point)
+                if len(search_space) % 10000 == 0:
+                    info("Valid coordinates: " + str(len(search_space)))
 
-        # info("Valid/Tested configurations: " + str(len(search_space)) + "/" +
-        #     str(len(full_candidate_set)))
+        info("Valid/Tested configurations: " + str(len(search_space)) + "/" +
+            str(len(full_candidate_set)))
 
-        # info("Starting DOPT-anova")
+        info("Starting DOPT-anova")
 
-        # r_search_space = {}
-        # for i in range(len(search_space[0])):
-        #     r_row = [self.dim_uplimits[i] - 1, 0]
-        #     for col in search_space:
-        #         r_row.append(col[i])
+        r_search_space = {}
+        for i in range(len(search_space[0])):
+            r_row = [self.dim_uplimits[i] - 1, 0]
+            for col in search_space:
+                r_row.append(col[i])
 
-        #     r_search_space[initial_factors[i]] = IntVector(r_row)
+            r_search_space[initial_factors[i]] = IntVector(r_row)
 
-        # data = DataFrame(r_search_space)
+        data = DataFrame(r_search_space)
 
-        # info(str(search_space))
-        # info(str(self.utils.str(data.rx(StrVector(initial_factors)))))
+        info(str(search_space))
+        info(str(self.utils.str(data.rx(StrVector(initial_factors)))))
 
-        self.dopt_anova(initial_factors, initial_inverse_factors)
+        self.dopt_anova(initial_factors, initial_inverse_factors, search_space)
 
         sys.exit()
 
