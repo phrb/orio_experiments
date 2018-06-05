@@ -288,7 +288,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         design = self.base.cbind(design, DataFrame({response[0]: FloatVector(measurements)}))
 
-        design = design.rx(self.base.is_finite(design.rx2(response[0]).ro), True)
+        design = design.rx(self.base.is_finite(design.rx2(response[0])), True)
 
         info(str(design))
         used_experiments = len(design[0])
