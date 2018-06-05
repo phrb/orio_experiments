@@ -442,8 +442,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         data = DataFrame(r_search_space)
 
-        info(str(search_space))
-        info(str(self.utils.str(data.rx(StrVector(initial_factors)))))
+        #info(str(search_space))
+        #info(str(self.utils.str(data.rx(StrVector(initial_factors)))))
 
         self.dopt_anova(initial_factors, initial_inverse_factors, data)
 
