@@ -286,7 +286,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         info("Measurements: " + str(measurements))
 
-        design = self.base.cbind(design, DataFrame({response[0]: measurements}))
+        design = self.base.cbind(design, DataFrame({response[0]: IntVector(measurements)}))
 
         info(str(design))
         used_experiments = len(design[0])
