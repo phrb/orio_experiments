@@ -10,7 +10,7 @@ import json
 import rpy2.rinterface as ri
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
-from rpy2.robjects import DataFrame, IntVector, StrVector, BoolVector, Formula, r
+from rpy2.robjects import DataFrame, IntVector, FloatVector, StrVector, BoolVector, Formula, r
 
 class Doptanova(orio.main.tuner.search.search.Search):
     '''
@@ -286,7 +286,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         info("Measurements: " + str(measurements))
 
-        design = self.base.cbind(design, DataFrame({response[0]: IntVector(measurements)}))
+        design = self.base.cbind(design, DataFrame({response[0]: FloatVector(measurements)}))
 
         info(str(design))
         used_experiments = len(design[0])
