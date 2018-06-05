@@ -27,7 +27,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def __init__(self, params):
         '''To instantiate a random search engine'''
-        numpy.random.seed(1337)
+        numpy.random.seed(7777)
 
         self.base      = importr("base")
         self.utils     = importr("utils")
@@ -68,9 +68,10 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Starting \"optMonteCarlo\" run")
         info(str(data))
 
+        self.base.set_seed(1337)
         output = self.algdesign.optMonteCarlo(frml = Formula(design_formula),
                                               data = data,
-                                              #nCand = 20 * trials,
+                                              nCand = 10 * trials,
                                               constraints = constraint,
                                               nTrials = trials)
 
