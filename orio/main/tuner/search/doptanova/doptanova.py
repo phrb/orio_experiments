@@ -7,6 +7,7 @@ from orio.main.util.globals import *
 import copy
 import json
 
+import rpy2.rinterface as ri
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects import DataFrame, IntVector, StrVector, BoolVector, Formula, r
@@ -37,6 +38,14 @@ class Doptanova(orio.main.tuner.search.search.Search):
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
 
+        self.parameter_ranges = {}
+
+        for i in range(len(self.params["axis_val_ranges"])):
+            self.parameter_ranges[self.params["axis_names"][i]] = [0,
+                    len(self.params["axis_val_ranges"][i])]
+
+        info("Parameters: " + str(self.parameter_ranges))
+
         # set all algorithm-specific arguments to their default values
         self.local_distance = 0
 
@@ -55,12 +64,10 @@ class Doptanova(orio.main.tuner.search.search.Search):
     def isclose(self, a, b, rel_tol = 1e-09, abs_tol = 0.0):
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
-    def opt_federov(self, design_formula, data, trials):
-        output = self.algdesign.optFederov(Formula(design_formula),
-                                           data = data,
-                                           center = True,
-                                           maxIteration = 100,
-                                           nTrials = trials)
+    def opt_federov(self, design_formula, trials, constraint, data):
+        output = self.algdesign.optMonteCarlo(frml = Formula(design_formula),
+                                              data = data)
+                                              #nTrials = trials)
         return output
 
     def transform_lm(self, design, lm_formula):
@@ -173,74 +180,94 @@ class Doptanova(orio.main.tuner.search.search.Search):
             full_model += " + " + " + ".join(["I(1 / {0})".format(f) for f in
                 inverse_factors])
 
-        low_level = IntVector([0] * (len(factors) + len(inverse_factors)))
-        high_level = IntVector()
+        low_level_limits = IntVector([self.parameter_ranges[f][0] for f in factors])
+        high_level_limits = IntVector([self.parameter_ranges[f][1] for f in factors])
+        factor_centers = IntVector([self.parameter_ranges[f][1] // 2 for f in factors])
+        factor_levels = IntVector([self.parameter_ranges[f][1] for f in factors])
+        factor_round = IntVector([0 for f in factors])
+        # Find a way to keep track of factor information
+        is_factor = BoolVector([False for f in factors])
+        mix = BoolVector([False for f in factors])
+
+        opt_federov_data = {
+                             "var": StrVector(factors),
+                             "low": low_level_limits,
+                             "high": high_level_limits,
+                             "center": factor_centers,
+                             "nLevels": factor_levels,
+                             "round": factor_round,
+                             "factor": is_factor,
+                             "mix": mix
+                           }
+
+        opt_federov_dataframe = DataFrame(opt_federov_data)
+        opt_federov_dataframe = opt_federov_dataframe.rx(StrVector(["var",
+                                                                   "low",
+                                                                   "high",
+                                                                   "center",
+                                                                   "nLevels",
+                                                                   "round",
+                                                                   "factor",
+                                                                   "mix"]))
+
+        info(str(opt_federov_dataframe))
 
         design_formula = full_model
         lm_formula     = response[0] + full_model
         trials         = int(round(2 * (len(factors) + len(inverse_factors) + 1)))
 
         fixed_variables = fixed_factors
+        info("Fixed Factors: " + str(fixed_factors))
 
-        info("Size of Step Data: " + str(len(step_data[0])))
+        info("Updating Constraints")
 
-        if budget - len(step_data[0]) < 0:
-            info("Full data does not fit on budget")
-            info("Computing D-Optimal Design with " + str(trials) +
-                 " experiments")
-            if trials < len(step_data[0]):
-                info("Design Formula: " + str(design_formula))
-                output = self.opt_federov(design_formula, step_data, trials)
-                design = output.rx("design")[0]
-            else:
-                info("Too few data points for a D-Optimal design")
-                design = step_data
+        @ri.rternalize
+        def constraint(x):
+            #print(str(x))
+            return True
 
-            info("Measuring design of size " + str(len(design[0])))
+        info("Constraint: " + str(self.constraint))
 
-            sys.exit()
+        info("Computing D-Optimal Design with " + str(trials) +
+             " experiments")
+        info("Design Formula: " + str(design_formula))
 
-            try:
-                perf_costs = self.getPerfCosts([coord])
-            except Exception, e:
-                perf_costs[str(full_candidate_set)] = [self.MAXFLOAT]
-                info('FAILED: %s %s' % (e.__class__.__name__, e))
-                fruns += 1
+        output = self.opt_federov(design_formula, trials, constraint,
+                                  opt_federov_dataframe)
 
-            try:
-                floatNums = [float(x) for x in perf_cost]
-                mean_perf_cost = sum(floatNums) / len(perf_cost)
-            except:
-                mean_perf_cost = perf_cost
+        info(str(output))
 
-            transform_time = self.getTransformTime(coord_key)
-            compile_time = self.getCompileTime(coord_key)
+        design = output.rx("design")[0]
+        info("Measuring design of size " + str(len(design[0])))
 
-            used_experiments = len(design[0])
-            regression, prf_values = self.anova(design, lm_formula)
-            ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
-            predicted_best         = self.predict_best(regression, step_data)
-            fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
-                                                              fixed_factors)
-            # pruned_data            = self.prune_data(data, predicted_best, fixed_variables)
+        sys.exit()
 
-            pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
-                                                                      ordered_prf_keys)
-        else:
-            info("Full data fits on budget, picking best value")
+        try:
+            perf_costs = self.getPerfCosts([coord])
+        except Exception, e:
+            perf_costs[str(full_candidate_set)] = [self.MAXFLOAT]
+            info('FAILED: %s %s' % (e.__class__.__name__, e))
+            fruns += 1
 
-            info("Measuring design of size " + str(len(step_data[0])))
+        try:
+            floatNums = [float(x) for x in perf_cost]
+            mean_perf_cost = sum(floatNums) / len(perf_cost)
+        except:
+            mean_perf_cost = perf_cost
 
-            sys.exit()
+        transform_time = self.getTransformTime(coord_key)
+        compile_time = self.getCompileTime(coord_key)
 
-            used_experiments = len(step_data[0])
-            prf_values = []
-            ordered_prf_keys = []
-            # pruned_data = []
-            pruned_factors = []
-            pruned_inverse_factors = []
-            predicted_best = step_data.rx((step_data.rx2(response[0]).ro == min(step_data.rx(response[0])[0])),
-                                      True)
+        used_experiments = len(design[0])
+        regression, prf_values = self.anova(design, lm_formula)
+        ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
+        predicted_best         = self.predict_best(regression, step_data)
+        fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
+                                                          fixed_factors)
+        # pruned_data            = self.prune_data(data, predicted_best, fixed_variables)
+
+        pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
+                                                                  ordered_prf_keys)
 
         return {"prf_values": prf_values,
                 "ordered_prf_keys": ordered_prf_keys,
@@ -256,7 +283,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         #info(str(initial_factors))
 
-        data = data.rx(StrVector(initial_factors))
+        #data = data.rx(StrVector(initial_factors))
         #data = data.rx(StrVector(initial_factors + response))
         #data_best = data.rx((data.rx2(response[0]).ro == min(data.rx(response[0])[0])),
         #                    True)
@@ -387,7 +414,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         # info(str(search_space))
         # info(str(self.utils.str(data.rx(StrVector(initial_factors)))))
 
-        self.dopt_anova(initial_factors, initial_inverse_factors, data)
+        self.dopt_anova(initial_factors, initial_inverse_factors)
 
         sys.exit()
 
