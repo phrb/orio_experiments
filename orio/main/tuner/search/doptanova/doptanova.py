@@ -313,12 +313,12 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
             design = self.measure_design(design, response)
 
+            info("Step Space Names: " + str(self.base.names(step_space)))
+
             used_experiments       = len(design[0])
             regression, prf_values = self.anova(design, lm_formula)
             ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
-            info(str(ordered_prf_keys))
             predicted_best         = self.predict_best(regression, step_space)
-            info(str(predicted_best))
             fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
                                                               fixed_factors)
 
@@ -366,7 +366,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         initial_budget = 1
         budget = initial_budget
         used_experiments = 0
-        iterations = 1
+        iterations = 2
 
         for i in range(iterations):
             info("Step {0}".format(i))
@@ -399,7 +399,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
             info("Slowdown: " + str(predicted_best_value / starting_point))
             info("Budget: {0}/{1}".format(used_experiments, initial_budget))
-            sys.exit()
 
         return True
 
@@ -481,9 +480,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
             r_search_space[initial_factors[i]] = IntVector(r_row)
 
         data = DataFrame(r_search_space)
-
-        #info(str(search_space))
-        #info(str(self.utils.str(data.rx(StrVector(initial_factors)))))
+        data = data.rx(StrVector(initial_factors))
 
         self.dopt_anova(initial_factors, initial_inverse_factors, data)
 
