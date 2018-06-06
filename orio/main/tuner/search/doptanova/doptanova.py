@@ -178,7 +178,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         return pruned_factors, pruned_inverse_factors
 
-    def get_federov_data(factors):
+    def get_federov_data(self, factors):
         low_level_limits  = IntVector([self.parameter_ranges[f][0] for f in factors])
         high_level_limits = IntVector([self.parameter_ranges[f][1] - 1 for f in factors])
         factor_centers    = IntVector([0 for f in factors])
@@ -210,7 +210,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
                                                                    "mix"]))
         return opt_federov_dataframe
 
-    def get_updated_constraints(factors, fixed_variables):
+    def get_updated_constraints(self, factors, fixed_variables):
         info("Updating Constraints")
         constraint_text = self.constraint
         variable_ranges = self.axis_val_ranges
@@ -229,53 +229,17 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         @ri.rternalize
         def constraint(x):
-            variable_ranges = variable_ranges
-            variable_names  = variable_names
-            factors         = factors
-            result          = eval(constraint_text)
+            type(variable_ranges)
+            type(variable_names)
+            type(factors)
+            result = eval(constraint_text)
             return result
 
         info("Updated Constraint: " + str(self.constraint))
 
         return constraint
 
-
-    def dopt_anova_step(self, response, factors, inverse_factors, step_space,
-                        search_space, fixed_factors, budget):
-        full_model     = "".join([" ~ ",
-                                  " + ".join(factors)])
-
-        # Leaving inverses out for now, since they do not work well with
-        # Federov
-        #
-        # if len(inverse_factors) > 0:
-        #     full_model += " + " + " + ".join(["I(1 / {0})".format(f) for f in
-        #         inverse_factors])
-
-        info(str(full_model))
-
-        design_formula = full_model
-        lm_formula     = response[0] + full_model
-        trials         = int(2 * len(factors))
-
-        fixed_variables = fixed_factors
-        info("Fixed Factors: " + str(fixed_factors))
-
-        constraint = get_updated_constraints(factors, fixed_variables)
-
-        info("Computing D-Optimal Design with " + str(trials) +
-             " experiments")
-        info("Design Formula: " + str(design_formula))
-
-        opt_federov_dataframe = get_federov_data(factors)
-
-        output = self.opt_federov(design_formula, trials, constraint,
-                                  opt_federov_dataframe)
-
-        design = output.rx("design")[0]
-
-        info(str(design))
-        info("D-Efficiency Approximation: " + str(output.rx("Dea")[0]))
+    def measure_design(self, design, response):
         info("Measuring design of size " + str(len(design)))
 
         measurements = []
@@ -298,16 +262,80 @@ class Doptanova(orio.main.tuner.search.search.Search):
         design = design.rx(self.base.is_finite(design.rx2(response[0])), True)
 
         info(str(design))
-        used_experiments = len(design[0])
-        regression, prf_values = self.anova(design, lm_formula)
-        ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
-        predicted_best         = self.predict_best(regression, step_space)
-        fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
-                                                          fixed_factors)
 
-        pruned_space = self.prune_data(step_space, predicted_best, fixed_variables)
-        pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
-                                                                  ordered_prf_keys)
+        return design
+
+    def dopt_anova_step(self, response, factors, inverse_factors, step_space,
+                        search_space, fixed_factors, budget):
+        full_model     = "".join([" ~ ",
+                                  " + ".join(factors)])
+
+        # Leaving inverses out for now, since they do not work well with
+        # Federov
+        #
+        # if len(inverse_factors) > 0:
+        #     full_model += " + " + " + ".join(["I(1 / {0})".format(f) for f in
+        #         inverse_factors])
+
+        info(str(full_model))
+
+        design_formula = full_model
+        lm_formula     = response[0] + full_model
+        trials         = int(2 * len(factors))
+
+        fixed_variables = fixed_factors
+        info("Fixed Factors: " + str(fixed_factors))
+
+        if budget - len(step_space[0]) < 0:
+            info("Full data does not fit on budget")
+            if trials < len(step_space[0]):
+                info("Computing D-Optimal Design")
+                constraint = self.get_updated_constraints(factors, fixed_variables)
+
+                info("Computing D-Optimal Design with " + str(trials) +
+                     " experiments")
+                info("Design Formula: " + str(design_formula))
+
+                opt_federov_dataframe = self.get_federov_data(factors)
+
+                output = self.opt_federov(design_formula, trials, constraint,
+                                          opt_federov_dataframe)
+
+                design = output.rx("design")[0]
+
+                info(str(design))
+                info("D-Efficiency Approximation: " + str(output.rx("Dea")[0]))
+            else:
+                info("Too few data points for a D-Optimal design")
+                design = step_space
+
+            design = self.measure_design(design, response)
+
+            used_experiments       = len(design[0])
+            regression, prf_values = self.anova(design, lm_formula)
+            ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
+            predicted_best         = self.predict_best(regression, step_space)
+            info(str(predicted_best))
+            fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
+                                                              fixed_factors)
+
+            pruned_space = self.prune_data(step_space, predicted_best, fixed_variables)
+            pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
+                                                                      ordered_prf_keys)
+        else:
+            info("Full data fits on budget, picking best value")
+
+            used_experiments = len(step_data[0])
+            prf_values = []
+            ordered_prf_keys = []
+            pruned_data = []
+            pruned_factors = []
+            pruned_inverse_factors = []
+
+            step_data = self.measure_design(step_data, response)
+            predicted_best = step_data.rx((step_data.rx2(response[0]).ro == min(step_data.rx(response[0])[0])),
+                                      True)
+
         info("Pruned Search Space Size: " + str(len(pruned_space)))
         info("Best Predicted: " + str(predicted_best))
         info("Pruned Factors: " + str(pruned_factors))
@@ -402,7 +430,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         full_candidate_set = {}
         search_space = []
 
-        self.seed_space_size = 200
+        self.seed_space_size = 20000
 
         info("Building seed search space (does not spend evaluations)")
         while len(search_space) < self.seed_space_size:
