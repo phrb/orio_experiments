@@ -472,7 +472,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
             info("Using pre-generated space for this size")
             search_space_database = dataset.connect("sqlite:///search_space_{0}.db".format(self.seed_space_size))
             for experiment in search_space_database['experiments']:
-                search_space.append(eval(experiment))
+                search_space.append(eval(experiment["value"]))
 
         info("Starting DOPT-anova")
 
