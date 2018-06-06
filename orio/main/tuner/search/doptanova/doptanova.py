@@ -144,15 +144,16 @@ class Doptanova(orio.main.tuner.search.search.Search):
                             fixed_factors, threshold = 2):
         info("Getting fixed variables")
         variables = ordered_prf_keys
-        variables = [v.strip("I)(/1 ") for v in variables]
+        #variables = [v.strip("I)(/1 ") for v in variables]
 
-        unique_variables = []
+        unique_variables = variables
+        #unique_variables = []
 
-        for v in variables:
-            if v not in unique_variables:
-                unique_variables.append(v)
-            if len(unique_variables) >= threshold:
-                break
+        #for v in variables:
+        #    if v not in unique_variables:
+        #        unique_variables.append(v)
+        #    if len(unique_variables) >= threshold:
+        #        break
 
         fixed_variables = fixed_factors
         for v in unique_variables:
