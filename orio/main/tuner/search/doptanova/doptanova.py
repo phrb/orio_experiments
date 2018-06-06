@@ -146,19 +146,17 @@ class Doptanova(orio.main.tuner.search.search.Search):
         variables = ordered_prf_keys
         #variables = [v.strip("I)(/1 ") for v in variables]
 
-        unique_variables = variables
-        #unique_variables = []
+        unique_variables = []
 
-        #for v in variables:
-        #    if v not in unique_variables:
-        #        unique_variables.append(v)
-        #    if len(unique_variables) >= threshold:
-        #        break
+        for v in variables:
+            if v not in unique_variables:
+                unique_variables.append(v)
+            if len(unique_variables) >= threshold:
+                break
 
         fixed_variables = fixed_factors
         for v in unique_variables:
-            info(str(predicted_best.rx(str(v))[0]))
-            fixed_variables[v] = predicted_best.rx(str(v))[0]
+            fixed_variables[v] = predicted_best.rx2(1, str(v))[0]
 
         info("Fixed Variables: " + str(fixed_variables))
         return fixed_variables
@@ -167,7 +165,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
                     threshold = 2):
         info("Pruning Model")
         variables = ordered_prf_keys
-        variables = [v.strip("I)(/1 ") for v in variables]
+        #variables = [v.strip("I)(/1 ") for v in variables]
 
         unique_variables = []
 
@@ -318,6 +316,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
             used_experiments       = len(design[0])
             regression, prf_values = self.anova(design, lm_formula)
             ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
+            info(str(ordered_prf_keys))
             predicted_best         = self.predict_best(regression, step_space)
             info(str(predicted_best))
             fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
@@ -344,8 +343,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Best Predicted: " + str(predicted_best))
         info("Pruned Factors: " + str(pruned_factors))
         info("Fixed Factors: " + str(fixed_variables))
-
-        sys.exit()
 
         return {"prf_values": prf_values,
                 "ordered_prf_keys": ordered_prf_keys,
@@ -393,18 +390,16 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
             info("Fixed Factors: " + str(fixed_factors))
 
-            if step_space != []:
-                step_best = step_space.rx((step_space.rx2(response[0]).ro ==
-                    min(step_space.rx(response[0])[0])), True)
+            starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
+            info(str(starting_point))
 
-                info("Best Step Slowdown: " +
-                        str(step_best.rx(response[0])[0][0] /
-                            data_best.rx(response[0])[0][0]))
+            predicted_best = [int(v[0]) for v in step_data["predicted_best"].rx(1, True)]
+            info(str(predicted_best))
+            predicted_best_value = numpy.mean((self.getPerfCosts([predicted_best]).values()[0])[0])
 
-            info("Slowdown: " +
-                    str(step_data["predicted_best"].rx(response[0])[0][0] /
-                        data_best.rx(response[0])[0][0]))
+            info("Slowdown: " + str(predicted_best_value / starting_point))
             info("Budget: {0}/{1}".format(used_experiments, initial_budget))
+            sys.exit()
 
         return True
 
