@@ -6,6 +6,8 @@ import orio.main.tuner.search.search
 from orio.main.util.globals import *
 import copy
 import json
+import dataset
+import os
 
 import rpy2.rinterface as ri
 import rpy2.robjects as robjects
@@ -154,7 +156,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         fixed_variables = fixed_factors
         for v in unique_variables:
-            info(str(predicted_best.rx(str(v))))
+            info(str(predicted_best.rx(str(v))[0]))
             fixed_variables[v] = predicted_best.rx(str(v))[0]
 
         info("Fixed Variables: " + str(fixed_variables))
@@ -434,32 +436,43 @@ class Doptanova(orio.main.tuner.search.search.Search):
         self.seed_space_size = 20000
 
         info("Building seed search space (does not spend evaluations)")
-        while len(search_space) < self.seed_space_size:
-            if len(full_candidate_set) % 20000 == 0:
-                info("Evaluated coordinates: " + str(len(full_candidate_set)))
+        if not os.path.isfile("search_space_{0}.db".format(self.seed_space_size)):
+            info("Generating new search space for this size")
+            search_space_database = dataset.connect("sqlite:///search_space_{0}.db".format(self.seed_space_size))
+            experiments = search_space_database['experiments']
 
-            candidate_point = self.getRandomCoord()
-            candidate_point_key = str(candidate_point)
+            while len(search_space) < self.seed_space_size:
+                if len(full_candidate_set) % 20000 == 0:
+                    info("Evaluated coordinates: " + str(len(full_candidate_set)))
 
-            if candidate_point_key not in full_candidate_set:
-                full_candidate_set[candidate_point_key] = candidate_point
-                try:
-                    perf_params = self.coordToPerfParams(candidate_point)
-                    is_valid = eval(self.constraint, copy.copy(perf_params),
-                                    dict(self.input_params))
-                except Exception, e:
-                    err('failed to evaluate the constraint expression: "%s"\n%s %s'
-                        % (self.constraint, e.__class__.__name__, e))
+                candidate_point = self.getRandomCoord()
+                candidate_point_key = str(candidate_point)
 
-                if not is_valid:
-                    continue
+                if candidate_point_key not in full_candidate_set:
+                    full_candidate_set[candidate_point_key] = candidate_point
+                    try:
+                        perf_params = self.coordToPerfParams(candidate_point)
+                        is_valid = eval(self.constraint, copy.copy(perf_params),
+                                        dict(self.input_params))
+                    except Exception, e:
+                        err('failed to evaluate the constraint expression: "%s"\n%s %s'
+                            % (self.constraint, e.__class__.__name__, e))
 
-                search_space.append(candidate_point)
-                if len(search_space) % 5000 == 0:
-                    info("Valid coordinates: " + str(len(search_space)))
+                    if not is_valid:
+                        continue
 
-        info("Valid/Tested configurations: " + str(len(search_space)) + "/" +
-            str(len(full_candidate_set)))
+                    experiments.insert({"value": str(candidate_point)})
+                    search_space.append(candidate_point)
+                    if len(search_space) % 5000 == 0:
+                        info("Valid coordinates: " + str(len(search_space)))
+
+            info("Valid/Tested configurations: " + str(len(search_space)) + "/" +
+                str(len(full_candidate_set)))
+        else:
+            info("Using pre-generated space for this size")
+            search_space_database = dataset.connect("sqlite:///search_space_{0}.db".format(self.seed_space_size))
+            for experiment in search_space_database['experiments']:
+                search_space.append(eval(experiment))
 
         info("Starting DOPT-anova")
 
