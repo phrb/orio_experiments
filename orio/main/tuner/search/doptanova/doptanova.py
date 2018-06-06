@@ -154,7 +154,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         fixed_variables = fixed_factors
         for v in unique_variables:
-            fixed_variables[v] = predicted_best.rx2(str(v))[0]
+            info(str(predicted_best.rx(str(v))))
+            fixed_variables[v] = predicted_best.rx(str(v))[0]
 
         info("Fixed Variables: " + str(fixed_variables))
         return fixed_variables
