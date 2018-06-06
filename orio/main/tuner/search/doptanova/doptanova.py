@@ -178,25 +178,15 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         return pruned_factors, pruned_inverse_factors
 
-    def dopt_anova_step(self, response, factors, inverse_factors, step_space, # data,
-                        fixed_factors, budget):
-        full_model     = "".join([" ~ ",
-                                  " + ".join(factors)])
-
-        #if len(inverse_factors) > 0:
-        #    full_model += " + " + " + ".join(["I(1 / {0})".format(f) for f in
-        #        inverse_factors])
-
-        #info(str(full_model))
-
-        low_level_limits = IntVector([self.parameter_ranges[f][0] for f in factors])
+    def get_federov_data(factors):
+        low_level_limits  = IntVector([self.parameter_ranges[f][0] for f in factors])
         high_level_limits = IntVector([self.parameter_ranges[f][1] - 1 for f in factors])
-        factor_centers = IntVector([0 for f in factors])
-        factor_levels = IntVector([self.parameter_ranges[f][1] for f in factors])
-        factor_round = IntVector([0 for f in factors])
-        # Find a way to keep track of factor information
-        is_factor = BoolVector([False for f in factors])
-        mix = BoolVector([False for f in factors])
+        factor_centers    = IntVector([0 for f in factors])
+        factor_levels     = IntVector([self.parameter_ranges[f][1] for f in factors])
+        factor_round      = IntVector([0 for f in factors])
+        # TODO Find a way to keep track of factor information
+        is_factor         = BoolVector([False for f in factors])
+        mix               = BoolVector([False for f in factors])
 
         opt_federov_data = {
                              "var": StrVector(factors),
@@ -218,19 +208,10 @@ class Doptanova(orio.main.tuner.search.search.Search):
                                                                    "round",
                                                                    "factor",
                                                                    "mix"]))
+        return opt_federov_dataframe
 
-        #info(str(opt_federov_dataframe))
-
-        design_formula = full_model
-        lm_formula     = response[0] + full_model
-        trials         = int(round(2 * (len(factors) + len(inverse_factors) + 1)))
-        trials         = int(2 * len(factors))
-
-        fixed_variables = fixed_factors
-        info("Fixed Factors: " + str(fixed_factors))
-
+    def get_updated_constraints(factors, fixed_variables):
         info("Updating Constraints")
-
         constraint_text = self.constraint
         variable_ranges = self.axis_val_ranges
         variable_names = self.params["axis_names"]
@@ -248,19 +229,45 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         @ri.rternalize
         def constraint(x):
-            # Using variables here so they get "rternalized"
-            # There must be a better way
-            type(variable_ranges)
-            type(variable_names)
-            type(factors)
-            result = eval(constraint_text)
+            variable_ranges = variable_ranges
+            variable_names  = variable_names
+            factors         = factors
+            result          = eval(constraint_text)
             return result
 
         info("Updated Constraint: " + str(self.constraint))
 
+        return constraint
+
+
+    def dopt_anova_step(self, response, factors, inverse_factors, step_space,
+                        search_space, fixed_factors, budget):
+        full_model     = "".join([" ~ ",
+                                  " + ".join(factors)])
+
+        # Leaving inverses out for now, since they do not work well with
+        # Federov
+        #
+        # if len(inverse_factors) > 0:
+        #     full_model += " + " + " + ".join(["I(1 / {0})".format(f) for f in
+        #         inverse_factors])
+
+        info(str(full_model))
+
+        design_formula = full_model
+        lm_formula     = response[0] + full_model
+        trials         = int(2 * len(factors))
+
+        fixed_variables = fixed_factors
+        info("Fixed Factors: " + str(fixed_factors))
+
+        constraint = get_updated_constraints(factors, fixed_variables)
+
         info("Computing D-Optimal Design with " + str(trials) +
              " experiments")
         info("Design Formula: " + str(design_formula))
+
+        opt_federov_dataframe = get_federov_data(factors)
 
         output = self.opt_federov(design_formula, trials, constraint,
                                   opt_federov_dataframe)
@@ -321,13 +328,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
     def dopt_anova(self, initial_factors, initial_inverse_factors, search_space):
         response = ["cost_mean"]
 
-        #info(str(initial_factors))
-
-        #data = data.rx(StrVector(initial_factors))
-        #data = data.rx(StrVector(initial_factors + response))
-        #data_best = data.rx((data.rx2(response[0]).ro == min(data.rx(response[0])[0])),
-        #                    True)
-
         step_factors = initial_factors
         step_inverse_factors = initial_inverse_factors
         step_space = search_space
@@ -341,14 +341,14 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         for i in range(iterations):
             info("Step {0}".format(i))
-            # if step_space == []:
-            #     break
+            if step_space == []:
+                break
 
             step_data = self.dopt_anova_step(response,
                                              step_factors,
                                              step_inverse_factors,
                                              step_space,
-            #                                 data,
+                                             search_space,
                                              fixed_factors,
                                              budget)
 
@@ -361,13 +361,13 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
             info("Fixed Factors: " + str(fixed_factors))
 
-            # if step_space != []:
-            #     step_best = step_space.rx((step_space.rx2(response[0]).ro ==
-            #         min(step_space.rx(response[0])[0])), True)
+            if step_space != []:
+                step_best = step_space.rx((step_space.rx2(response[0]).ro ==
+                    min(step_space.rx(response[0])[0])), True)
 
-            #     info("Best Step Slowdown: " +
-            #             str(step_best.rx(response[0])[0][0] /
-            #                 data_best.rx(response[0])[0][0]))
+                info("Best Step Slowdown: " +
+                        str(step_best.rx(response[0])[0][0] /
+                            data_best.rx(response[0])[0][0]))
 
             info("Slowdown: " +
                     str(step_data["predicted_best"].rx(response[0])[0][0] /
@@ -402,7 +402,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         full_candidate_set = {}
         search_space = []
 
-        self.seed_space_size = 20000
+        self.seed_space_size = 200
 
         info("Building seed search space (does not spend evaluations)")
         while len(search_space) < self.seed_space_size:
