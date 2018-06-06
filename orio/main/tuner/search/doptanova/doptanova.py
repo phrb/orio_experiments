@@ -241,14 +241,29 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         return constraint
 
-    def measure_design(self, design, response):
+    def measure_design(self, design, response, fixed_factors):
         info("Measuring design of size " + str(len(design)))
 
-        measurements = []
+        design_names    = [str(n) for n in self.base.names(design)]
+        initial_factors = self.params["axis_names"]
+        measurements    = []
+
+        info("Current Design Names: " + str(design_names))
+        info("Initial Factors: " + str(initial_factors))
 
         for line in range(len(design[0])):
-            #TODO Update design line with fixed parameters!
-            candidate = [int(v[0]) for v in design.rx(line + 1, True)]
+            design_line = [int(v[0]) for v in design.rx(line + 1, True)]
+
+            candidate = [0] * len(initial_factors)
+
+            for k, v in fixed_factors.items():
+                candidate[initial_factors.index(k)] = int(v)
+
+            for i in range(len(design_names)):
+                candidate[initial_factors.index(design_names[i])] = design_line[i]
+
+            info("Initial Design Line: " + str(design_line))
+            info("Fixed Factors: " + str(fixed_factors))
             info("Testing candidate " + str(line + 1) + ": " + str(candidate))
 
             measurement = self.getPerfCosts([candidate])
@@ -311,7 +326,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
                 info("Too few data points for a D-Optimal design")
                 design = step_space
 
-            design = self.measure_design(design, response)
+            design = self.measure_design(design, response, fixed_factors)
 
             info("Step Space Names: " + str(self.base.names(step_space)))
 
@@ -366,7 +381,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         initial_budget = 1
         budget = initial_budget
         used_experiments = 0
-        iterations = 2
+        iterations = 5
 
         for i in range(iterations):
             info("Step {0}".format(i))
@@ -428,7 +443,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         full_candidate_set = {}
         search_space = []
 
-        self.seed_space_size = 20000
+        self.seed_space_size = 400000
 
         info("Building seed search space (does not spend evaluations)")
         if not os.path.isfile("search_space_{0}.db".format(self.seed_space_size)):
@@ -453,13 +468,11 @@ class Doptanova(orio.main.tuner.search.search.Search):
                         err('failed to evaluate the constraint expression: "%s"\n%s %s'
                             % (self.constraint, e.__class__.__name__, e))
 
-                    if not is_valid:
-                        continue
-
-                    experiments.insert({"value": str(candidate_point)})
-                    search_space.append(candidate_point)
-                    if len(search_space) % 5000 == 0:
-                        info("Valid coordinates: " + str(len(search_space)))
+                    if is_valid:
+                        experiments.insert({"value": str(candidate_point)})
+                        search_space.append(candidate_point)
+                        if len(search_space) % 5000 == 0:
+                            info("Valid coordinates: " + str(len(search_space)))
 
             info("Valid/Tested configurations: " + str(len(search_space)) + "/" +
                 str(len(full_candidate_set)))
