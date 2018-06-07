@@ -347,7 +347,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
             pruned_factors = []
             pruned_inverse_factors = []
 
-            step_data = self.measure_design(step_space, response)
+            step_data = self.measure_design(step_space, response, fixed_factors)
             predicted_best = step_data.rx((step_data.rx2(response[0]).ro == min(step_data.rx(response[0])[0])),
                                       True)
 
