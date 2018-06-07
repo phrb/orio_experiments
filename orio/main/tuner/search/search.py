@@ -234,7 +234,7 @@ class Search:
             result = experiments.find_one(**perf_params)
 
             if result:
-                info("Result was on Database, Returning Now)
+                info("Result was on Database, Returning Now")
                 perf_costs[coord_key] = (int(result["runs"]) * [float(result["cost_mean"])], int(result["runs"]) * [float("inf")])
                 info("My perf_costs: " + str(perf_costs))
                 return perf_costs
