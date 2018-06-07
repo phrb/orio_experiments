@@ -343,7 +343,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
             used_experiments = len(step_space[0])
             prf_values = []
             ordered_prf_keys = []
-            pruned_data = []
+            pruned_space = []
             pruned_factors = []
             pruned_inverse_factors = []
 
