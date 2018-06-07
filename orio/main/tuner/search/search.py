@@ -221,10 +221,10 @@ class Search:
                 perf_costs[coord_key] = ([self.MAXFLOAT],[self.MAXFLOAT])
                 continue
 
-            if coord_key in self.perf_cost_records:
-                info("Coordinate was computed before")
-                perf_costs[coord_key] = self.perf_cost_records[coord_key]
-                continue
+            #if coord_key in self.perf_cost_records:
+            #    info("Coordinate was computed before")
+            #    perf_costs[coord_key] = self.perf_cost_records[coord_key]
+            #    continue
 
             # get the performance parameters
             perf_params = self.coordToPerfParams(coord)
@@ -234,7 +234,7 @@ class Search:
             result = experiments.find_one(**perf_params)
 
             if result:
-                info(str(result))
+                info("Result was on Database, Returning Now)
                 perf_costs[coord_key] = (int(result["runs"]) * [float(result["cost_mean"])], int(result["runs"]) * [float("inf")])
                 info("My perf_costs: " + str(perf_costs))
                 return perf_costs
