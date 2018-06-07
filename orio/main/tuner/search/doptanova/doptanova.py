@@ -303,28 +303,24 @@ class Doptanova(orio.main.tuner.search.search.Search):
         fixed_variables = fixed_factors
         info("Fixed Factors: " + str(fixed_factors))
 
-        if budget - len(step_space[0]) < 0:
+        if budget - len(step_space[0]) < 0 and trials < len(step_space[0]):
             info("Full data does not fit on budget")
-            if trials < len(step_space[0]):
-                info("Computing D-Optimal Design")
-                constraint = self.get_updated_constraints(factors, fixed_variables)
+            info("Computing D-Optimal Design")
+            constraint = self.get_updated_constraints(factors, fixed_variables)
 
-                info("Computing D-Optimal Design with " + str(trials) +
-                     " experiments")
-                info("Design Formula: " + str(design_formula))
+            info("Computing D-Optimal Design with " + str(trials) +
+                 " experiments")
+            info("Design Formula: " + str(design_formula))
 
-                opt_federov_dataframe = self.get_federov_data(factors)
+            opt_federov_dataframe = self.get_federov_data(factors)
 
-                output = self.opt_federov(design_formula, trials, constraint,
-                                          opt_federov_dataframe)
+            output = self.opt_federov(design_formula, trials, constraint,
+                                      opt_federov_dataframe)
 
-                design = output.rx("design")[0]
+            design = output.rx("design")[0]
 
-                info(str(design))
-                info("D-Efficiency Approximation: " + str(output.rx("Dea")[0]))
-            else:
-                info("Too few data points for a D-Optimal design")
-                design = step_space
+            info(str(design))
+            info("D-Efficiency Approximation: " + str(output.rx("Dea")[0]))
 
             design = self.measure_design(design, response, fixed_factors)
 
@@ -341,7 +337,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
             pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
                                                                       ordered_prf_keys)
         else:
-            info("Full data fits on budget, picking best value")
+            info(("Full data fits on budget, or too few data points"
+                  " for a D-Optimal design. Picking best value."))
 
             used_experiments = len(step_data[0])
             prf_values = []
