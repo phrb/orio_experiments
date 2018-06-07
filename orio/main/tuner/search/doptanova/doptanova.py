@@ -340,14 +340,14 @@ class Doptanova(orio.main.tuner.search.search.Search):
             info(("Full data fits on budget, or too few data points"
                   " for a D-Optimal design. Picking best value."))
 
-            used_experiments = len(step_data[0])
+            used_experiments = len(step_space[0])
             prf_values = []
             ordered_prf_keys = []
             pruned_data = []
             pruned_factors = []
             pruned_inverse_factors = []
 
-            step_data = self.measure_design(step_data, response)
+            step_data = self.measure_design(step_space, response)
             predicted_best = step_data.rx((step_data.rx2(response[0]).ro == min(step_data.rx(response[0])[0])),
                                       True)
 
