@@ -236,7 +236,7 @@ class Search:
             if result:
                 info("Result was on Database, Returning Now")
                 perf_costs[coord_key] = (int(result["runs"]) * [float(result["cost_mean"])], int(result["runs"]) * [float("inf")])
-                info("My perf_costs: " + str(perf_costs))
+                #info("My perf_costs: " + str(perf_costs))
                 return perf_costs
 
             # test if the performance parameters are valid
@@ -334,7 +334,7 @@ class Search:
         perf_costs.update(new_perf_costs.items())
         # also take the compile time
 
-        info(str(perf_costs.values()))
+        #info(str(perf_costs.values()))
 
         experiments = self.database['experiments']
         measurement = perf_params
