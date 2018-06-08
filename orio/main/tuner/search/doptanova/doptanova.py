@@ -29,7 +29,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def __init__(self, params):
         '''To instantiate a random search engine'''
-        numpy.random.seed(7777)
+        numpy.random.seed(39920)
 
         self.base      = importr("base")
         self.utils     = importr("utils")
@@ -70,25 +70,30 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Starting \"optMonteCarlo\" run")
         info(str(data))
 
-        self.base.set_seed(1337)
-        output = self.algdesign.optMonteCarlo(frml = Formula(design_formula),
-                                              data = data,
-                                              nCand = 30 * trials,
-                                              nRepeats = 10,
+        self.base.set_seed(77126)
+
+        candidate_multiplier = 15
+        repetitions          = 8
+
+        output = self.algdesign.optMonteCarlo(frml        = Formula(design_formula),
+                                              data        = data,
+                                              nCand       = candidate_multiplier * trials,
+                                              nRepeats    = repetitions,
                                               constraints = constraint,
-                                              nTrials = trials)
+                                              nTrials     = trials)
 
         return output
 
     def transform_lm(self, design, lm_formula):
         info("Power Transform Step:")
-        response = lm_formula.split("~")[0].strip()
+        response  = lm_formula.split("~")[0].strip()
         variables = lm_formula.split("~")[1].strip()
+
         r_snippet = """boxcox_t <- powerTransform(%s, data = %s)
         regression <- lm(bcPower(%s, boxcox_t$lambda) ~ %s, data = %s)
         regression""" %(lm_formula, design.r_repr(), response, variables, design.r_repr())
-        transformed_lm = robjects.r(r_snippet)
 
+        transformed_lm = robjects.r(r_snippet)
         return transformed_lm
 
     def anova(self, design, formula):
@@ -96,7 +101,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         heteroscedasticity_test = self.car.ncvTest(regression)
         info("Heteroscedasticity Test p-value: " + str(heteroscedasticity_test.rx("p")[0][0]))
 
-        if heteroscedasticity_test.rx("p")[0][0] < 0.05:
+        heteroscedasticity_threshold = 0.05
+        if heteroscedasticity_test.rx("p")[0][0] < heteroscedasticity_threshold:
             regression = self.transform_lm(design, formula)
             heteroscedasticity_test = self.car.ncvTest(regression)
             info("Heteroscedasticity Test p-value: " + str(heteroscedasticity_test.rx("p")[0][0]))
@@ -105,7 +111,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Regression Step:" + str(summary_regression))
 
         prf_values = {}
-
         for k, v in zip(self.base.rownames(summary_regression[0]), summary_regression[0][4]):
             if k.strip() != "Residuals":
                 prf_values[k.strip()] = v
