@@ -136,6 +136,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         conditions = []
 
         for k, v in fixed_variables.items():
+            info("Predicted best column " + str(k) + ": " + str(predicted_best.rx2(str(k))))
             if conditions == []:
                 conditions = data.rx2(str(k)).ro == predicted_best.rx2(str(k))
             else:
@@ -144,22 +145,28 @@ class Doptanova(orio.main.tuner.search.search.Search):
         pruned_data = data.rx(conditions, True)
 
         info("Dimensions of Pruned Data: " + str(self.base.dim(pruned_data)).strip())
+        info("Pruned data names: " + str(self.base.names(pruned_data)))
         info(str(self.utils.str(pruned_data)))
         return pruned_data
 
+    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 5, prf_threshold = 0.1):
+        unique_variables = []
+        info("prf_values in function call: " + str(prf_values))
+        for k in ordered_keys:
+            if k not in unique_variables and prf_values[str(k)] < prf_threshold:
+                unique_variables.append(k)
+            if len(unique_variables) > threshold:
+                break
+
+        return unique_variables
+
     def get_fixed_variables(self, predicted_best, ordered_prf_keys,
-                            fixed_factors, threshold = 1):
+                            prf_values, fixed_factors):
         info("Getting fixed variables")
         variables = ordered_prf_keys
         #variables = [v.strip("I)(/1 ") for v in variables]
 
-        unique_variables = []
-
-        for v in variables:
-            if v not in unique_variables:
-                unique_variables.append(v)
-            if len(unique_variables) >= threshold:
-                break
+        unique_variables = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
 
         fixed_variables = fixed_factors
         for v in unique_variables:
@@ -169,19 +176,13 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return fixed_variables
 
     def prune_model(self, factors, inverse_factors, ordered_prf_keys,
-                    threshold = 1):
+                    prf_values):
         info("Pruning Model")
         variables = ordered_prf_keys
         #variables = [v.strip("I)(/1 ") for v in variables]
 
-        unique_variables = []
-
-        for v in variables:
-            if v not in unique_variables:
-                unique_variables.append(v)
-            if len(unique_variables) >= threshold:
-                break
-
+        info("prf_values in prune_data: " + str(prf_values))
+        unique_variables = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
         pruned_factors = [f for f in factors if not f in unique_variables]
         pruned_inverse_factors = [f for f in inverse_factors if not f in unique_variables]
 
@@ -249,7 +250,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return constraint
 
     def measure_design(self, design, response, fixed_factors):
-        info("Measuring design of size " + str(len(design)))
+        info("Measuring design of size " + str(len(design[0])))
 
         design_names    = [str(n) for n in self.base.names(design)]
         initial_factors = self.params["axis_names"]
@@ -337,12 +338,14 @@ class Doptanova(orio.main.tuner.search.search.Search):
             regression, prf_values = self.anova(design, lm_formula)
             ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
             predicted_best         = self.predict_best(regression, step_space)
+            info("prf_values: " + str(prf_values))
             fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
-                                                              fixed_factors)
+                                                              prf_values, fixed_factors)
 
+            info("prf_values after get vars: " + str(prf_values))
             pruned_space = self.prune_data(step_space, predicted_best, fixed_variables)
             pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
-                                                                      ordered_prf_keys)
+                                                                      ordered_prf_keys, prf_values)
         else:
             info(("Full data fits on budget, or too few data points"
                   " for a D-Optimal design. Picking best value."))
@@ -358,7 +361,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
             predicted_best = step_data.rx((step_data.rx2(response[0]).ro == min(step_data.rx(response[0])[0])),
                                       True)
 
-        info("Pruned Search Space Size: " + str(len(pruned_space[0])))
         info("Best Predicted: " + str(predicted_best))
         info("Pruned Factors: " + str(pruned_factors))
         info("Fixed Factors: " + str(fixed_variables))
@@ -382,10 +384,10 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         fixed_factors = {}
 
-        initial_budget = 120
+        initial_budget = 180
         budget = initial_budget
         used_experiments = 0
-        iterations = 5
+        iterations = 10
 
         for i in range(iterations):
             info("Step {0}".format(i))
