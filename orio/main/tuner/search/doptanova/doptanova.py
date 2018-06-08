@@ -144,6 +144,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         pruned_data = data.rx(conditions, True)
 
         info("Dimensions of Pruned Data: " + str(self.base.dim(pruned_data)).strip())
+        info(str(self.utils.str(pruned_data)))
         return pruned_data
 
     def get_fixed_variables(self, predicted_best, ordered_prf_keys,
