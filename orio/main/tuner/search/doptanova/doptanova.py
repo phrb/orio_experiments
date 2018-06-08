@@ -72,7 +72,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         self.base.set_seed(77126)
 
-        candidate_multiplier = 15
+        candidate_multiplier = 20
         repetitions          = 8
 
         output = self.algdesign.optMonteCarlo(frml        = Formula(design_formula),
@@ -148,7 +148,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return pruned_data
 
     def get_fixed_variables(self, predicted_best, ordered_prf_keys,
-                            fixed_factors, threshold = 2):
+                            fixed_factors, threshold = 1):
         info("Getting fixed variables")
         variables = ordered_prf_keys
         #variables = [v.strip("I)(/1 ") for v in variables]
@@ -169,7 +169,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return fixed_variables
 
     def prune_model(self, factors, inverse_factors, ordered_prf_keys,
-                    threshold = 2):
+                    threshold = 1):
         info("Pruning Model")
         variables = ordered_prf_keys
         #variables = [v.strip("I)(/1 ") for v in variables]
@@ -358,7 +358,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
             predicted_best = step_data.rx((step_data.rx2(response[0]).ro == min(step_data.rx(response[0])[0])),
                                       True)
 
-        info("Pruned Search Space Size: " + str(len(pruned_space)))
+        info("Pruned Search Space Size: " + str(len(pruned_space[0])))
         info("Best Predicted: " + str(predicted_best))
         info("Pruned Factors: " + str(pruned_factors))
         info("Fixed Factors: " + str(fixed_variables))
@@ -382,7 +382,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         fixed_factors = {}
 
-        initial_budget = 1
+        initial_budget = 120
         budget = initial_budget
         used_experiments = 0
         iterations = 5
