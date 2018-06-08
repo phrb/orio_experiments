@@ -73,7 +73,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         self.base.set_seed(1337)
         output = self.algdesign.optMonteCarlo(frml = Formula(design_formula),
                                               data = data,
-                                              nCand = 10 * trials,
+                                              nCand = 30 * trials,
+                                              nRepeats = 10,
                                               constraints = constraint,
                                               nTrials = trials)
 
