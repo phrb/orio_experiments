@@ -29,7 +29,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def __init__(self, params):
         '''To instantiate a random search engine'''
-        #numpy.random.seed(39920)
+        numpy.random.seed(39920)
 
         self.base      = importr("base")
         self.utils     = importr("utils")
@@ -70,7 +70,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Starting \"optMonteCarlo\" run")
         info(str(data))
 
-        #self.base.set_seed(77126)
+        self.base.set_seed(77126)
 
         candidate_multiplier = 20
         repetitions          = 8
@@ -443,11 +443,14 @@ class Doptanova(orio.main.tuner.search.search.Search):
         full_candidate_set = {}
         search_space = []
 
-        self.seed_space_size = 400000
+        self.seed_space_size = 800000
 
         info("Building seed search space (does not spend evaluations)")
         if not os.path.isfile("search_space_{0}.db".format(self.seed_space_size)):
             info("Generating new search space for this size")
+            write_buffer = []
+            write_buffer_size = 50000
+
             search_space_database = dataset.connect("sqlite:///search_space_{0}.db".format(self.seed_space_size))
             experiments = search_space_database['experiments']
 
@@ -469,10 +472,15 @@ class Doptanova(orio.main.tuner.search.search.Search):
                             % (self.constraint, e.__class__.__name__, e))
 
                     if is_valid:
-                        experiments.insert({"value": str(candidate_point)})
+                        write_buffer.append({"value": str(candidate_point)})
                         search_space.append(candidate_point)
                         if len(search_space) % 5000 == 0:
                             info("Valid coordinates: " + str(len(search_space)))
+
+                    if len(write_buffer) >= write_buffer_size:
+                        info("Writing to Database")
+                        experiments.insert_many([e for e in write_buffer if not experiments.find_one(value = e["value"])])
+                        write_buffer = []
 
             info("Valid/Tested configurations: " + str(len(search_space)) + "/" +
                 str(len(full_candidate_set)))
@@ -482,6 +490,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
             for experiment in search_space_database['experiments']:
                 search_space.append(eval(experiment["value"]))
 
+        sys.exit()
         info("Starting DOPT-anova")
 
         r_search_space = {}
@@ -496,8 +505,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         data = data.rx(StrVector(initial_factors))
 
         self.dopt_anova(initial_factors, initial_inverse_factors, data)
-
-        sys.exit()
 
         perf_cost, mean_perf_cost = self.MAXFLOAT, self.MAXFLOAT
 
