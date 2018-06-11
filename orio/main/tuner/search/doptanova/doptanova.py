@@ -150,6 +150,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return pruned_data
 
     def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 5, prf_threshold = 0.1):
+        ordered_keys     = [k.strip("I)(/1 ") for k in ordered_keys]
         unique_variables = []
         for k in ordered_keys:
             if k not in unique_variables and prf_values[str(k)] < prf_threshold:
@@ -165,12 +166,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
     def get_fixed_variables(self, predicted_best, ordered_prf_keys,
                             prf_values, fixed_factors):
         info("Getting fixed variables")
-        variables = ordered_prf_keys
-        #variables = [v.strip("I)(/1 ") for v in variables]
-
         unique_variables = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
-
-        fixed_variables = fixed_factors
+        fixed_variables  = fixed_factors
         for v in unique_variables:
             fixed_variables[v] = predicted_best.rx2(1, str(v))[0]
 
@@ -180,13 +177,9 @@ class Doptanova(orio.main.tuner.search.search.Search):
     def prune_model(self, factors, inverse_factors, ordered_prf_keys,
                     prf_values):
         info("Pruning Model")
-        variables = ordered_prf_keys
-        #variables = [v.strip("I)(/1 ") for v in variables]
-
-        unique_variables = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
-        pruned_factors = [f for f in factors if not f in unique_variables]
+        unique_variables       = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
+        pruned_factors         = [f for f in factors if not f in unique_variables]
         pruned_inverse_factors = [f for f in inverse_factors if not f in unique_variables]
-
         return pruned_factors, pruned_inverse_factors
 
     def get_federov_data(self, factors):
@@ -271,9 +264,9 @@ class Doptanova(orio.main.tuner.search.search.Search):
             for i in range(len(design_names)):
                 candidate[initial_factors.index(design_names[i])] = design_line[i]
 
-            info("Initial Design Line: " + str(design_line))
-            info("Fixed Factors: " + str(fixed_factors))
-            info("Testing candidate " + str(line + 1) + ": " + str(candidate))
+            # info("Initial Design Line: " + str(design_line))
+            # info("Fixed Factors: " + str(fixed_factors))
+            # info("Testing candidate " + str(line + 1) + ": " + str(candidate))
 
             measurement = self.getPerfCosts([candidate])
             if measurement != {}:
@@ -281,12 +274,13 @@ class Doptanova(orio.main.tuner.search.search.Search):
             else:
                 measurements.append(float('inf'))
 
-        info("Measurements: " + str(measurements))
+        # info("Measurements: " + str(measurements))
 
         design = self.base.cbind(design, DataFrame({response[0]: FloatVector(measurements)}))
 
         design = design.rx(self.base.is_finite(design.rx2(response[0])), True)
 
+        info("Complete design, with measurements:")
         info(str(design))
 
         return design
@@ -296,14 +290,11 @@ class Doptanova(orio.main.tuner.search.search.Search):
         full_model     = "".join([" ~ ",
                                   " + ".join(factors)])
 
-        # Leaving inverses out for now, since they do not work well with
-        # Federov
-        #
-        # if len(inverse_factors) > 0:
-        #     full_model += " + " + " + ".join(["I(1 / {0})".format(f) for f in
-        #         inverse_factors])
+        if len(inverse_factors) > 0:
+            full_model += " + " + " + ".join(["I(1 / {0})".format(f) for f in
+                inverse_factors])
 
-        info(str(full_model))
+        info("Full Model: " + str(full_model))
 
         design_formula = full_model
         lm_formula     = response[0] + full_model
@@ -380,6 +371,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         step_factors = initial_factors
         step_inverse_factors = initial_inverse_factors
+
         step_space = search_space
 
         fixed_factors = {}
@@ -412,9 +404,11 @@ class Doptanova(orio.main.tuner.search.search.Search):
             info("Fixed Factors: " + str(fixed_factors))
 
             starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
+            info("Starting Point (-O3):")
             info(str(starting_point))
 
             predicted_best = [int(v[0]) for v in step_data["predicted_best"].rx(1, True)]
+            info("Predicted Best Point:")
             info(str(predicted_best))
             predicted_best_value = numpy.mean((self.getPerfCosts([predicted_best]).values()[0])[0])
 
@@ -434,7 +428,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(self.total_dims))
 
         initial_factors = self.params["axis_names"]
-        initial_inverse_factors = initial_factors
+        initial_inverse_factors = [f for f in initial_factors if len(self.parameter_ranges[f]) > 2]
 
         best_coord = None
         best_perf_cost = self.MAXFLOAT
