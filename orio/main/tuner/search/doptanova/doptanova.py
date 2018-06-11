@@ -424,11 +424,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         '''
         info('\n----- begin random search -----')
 
-        info(str(self.params["axis_names"]))
-        info(str(self.total_dims))
-
         initial_factors = self.params["axis_names"]
-        initial_inverse_factors = [f for f in initial_factors if len(self.parameter_ranges[f]) > 2]
+        initial_inverse_factors = [f for f in initial_factors if self.parameter_ranges[f][1] > 2]
 
         info("Initial Factors: " + str(initial_factors))
         info("Initial Inverse Factors: " + str(initial_inverse_factors))
