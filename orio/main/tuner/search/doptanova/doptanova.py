@@ -151,12 +151,14 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 5, prf_threshold = 0.1):
         unique_variables = []
-        info("prf_values in function call: " + str(prf_values))
         for k in ordered_keys:
             if k not in unique_variables and prf_values[str(k)] < prf_threshold:
                 unique_variables.append(k)
             if len(unique_variables) > threshold:
                 break
+
+        if unique_variables == []:
+            unique_variables.append(ordered_keys[0])
 
         return unique_variables
 
@@ -181,7 +183,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         variables = ordered_prf_keys
         #variables = [v.strip("I)(/1 ") for v in variables]
 
-        info("prf_values in prune_data: " + str(prf_values))
         unique_variables = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
         pruned_factors = [f for f in factors if not f in unique_variables]
         pruned_inverse_factors = [f for f in inverse_factors if not f in unique_variables]
@@ -342,7 +343,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
             fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
                                                               prf_values, fixed_factors)
 
-            info("prf_values after get vars: " + str(prf_values))
             pruned_space = self.prune_data(step_space, predicted_best, fixed_variables)
             pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
                                                                       ordered_prf_keys, prf_values)
