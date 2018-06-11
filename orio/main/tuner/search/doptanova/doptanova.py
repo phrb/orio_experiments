@@ -150,7 +150,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return pruned_data
 
     def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 5, prf_threshold = 0.1):
-        ordered_keys     = [k.strip("I)(/1 ") for k in ordered_keys]
+        ordered_keys     = [k.replace("I(1 / ", "").strip(") ") for k in ordered_keys]
         unique_variables = []
         for k in ordered_keys:
             if k not in unique_variables and prf_values[str(k)] < prf_threshold:
@@ -429,6 +429,9 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         initial_factors = self.params["axis_names"]
         initial_inverse_factors = [f for f in initial_factors if len(self.parameter_ranges[f]) > 2]
+
+        info("Initial Factors: " + str(initial_factors))
+        info("Initial Inverse Factors: " + str(initial_inverse_factors))
 
         best_coord = None
         best_perf_cost = self.MAXFLOAT
