@@ -29,7 +29,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def __init__(self, params):
         '''To instantiate a random search engine'''
-        numpy.random.seed(39920)
+        #numpy.random.seed(39920)
 
         self.base      = importr("base")
         self.utils     = importr("utils")
@@ -70,7 +70,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Starting \"optMonteCarlo\" run")
         info(str(data))
 
-        self.base.set_seed(77126)
+        #self.base.set_seed(77126)
 
         candidate_multiplier = 20
         repetitions          = 8
@@ -240,7 +240,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
             return result
 
         info("Updated Constraint: " + str(self.constraint))
-
         return constraint
 
     def measure_design(self, design, response, fixed_factors):
@@ -253,8 +252,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Current Design Names: " + str(design_names))
         info("Initial Factors: " + str(initial_factors))
 
-        for line in range(len(design[0])):
-            design_line = [int(v[0]) for v in design.rx(line + 1, True)]
+        for line in range(1, len(design[0]) + 1):
+            design_line = [int(v[0]) for v in design.rx(line, True)]
 
             candidate = [0] * len(initial_factors)
 
@@ -425,7 +424,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info('\n----- begin random search -----')
 
         initial_factors = self.params["axis_names"]
-        initial_inverse_factors = [f for f in initial_factors if self.parameter_ranges[f][1] > 2]
+        #initial_inverse_factors = [f for f in initial_factors if self.parameter_ranges[f][1] > 2]
+        initial_inverse_factors = []
 
         info("Initial Factors: " + str(initial_factors))
         info("Initial Inverse Factors: " + str(initial_inverse_factors))
