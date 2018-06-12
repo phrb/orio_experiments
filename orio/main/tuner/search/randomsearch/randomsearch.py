@@ -5,6 +5,7 @@
 import sys, time
 import math
 import random
+import numpy
 import orio.main.tuner.search.search
 from orio.main.util.globals import *
 import copy
@@ -25,7 +26,7 @@ class Randomsearch(orio.main.tuner.search.search.Search):
 
     def __init__(self, params):
         '''To instantiate a random search engine'''
-        random.seed(1337)
+        #random.seed(1337)
 
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)

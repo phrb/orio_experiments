@@ -12,8 +12,8 @@
 
   def search
   {
-    arg algorithm = 'Doptanova';
-    arg total_runs = 10;
+    arg algorithm = 'Randomsearch';
+    arg total_runs = 120;
   }
 
   def performance_params
