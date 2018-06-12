@@ -1,0 +1,904 @@
+
+====== START ORIO ======
+
+----- begin reading the source file: atax2.src1.c -----
+----- finished reading the source file -----
+
+----- begin parsing annotations -----
+----- finished parsing annotations -----
+
+----- begin optimizations -----
+Search_Space         = 8.234e+13
+Number_of_Parameters = 18
+Numeric_Parameters   = 13
+Binary_Parameters    = 05
+['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+[[1, 16, 32, 64, 128, 256, 512], [1, 16, 32, 64, 128, 256, 512], [1, 16, 32, 64, 128, 256, 512], [1, 64, 128, 256, 512, 1024, 2048], [1, 64, 128, 256, 512, 1024, 2048], [1, 64, 128, 256, 512, 1024, 2048], [False, True], [False, True], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 8, 32], [1, 8, 32], [1, 8, 32], [False, True], [False, True], [False, True]]
+
+----- begin empirical tuning for problem size -----
+ N = 10000
+Parameters: {'ACOPY_x': [0, 2], 'ACOPY_y': [0, 2], 'RT_K': [0, 3], 'T1_I': [0, 7], 'T1_J': [0, 7], 'T1_K': [0, 7], 'U_K': [0, 30], 'U_J': [0, 30], 'U_I': [0, 30], 'U1_I': [0, 30], 'T2_K': [0, 7], 'T2_J': [0, 7], 'T2_I': [0, 7], 'VEC2': [0, 2], 'VEC1': [0, 2], 'RT_I': [0, 3], 'SCR': [0, 2], 'RT_J': [0, 3]}
+
+----- begin random search -----
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Initial Inverse Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K']
+Building seed search space (does not spend evaluations)
+Using pre-generated space for this size
+Starting DOPT-anova
+Step 0
+Full Model:  ~ T1_I + T1_J + T1_K + T2_I + T2_J + T2_K + ACOPY_x + ACOPY_y + U1_I + U_I + U_J + U_K + RT_I + RT_J + RT_K + SCR + VEC1 + VEC2 + I(1 / (1 + T1_I)) + I(1 / (1 + T1_J)) + I(1 / (1 + T1_K)) + I(1 / (1 + T2_I)) + I(1 / (1 + T2_J)) + I(1 / (1 + T2_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + U_I)) + I(1 / (1 + U_J)) + I(1 / (1 + U_K)) + I(1 / (1 + RT_I)) + I(1 / (1 + RT_J)) + I(1 / (1 + RT_K))
+Fixed Factors: {}
+Full data does not fit on budget
+Computing D-Optimal Design
+Updating Constraints
+Updated Constraint: True and (((T2_I ==1 )or (T2_I %T1_I ==0 ))) and (((T2_J ==1 )or (T2_J %T1_J ==0 ))) and (((T2_K ==1 )or (T2_K %T1_K ==0 ))) and ((RT_I *RT_J +RT_I *RT_K +RT_J *RT_K <=150 )) and (((U_I ==1 )or (U_J ==1 )or (U_K ==1 )))
+Computing D-Optimal Design with 62 experiments
+Design Formula:  ~ T1_I + T1_J + T1_K + T2_I + T2_J + T2_K + ACOPY_x + ACOPY_y + U1_I + U_I + U_J + U_K + RT_I + RT_J + RT_K + SCR + VEC1 + VEC2 + I(1 / (1 + T1_I)) + I(1 / (1 + T1_J)) + I(1 / (1 + T1_K)) + I(1 / (1 + T2_I)) + I(1 / (1 + T2_J)) + I(1 / (1 + T2_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + U_I)) + I(1 / (1 + U_J)) + I(1 / (1 + U_K)) + I(1 / (1 + RT_I)) + I(1 / (1 + RT_J)) + I(1 / (1 + RT_K))
+Starting "optMonteCarlo" run
+       var low high center nLevels round factor   mix
+1     T1_I   0    6      0       7     0  FALSE FALSE
+2     T1_J   0    6      0       7     0  FALSE FALSE
+3     T1_K   0    6      0       7     0  FALSE FALSE
+4     T2_I   0    6      0       7     0  FALSE FALSE
+5     T2_J   0    6      0       7     0  FALSE FALSE
+6     T2_K   0    6      0       7     0  FALSE FALSE
+7  ACOPY_x   0    1      0       2     0  FALSE FALSE
+8  ACOPY_y   0    1      0       2     0  FALSE FALSE
+9     U1_I   0   29      0      30     0  FALSE FALSE
+10     U_I   0   29      0      30     0  FALSE FALSE
+11     U_J   0   29      0      30     0  FALSE FALSE
+12     U_K   0   29      0      30     0  FALSE FALSE
+13    RT_I   0    2      0       3     0  FALSE FALSE
+14    RT_J   0    2      0       3     0  FALSE FALSE
+15    RT_K   0    2      0       3     0  FALSE FALSE
+16     SCR   0    1      0       2     0  FALSE FALSE
+17    VEC1   0    1      0       2     0  FALSE FALSE
+18    VEC2   0    1      0       2     0  FALSE FALSE
+
+   T1_I T1_J T1_K T2_I T2_J T2_K ACOPY_x ACOPY_y U1_I U_I U_J U_K RT_I RT_J
+1     2    6    1    0    5    4       1       1    7   4  25   0    0    1
+2     5    0    4    5    3    2       1       0    9  28   3   0    0    2
+3     5    3    1    5    0    6       0       0   15   7   3   0    0    2
+4     4    4    1    3    2    4       0       0    0  14  27   0    0    0
+5     1    2    1    6    5    3       0       0    9  27  12   0    1    0
+6     2    4    6    6    2    6       0       1   19  17   0   0    1    0
+7     4    1    0    3    4    0       1       1    2   0   5  29    1    0
+8     3    0    3    1    2    6       1       1   10  29   0   0    1    1
+9     1    2    0    0    3    4       1       0    7   0   3   5    1    0
+10    4    0    1    3    0    1       0       0    4   0  24   2    2    0
+11    6    6    1    5    6    6       1       0   11   0   7  23    0    0
+12    4    1    0    5    4    6       0       0   22  10   5   0    2    0
+13    4    4    2    5    6    0       1       1    0   9  26   0    2    0
+14    0    4    3    4    2    3       0       0   26  10   2   0    0    1
+15    4    0    3    6    0    0       1       0    9   8   0   3    0    1
+16    0    0    2    2    6    6       0       1    2   9   0  20    1    0
+17    1    6    1    2    0    6       1       1   26  24   0  24    0    2
+18    3    3    5    1    6    4       0       0   15   0  29   5    0    0
+19    5    6    5    4    6    6       0       1   24   0   4  25    0    0
+20    1    0    2    0    2    6       0       0   18  23   0  16    0    1
+21    5    4    2    3    2    0       1       1   18   6   0   6    1    0
+22    0    1    6    0    1    0       0       0   25   0  10   7    0    0
+23    4    3    2    2    3    4       1       0    3   7   9   0    0    0
+24    0    0    1    0    4    2       0       1   19   5  19   0    1    0
+25    1    3    5    1    3    0       0       1    4   0   0  11    0    0
+26    2    3    5    4    5    0       0       0   27   0  23  28    0    1
+27    6    6    0    5    0    0       0       0    2  19  23   0    1    0
+28    0    1    1    2    1    0       0       1    6   0  28  15    0    2
+29    6    1    6    6    1    6       1       0   15  23   0  23    2    0
+30    5    6    2    0    0    4       1       1   25  27  21   0    0    1
+31    5    2    2    3    1    2       0       1   10   0   3  28    1    1
+32    2    2    3    4    5    0       1       1   10  29   0  22    0    0
+33    5    2    2    0    3    2       1       1    1   0  16  22    0    0
+34    0    4    4    1    2    2       0       0    6  29   0  18    2    0
+35    0    6    0    4    4    6       1       1    8   6   0   2    0    0
+36    1    0    1    1    6    0       1       0   28  20  17   0    0    0
+37    2    2    0    2    6    1       1       0   26  27   0   8    1    1
+38    6    1    0    0    0    0       1       0    2  26  14   0    0    0
+39    2    1    3    0    0    6       1       0   19   0  28  28    1    0
+40    0    5    5    1    4    3       0       1    0   0   9  11    0    2
+41    0    1    5    4    1    5       0       1    0   0   7   6    0    0
+42    5    3    4    5    4    6       1       0    0   0  11   5    1    1
+43    5    0    2    5    6    2       0       1    9  22   0  16    0    0
+44    0    4    3    6    4    2       1       1   14   0  29  14    0    2
+45    5    3    2    6    0    4       1       1   19   0   0   4    0    1
+46    0    2    5    2    5    4       0       0    0   3  19   0    1    1
+47    1    0    6    4    0    5       1       1    5   0   8  19    1    1
+48    1    1    0    3    4    1       1       1   15   0   4   4    0    1
+49    6    0    0    5    4    2       1       0   29   0  27   2    1    1
+50    5    6    4    0    6    2       0       1    5  22   0   8    1    1
+51    5    1    1    0    6    6       0       0    3   0   3   6    1    1
+52    2    6    0    5    4    2       1       0    2   6   0  13    0    0
+53    5    1    0    0    4    3       1       1    0  11   0  24    0    2
+54    2    1    3    2    0    2       1       1   23   2   0  11    1    0
+55    4    1    6    3    4    6       1       1    7   7  21   0    1    0
+56    1    6    2    1    4    0       0       1   29   0  21  24    2    0
+57    2    2    0    4    1    3       0       1   28   0  14  12    0    0
+58    2    6    5    6    0    4       0       0    0   6   7   0    1    0
+59    0    4    0    5    6    6       1       0    7   0  15  29    0    1
+60    3    1    2    3    5    3       0       0   20   0   0   0    1    0
+61    2    2    6    4    0    5       0       0   17   8   0   8    0    2
+62    0    2    2    6    5    2       1       1   27  26  10   0    1    0
+   RT_K SCR VEC1 VEC2
+1     1   0    0    1
+2     0   1    1    0
+3     0   1    0    0
+4     1   0    0    1
+5     0   1    1    0
+6     1   1    1    1
+7     1   0    1    1
+8     0   0    0    1
+9     0   1    0    0
+10    0   1    0    0
+11    1   0    1    0
+12    0   0    1    1
+13    0   1    1    0
+14    0   1    0    0
+15    1   0    1    0
+16    1   0    0    1
+17    0   1    1    0
+18    1   1    0    0
+19    0   1    1    1
+20    1   0    1    0
+21    0   0    1    0
+22    1   0    1    0
+23    2   0    0    1
+24    0   0    1    1
+25    0   1    1    1
+26    0   0    0    0
+27    1   1    0    1
+28    0   1    1    1
+29    0   1    0    1
+30    1   1    1    0
+31    0   1    0    0
+32    2   0    0    0
+33    2   0    1    1
+34    0   0    0    1
+35    2   1    1    0
+36    2   1    0    1
+37    0   0    1    1
+38    1   0    0    0
+39    0   0    0    1
+40    0   0    0    0
+41    0   0    1    0
+42    0   1    0    1
+43    0   0    0    1
+44    0   0    0    1
+45    0   0    1    1
+46    0   1    1    0
+47    0   1    1    1
+48    1   0    0    1
+49    0   0    1    0
+50    0   1    0    0
+51    0   0    0    1
+52    0   0    1    0
+53    0   1    0    1
+54    1   1    1    1
+55    0   0    0    0
+56    0   1    0    1
+57    2   1    1    0
+58    1   0    0    0
+59    1   1    0    0
+60    1   0    0    0
+61    0   0    1    1
+62    1   0    0    1
+
+D-Efficiency Approximation: [1] 0.593
+
+Measuring design of size 62
+Current Design Names: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Complete design, with measurements:
+   T1_I T1_J T1_K T2_I T2_J T2_K ACOPY_x ACOPY_y U1_I U_I U_J U_K RT_I RT_J
+1     2    6    1    0    5    4       1       1    7   4  25   0    0    1
+2     5    0    4    5    3    2       1       0    9  28   3   0    0    2
+3     5    3    1    5    0    6       0       0   15   7   3   0    0    2
+4     4    4    1    3    2    4       0       0    0  14  27   0    0    0
+5     1    2    1    6    5    3       0       0    9  27  12   0    1    0
+6     2    4    6    6    2    6       0       1   19  17   0   0    1    0
+7     4    1    0    3    4    0       1       1    2   0   5  29    1    0
+8     3    0    3    1    2    6       1       1   10  29   0   0    1    1
+9     1    2    0    0    3    4       1       0    7   0   3   5    1    0
+10    4    0    1    3    0    1       0       0    4   0  24   2    2    0
+11    6    6    1    5    6    6       1       0   11   0   7  23    0    0
+12    4    1    0    5    4    6       0       0   22  10   5   0    2    0
+13    4    4    2    5    6    0       1       1    0   9  26   0    2    0
+14    0    4    3    4    2    3       0       0   26  10   2   0    0    1
+15    4    0    3    6    0    0       1       0    9   8   0   3    0    1
+16    0    0    2    2    6    6       0       1    2   9   0  20    1    0
+17    1    6    1    2    0    6       1       1   26  24   0  24    0    2
+18    3    3    5    1    6    4       0       0   15   0  29   5    0    0
+19    5    6    5    4    6    6       0       1   24   0   4  25    0    0
+20    1    0    2    0    2    6       0       0   18  23   0  16    0    1
+21    5    4    2    3    2    0       1       1   18   6   0   6    1    0
+22    0    1    6    0    1    0       0       0   25   0  10   7    0    0
+23    4    3    2    2    3    4       1       0    3   7   9   0    0    0
+24    0    0    1    0    4    2       0       1   19   5  19   0    1    0
+25    1    3    5    1    3    0       0       1    4   0   0  11    0    0
+26    2    3    5    4    5    0       0       0   27   0  23  28    0    1
+27    6    6    0    5    0    0       0       0    2  19  23   0    1    0
+28    0    1    1    2    1    0       0       1    6   0  28  15    0    2
+29    6    1    6    6    1    6       1       0   15  23   0  23    2    0
+30    5    6    2    0    0    4       1       1   25  27  21   0    0    1
+31    5    2    2    3    1    2       0       1   10   0   3  28    1    1
+32    2    2    3    4    5    0       1       1   10  29   0  22    0    0
+33    5    2    2    0    3    2       1       1    1   0  16  22    0    0
+34    0    4    4    1    2    2       0       0    6  29   0  18    2    0
+35    0    6    0    4    4    6       1       1    8   6   0   2    0    0
+36    1    0    1    1    6    0       1       0   28  20  17   0    0    0
+37    2    2    0    2    6    1       1       0   26  27   0   8    1    1
+38    6    1    0    0    0    0       1       0    2  26  14   0    0    0
+39    2    1    3    0    0    6       1       0   19   0  28  28    1    0
+40    0    5    5    1    4    3       0       1    0   0   9  11    0    2
+41    0    1    5    4    1    5       0       1    0   0   7   6    0    0
+42    5    3    4    5    4    6       1       0    0   0  11   5    1    1
+43    5    0    2    5    6    2       0       1    9  22   0  16    0    0
+44    0    4    3    6    4    2       1       1   14   0  29  14    0    2
+45    5    3    2    6    0    4       1       1   19   0   0   4    0    1
+46    0    2    5    2    5    4       0       0    0   3  19   0    1    1
+47    1    0    6    4    0    5       1       1    5   0   8  19    1    1
+48    1    1    0    3    4    1       1       1   15   0   4   4    0    1
+49    6    0    0    5    4    2       1       0   29   0  27   2    1    1
+50    5    6    4    0    6    2       0       1    5  22   0   8    1    1
+51    5    1    1    0    6    6       0       0    3   0   3   6    1    1
+52    2    6    0    5    4    2       1       0    2   6   0  13    0    0
+53    5    1    0    0    4    3       1       1    0  11   0  24    0    2
+54    2    1    3    2    0    2       1       1   23   2   0  11    1    0
+55    4    1    6    3    4    6       1       1    7   7  21   0    1    0
+56    1    6    2    1    4    0       0       1   29   0  21  24    2    0
+57    2    2    0    4    1    3       0       1   28   0  14  12    0    0
+58    2    6    5    6    0    4       0       0    0   6   7   0    1    0
+59    0    4    0    5    6    6       1       0    7   0  15  29    0    1
+60    3    1    2    3    5    3       0       0   20   0   0   0    1    0
+61    2    2    6    4    0    5       0       0   17   8   0   8    0    2
+62    0    2    2    6    5    2       1       1   27  26  10   0    1    0
+   RT_K SCR VEC1 VEC2  cost_mean
+1     1   0    0    1 0.19013917
+2     0   1    1    0 0.19103827
+3     0   1    0    0 0.09171266
+4     1   0    0    1 0.11007957
+5     0   1    1    0 0.08887659
+6     1   1    1    1 0.08445830
+7     1   0    1    1 0.09593912
+8     0   0    0    1 0.08352791
+9     0   1    0    0 0.07654706
+10    0   1    0    0 0.24999450
+11    1   0    1    0 0.20926877
+12    0   0    1    1 0.23894500
+13    0   1    1    0 0.24355837
+14    0   1    0    0 0.09232178
+15    1   0    1    0 0.09670519
+16    1   0    0    1 0.09598913
+17    0   1    1    0 0.28696927
+18    1   1    0    0 0.12468133
+19    0   1    1    1 0.15461603
+20    1   0    1    0 0.17817483
+21    0   0    1    0 0.09808432
+22    1   0    1    0 0.16419147
+23    2   0    0    1 0.16524267
+24    0   0    1    1 0.09078219
+25    0   1    1    1 0.15883707
+26    0   0    0    0 0.16183493
+27    1   1    0    1 0.08069247
+28    0   1    1    1 0.21619067
+29    0   1    0    1 0.21722020
+30    1   1    1    0 0.25248890
+31    0   1    0    0 0.10124910
+32    2   0    0    0 0.28010437
+33    2   0    1    1 0.23262257
+34    0   0    0    1 0.22174127
+35    2   1    1    0 0.14820660
+36    2   1    0    1 0.18556693
+37    0   0    1    1 0.09983501
+38    1   0    0    0 0.18158380
+39    0   0    0    1 0.10141757
+40    0   0    0    0 0.18173913
+41    0   0    1    0 0.20506600
+42    0   1    0    1 0.07996915
+43    0   0    0    1 0.19241307
+44    0   0    0    1 0.18741930
+45    0   0    1    1 0.22659983
+46    0   1    1    0 0.08737836
+47    0   1    1    1 0.08183824
+48    1   0    0    1 0.16781803
+49    0   0    1    0 0.10152840
+50    0   1    0    0 0.09378391
+51    0   0    0    1 0.11586103
+52    0   0    1    0 0.12495350
+53    0   1    0    1 0.14146043
+54    1   1    1    1 0.08419046
+55    0   0    0    0 0.08412410
+56    0   1    0    1 0.20320253
+57    2   1    1    0 0.15190967
+58    1   0    0    0 0.09773548
+59    1   1    0    0 0.14619093
+60    1   0    0    0 0.09970449
+61    0   0    1    1 0.11442457
+62    1   0    0    1 0.09692538
+
+Step Space Names:  [1] "T1_I"    "T1_J"    "T1_K"    "T2_I"    "T2_J"    "T2_K"    "ACOPY_x"
+ [8] "ACOPY_y" "U1_I"    "U_I"     "U_J"     "U_K"     "RT_I"    "RT_J"   
+[15] "RT_K"    "SCR"     "VEC1"    "VEC2"   
+
+Heteroscedasticity Test p-value: 0.106040646625
+Regression Step:                Df  Sum Sq Mean Sq F value   Pr(>F)    
+T1_I             1 0.00028 0.00028   0.288 0.595297    
+T1_J             1 0.00403 0.00403   4.137 0.050871 .  
+T1_K             1 0.00137 0.00137   1.408 0.244622    
+T2_I             1 0.00102 0.00102   1.045 0.314758    
+T2_J             1 0.00070 0.00070   0.714 0.404849    
+T2_K             1 0.00354 0.00354   3.637 0.066111 .  
+ACOPY_x          1 0.00240 0.00240   2.463 0.127022    
+ACOPY_y          1 0.00360 0.00360   3.700 0.063956 .  
+U1_I             1 0.00096 0.00096   0.988 0.328181    
+U_I              1 0.00445 0.00445   4.565 0.040908 *  
+U_J              1 0.00368 0.00368   3.776 0.061423 .  
+U_K              1 0.01350 0.01350  13.856 0.000814 ***
+RT_I             1 0.00320 0.00320   3.282 0.080077 .  
+RT_J             1 0.00005 0.00005   0.049 0.826401    
+RT_K             1 0.00047 0.00047   0.487 0.490660    
+SCR              1 0.00093 0.00093   0.958 0.335548    
+VEC1             1 0.00411 0.00411   4.219 0.048771 *  
+VEC2             1 0.00132 0.00132   1.358 0.253135    
+I(1/(1 + T1_I))  1 0.00090 0.00090   0.924 0.344184    
+I(1/(1 + T1_J))  1 0.00001 0.00001   0.014 0.905356    
+I(1/(1 + T1_K))  1 0.00591 0.00591   6.064 0.019757 *  
+I(1/(1 + T2_I))  1 0.00034 0.00034   0.352 0.557210    
+I(1/(1 + T2_J))  1 0.00007 0.00007   0.076 0.784444    
+I(1/(1 + T2_K))  1 0.00101 0.00101   1.034 0.317292    
+I(1/(1 + U1_I))  1 0.00017 0.00017   0.176 0.677634    
+I(1/(1 + U_I))   1 0.00895 0.00895   9.186 0.004986 ** 
+I(1/(1 + U_J))   1 0.00016 0.00016   0.169 0.684331    
+I(1/(1 + U_K))   1 0.00218 0.00218   2.238 0.145096    
+I(1/(1 + RT_I))  1 0.11162 0.11162 114.555 9.19e-12 ***
+I(1/(1 + RT_J))  1 0.00071 0.00071   0.731 0.399425    
+I(1/(1 + RT_K))  1 0.00210 0.00210   2.158 0.152220    
+Residuals       30 0.02923 0.00097                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Predicting Best
+Identical predictions (tol = 1e-5): 1
+Getting fixed variables
+Fixed Variables: {'RT_I': 1, 'T1_J': 0, 'U_K': 7, 'U_J': 0, 'U_I': 6, 'VEC1': 0}
+Pruning Data
+Predicted best column RT_I: [1] 1
+
+Predicted best column T1_J: [1] 0
+
+Predicted best column U_K: [1] 7
+
+Predicted best column U_J: [1] 0
+
+Predicted best column U_I: [1] 6
+
+Predicted best column VEC1: [1] 0
+
+Dimensions of Pruned Data: [1] 12 18
+Pruned data names:  [1] "T1_I"    "T1_J"    "T1_K"    "T2_I"    "T2_J"    "T2_K"    "ACOPY_x"
+ [8] "ACOPY_y" "U1_I"    "U_I"     "U_J"     "U_K"     "RT_I"    "RT_J"   
+[15] "RT_K"    "SCR"     "VEC1"    "VEC2"   
+
+NULL
+Pruning Model
+Best Predicted:        T1_I T1_J T1_K T2_I T2_J T2_K ACOPY_x ACOPY_y U1_I U_I U_J U_K RT_I RT_J
+743327    0    0    0    6    2    1       0       0   22   6   0   7    1    0
+       RT_K SCR VEC1 VEC2
+743327    1   1    0    1
+
+Pruned Factors: ['T1_I', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'RT_J', 'RT_K', 'SCR', 'VEC2']
+Fixed Factors: {'RT_I': 1, 'T1_J': 0, 'U_K': 7, 'U_J': 0, 'U_I': 6, 'VEC1': 0}
+Length of requested configs: 1
+Result was on Database, Returning Now
+Starting Point (-O3):
+0.1290727
+Predicted Best Point:
+[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]
+Length of requested configs: 1
+Code stats:
+        Number of loops: 	36
+        Max loop nest depth: 	4
+        Additions: 		1456
+        Multiplications: 	576
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			3148
+        Writes: 		670
+        Comparisons:		36
+        Gotos: 			0
+        
+ building the original code:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -DORIGINAL -o __orio_perftest_original.exe __orio_perftest1.c timer_cpu.o -lm
+ building test:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -o __orio_perftest1.exe __orio_perftest1.c timer_cpu.o -lm
+ running test:
+	 ./__orio_perftest1.exe  
+out:
+ ["{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0823572}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0824349}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.081888}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.081809}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.081959}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0817969}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0818341}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0819221}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0822289}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0819712}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0818489}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.081862}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0818789}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.081851}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0818479}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.081955}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0818341}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0818059}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0818779}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0820081}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.082324}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0818639}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.081907}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0818131}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.081825}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0818951}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0818079}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0822508}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.0818372}", "{'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]' : 0.081845}"]
+returning from 'run': {'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]': ([0.0823572, 0.0824349, 0.081888, 0.081809, 0.081959, 0.0817969, 0.0818341, 0.0819221, 0.0822289, 0.0819712, 0.0818489, 0.081862, 0.0818789, 0.081851, 0.0818479, 0.081955, 0.0818341, 0.0818059, 0.0818779, 0.0820081, 0.082324, 0.0818639, 0.081907, 0.0818131, 0.081825, 0.0818951, 0.0818079, 0.0822508, 0.0818372, 0.081845], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Stored as a sucessful configuration
+Final perf_costs: {'[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]': ([0.0823572, 0.0824349, 0.081888, 0.081809, 0.081959, 0.0817969, 0.0818341, 0.0819221, 0.0822289, 0.0819712, 0.0818489, 0.081862, 0.0818789, 0.081851, 0.0818479, 0.081955, 0.0818341, 0.0818059, 0.0818779, 0.0820081, 0.082324, 0.0818639, 0.081907, 0.0818131, 0.081825, 0.0818951, 0.0818079, 0.0822508, 0.0818372, 0.081845], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Slowdown: 0.634872181853
+Budget: 62/180
+Step 1
+Full Model:  ~ T1_I + T1_K + T2_I + T2_J + T2_K + ACOPY_x + ACOPY_y + U1_I + RT_J + RT_K + SCR + VEC2 + I(1 / (1 + T1_I)) + I(1 / (1 + T1_K)) + I(1 / (1 + T2_I)) + I(1 / (1 + T2_J)) + I(1 / (1 + T2_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + RT_J)) + I(1 / (1 + RT_K))
+Fixed Factors: {'RT_I': 1, 'T1_J': 0, 'U_K': 7, 'U_J': 0, 'U_I': 6, 'VEC1': 0}
+Full data fits on budget, or too few data points for a D-Optimal design. Picking best value.
+Measuring design of size 12
+Current Design Names: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Length of requested configs: 1
+Code stats:
+        Number of loops: 	40
+        Max loop nest depth: 	6
+        Additions: 		1280
+        Multiplications: 	288
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			2090
+        Writes: 		260
+        Comparisons:		40
+        Gotos: 			0
+        
+ building test:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -o __orio_perftest2.exe __orio_perftest2.c timer_cpu.o -lm
+ running test:
+	 ./__orio_perftest2.exe  
+out:
+ ["{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0931311}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.092947}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0926552}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0926149}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.092638}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0927041}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0926871}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0930452}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.092663}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.092674}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0927148}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0927849}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0927451}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.092674}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0926189}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0926301}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.092659}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0931971}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0926569}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0926712}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.092675}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.092638}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0927989}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.09302}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.092694}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.092576}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0926909}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0926371}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0927131}", "{'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0927439}"]
+returning from 'run': {'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]': ([0.0931311, 0.092947, 0.0926552, 0.0926149, 0.092638, 0.0927041, 0.0926871, 0.0930452, 0.092663, 0.092674, 0.0927148, 0.0927849, 0.0927451, 0.092674, 0.0926189, 0.0926301, 0.092659, 0.0931971, 0.0926569, 0.0926712, 0.092675, 0.092638, 0.0927989, 0.09302, 0.092694, 0.092576, 0.0926909, 0.0926371, 0.0927131, 0.0927439], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Stored as a sucessful configuration
+Final perf_costs: {'[1, 0, 6, 2, 3, 5, 0, 1, 1, 6, 0, 7, 1, 0, 1, 0, 0, 1]': ([0.0931311, 0.092947, 0.0926552, 0.0926149, 0.092638, 0.0927041, 0.0926871, 0.0930452, 0.092663, 0.092674, 0.0927148, 0.0927849, 0.0927451, 0.092674, 0.0926189, 0.0926301, 0.092659, 0.0931971, 0.0926569, 0.0926712, 0.092675, 0.092638, 0.0927989, 0.09302, 0.092694, 0.092576, 0.0926909, 0.0926371, 0.0927131, 0.0927439], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Length of requested configs: 1
+Code stats:
+        Number of loops: 	58
+        Max loop nest depth: 	6
+        Additions: 		2330
+        Multiplications: 	576
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			3760
+        Writes: 		458
+        Comparisons:		58
+        Gotos: 			0
+        
+ building test:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -o __orio_perftest3.exe __orio_perftest3.c timer_cpu.o -lm
+ running test:
+	 ./__orio_perftest3.exe  
+out:
+ ["{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0922341}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0918989}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0918188}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0919051}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0918238}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0919209}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.09236}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0918491}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0918679}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.091866}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.091799}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0917671}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0918651}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.092351}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.091819}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0917711}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0919831}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0919621}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0918319}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.091748}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0918789}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0919151}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0918639}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.092272}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0919211}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.091934}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0918179}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.091764}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.091892}", "{'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0923131}"]
+returning from 'run': {'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]': ([0.0922341, 0.0918989, 0.0918188, 0.0919051, 0.0918238, 0.0919209, 0.09236, 0.0918491, 0.0918679, 0.091866, 0.091799, 0.0917671, 0.0918651, 0.092351, 0.091819, 0.0917711, 0.0919831, 0.0919621, 0.0918319, 0.091748, 0.0918789, 0.0919151, 0.0918639, 0.092272, 0.0919211, 0.091934, 0.0918179, 0.091764, 0.091892, 0.0923131], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Stored as a sucessful configuration
+Final perf_costs: {'[1, 0, 4, 2, 4, 4, 0, 1, 25, 6, 0, 7, 1, 1, 0, 0, 0, 0]': ([0.0922341, 0.0918989, 0.0918188, 0.0919051, 0.0918238, 0.0919209, 0.09236, 0.0918491, 0.0918679, 0.091866, 0.091799, 0.0917671, 0.0918651, 0.092351, 0.091819, 0.0917711, 0.0919831, 0.0919621, 0.0918319, 0.091748, 0.0918789, 0.0919151, 0.0918639, 0.092272, 0.0919211, 0.091934, 0.0918179, 0.091764, 0.091892, 0.0923131], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Length of requested configs: 1
+Code stats:
+        Number of loops: 	34
+        Max loop nest depth: 	6
+        Additions: 		1939
+        Multiplications: 	544
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			3189
+        Writes: 		378
+        Comparisons:		34
+        Gotos: 			0
+        
+ building test:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -o __orio_perftest4.exe __orio_perftest4.c timer_cpu.o -lm
+ running test:
+	 ./__orio_perftest4.exe  
+out:
+ ["{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102748}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102115}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.10205}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102088}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.10208}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102493}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102074}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102027}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.10205}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102079}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102057}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102019}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102085}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102202}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102451}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.101983}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102132}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102108}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102111}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.10203}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102581}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102121}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102102}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102112}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102043}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102142}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102117}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.101974}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102149}", "{'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]' : 0.102622}"]
+returning from 'run': {'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]': ([0.102748, 0.102115, 0.10205, 0.102088, 0.10208, 0.102493, 0.102074, 0.102027, 0.10205, 0.102079, 0.102057, 0.102019, 0.102085, 0.102202, 0.102451, 0.101983, 0.102132, 0.102108, 0.102111, 0.10203, 0.102581, 0.102121, 0.102102, 0.102112, 0.102043, 0.102142, 0.102117, 0.101974, 0.102149, 0.102622], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Stored as a sucessful configuration
+Final perf_costs: {'[3, 0, 3, 5, 5, 4, 1, 0, 6, 6, 0, 7, 1, 1, 0, 0, 0, 1]': ([0.102748, 0.102115, 0.10205, 0.102088, 0.10208, 0.102493, 0.102074, 0.102027, 0.10205, 0.102079, 0.102057, 0.102019, 0.102085, 0.102202, 0.102451, 0.101983, 0.102132, 0.102108, 0.102111, 0.10203, 0.102581, 0.102121, 0.102102, 0.102112, 0.102043, 0.102142, 0.102117, 0.101974, 0.102149, 0.102622], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Length of requested configs: 1
+Code stats:
+        Number of loops: 	34
+        Max loop nest depth: 	5
+        Additions: 		1266
+        Multiplications: 	288
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			2056
+        Writes: 		252
+        Comparisons:		34
+        Gotos: 			0
+        
+ building test:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -o __orio_perftest5.exe __orio_perftest5.c timer_cpu.o -lm
+ running test:
+	 ./__orio_perftest5.exe  
+out:
+ ["{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.093909}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.094095}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0935509}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0935969}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.093981}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.093621}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0936151}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.093487}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.093574}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0936639}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0935941}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.094028}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0935159}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0935781}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.093576}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.093596}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0935121}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0939929}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0935731}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.093437}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0934849}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.093534}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0935831}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0934501}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.093482}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0935528}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0936091}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0938971}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.09355}", "{'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.0936279}"]
+returning from 'run': {'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]': ([0.093909, 0.094095, 0.0935509, 0.0935969, 0.093981, 0.093621, 0.0936151, 0.093487, 0.093574, 0.0936639, 0.0935941, 0.094028, 0.0935159, 0.0935781, 0.093576, 0.093596, 0.0935121, 0.0939929, 0.0935731, 0.093437, 0.0934849, 0.093534, 0.0935831, 0.0934501, 0.093482, 0.0935528, 0.0936091, 0.0938971, 0.09355, 0.0936279], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Stored as a sucessful configuration
+Final perf_costs: {'[5, 0, 4, 4, 0, 0, 0, 1, 5, 6, 0, 7, 1, 0, 1, 0, 0, 1]': ([0.093909, 0.094095, 0.0935509, 0.0935969, 0.093981, 0.093621, 0.0936151, 0.093487, 0.093574, 0.0936639, 0.0935941, 0.094028, 0.0935159, 0.0935781, 0.093576, 0.093596, 0.0935121, 0.0939929, 0.0935731, 0.093437, 0.0934849, 0.093534, 0.0935831, 0.0934501, 0.093482, 0.0935528, 0.0936091, 0.0938971, 0.09355, 0.0936279], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Length of requested configs: 1
+Code stats:
+        Number of loops: 	39
+        Max loop nest depth: 	4
+        Additions: 		1950
+        Multiplications: 	544
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			3204
+        Writes: 		390
+        Comparisons:		39
+        Gotos: 			0
+        
+ building test:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -o __orio_perftest6.exe __orio_perftest6.c timer_cpu.o -lm
+ running test:
+	 ./__orio_perftest6.exe  
+out:
+ ["{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0974419}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.096884}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0969799}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.096931}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0974412}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.096957}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0969272}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0969081}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0969372}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.096962}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.097436}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0969121}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0969911}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.097584}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0969241}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0969279}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0969689}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0970812}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.096993}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0971038}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0971892}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.096976}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0970051}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0970609}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.096925}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0974469}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0970681}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0970821}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.097132}", "{'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]' : 0.0973969}"]
+returning from 'run': {'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]': ([0.0974419, 0.096884, 0.0969799, 0.096931, 0.0974412, 0.096957, 0.0969272, 0.0969081, 0.0969372, 0.096962, 0.097436, 0.0969121, 0.0969911, 0.097584, 0.0969241, 0.0969279, 0.0969689, 0.0970812, 0.096993, 0.0971038, 0.0971892, 0.096976, 0.0970051, 0.0970609, 0.096925, 0.0974469, 0.0970681, 0.0970821, 0.097132, 0.0973969], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Stored as a sucessful configuration
+Final perf_costs: {'[0, 0, 0, 1, 2, 0, 1, 0, 20, 6, 0, 7, 1, 1, 0, 0, 0, 0]': ([0.0974419, 0.096884, 0.0969799, 0.096931, 0.0974412, 0.096957, 0.0969272, 0.0969081, 0.0969372, 0.096962, 0.097436, 0.0969121, 0.0969911, 0.097584, 0.0969241, 0.0969279, 0.0969689, 0.0970812, 0.096993, 0.0971038, 0.0971892, 0.096976, 0.0970051, 0.0970609, 0.096925, 0.0974469, 0.0970681, 0.0970821, 0.097132, 0.0973969], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Length of requested configs: 1
+WARNING: orio.module.loop.submodule.tile.transformation: tile size 128 must be greater than the stride value 128; tile index = iii
+Code stats:
+        Number of loops: 	39
+        Max loop nest depth: 	5
+        Additions: 		1971
+        Multiplications: 	576
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			3307
+        Writes: 		431
+        Comparisons:		39
+        Gotos: 			0
+        
+ building test:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -o __orio_perftest7.exe __orio_perftest7.c timer_cpu.o -lm
+ running test:
+	 ./__orio_perftest7.exe  
+out:
+ ["{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102634}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102536}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102309}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102173}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102096}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102226}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102219}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102066}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102301}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102155}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.10248}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102118}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102144}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102187}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102157}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102093}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102532}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102205}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102232}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102049}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102122}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102161}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102127}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102086}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102451}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102866}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102341}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102487}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102961}", "{'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]' : 0.102566}"]
+returning from 'run': {'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]': ([0.102634, 0.102536, 0.102309, 0.102173, 0.102096, 0.102226, 0.102219, 0.102066, 0.102301, 0.102155, 0.10248, 0.102118, 0.102144, 0.102187, 0.102157, 0.102093, 0.102532, 0.102205, 0.102232, 0.102049, 0.102122, 0.102161, 0.102127, 0.102086, 0.102451, 0.102866, 0.102341, 0.102487, 0.102961, 0.102566], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Stored as a sucessful configuration
+Final perf_costs: {'[4, 0, 1, 2, 3, 4, 0, 0, 21, 6, 0, 7, 1, 0, 1, 0, 0, 1]': ([0.102634, 0.102536, 0.102309, 0.102173, 0.102096, 0.102226, 0.102219, 0.102066, 0.102301, 0.102155, 0.10248, 0.102118, 0.102144, 0.102187, 0.102157, 0.102093, 0.102532, 0.102205, 0.102232, 0.102049, 0.102122, 0.102161, 0.102127, 0.102086, 0.102451, 0.102866, 0.102341, 0.102487, 0.102961, 0.102566], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Length of requested configs: 1
+Code stats:
+        Number of loops: 	63
+        Max loop nest depth: 	6
+        Additions: 		1188
+        Multiplications: 	320
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			2545
+        Writes: 		549
+        Comparisons:		63
+        Gotos: 			0
+        
+ building test:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -o __orio_perftest8.exe __orio_perftest8.c timer_cpu.o -lm
+ running test:
+	 ./__orio_perftest8.exe  
+out:
+ ["{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.083163}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0825069}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082777}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082499}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0824912}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0825169}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0829589}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0825582}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0825429}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082494}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082535}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0825269}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0826981}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082509}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082737}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.08251}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.08251}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0832241}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0826828}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0825331}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082557}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0826731}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0826089}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082516}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0828531}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082485}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.08266}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082571}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0825219}", "{'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0825121}"]
+returning from 'run': {'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]': ([0.083163, 0.0825069, 0.082777, 0.082499, 0.0824912, 0.0825169, 0.0829589, 0.0825582, 0.0825429, 0.082494, 0.082535, 0.0825269, 0.0826981, 0.082509, 0.082737, 0.08251, 0.08251, 0.0832241, 0.0826828, 0.0825331, 0.082557, 0.0826731, 0.0826089, 0.082516, 0.0828531, 0.082485, 0.08266, 0.082571, 0.0825219, 0.0825121], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Stored as a sucessful configuration
+Final perf_costs: {'[1, 0, 3, 6, 2, 4, 1, 1, 0, 6, 0, 7, 1, 0, 0, 1, 0, 1]': ([0.083163, 0.0825069, 0.082777, 0.082499, 0.0824912, 0.0825169, 0.0829589, 0.0825582, 0.0825429, 0.082494, 0.082535, 0.0825269, 0.0826981, 0.082509, 0.082737, 0.08251, 0.08251, 0.0832241, 0.0826828, 0.0825331, 0.082557, 0.0826731, 0.0826089, 0.082516, 0.0828531, 0.082485, 0.08266, 0.082571, 0.0825219, 0.0825121], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Length of requested configs: 1
+Code stats:
+        Number of loops: 	64
+        Max loop nest depth: 	6
+        Additions: 		1558
+        Multiplications: 	320
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			2543
+        Writes: 		331
+        Comparisons:		64
+        Gotos: 			0
+        
+ building test:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -o __orio_perftest9.exe __orio_perftest9.c timer_cpu.o -lm
+ running test:
+	 ./__orio_perftest9.exe  
+out:
+ ["{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0949359}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0948949}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.094826}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0956008}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.095221}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0951021}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0971279}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0973551}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.097559}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0981789}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0981259}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0982749}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.097513}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0950701}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0945358}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.095149}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.096127}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.094768}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0945759}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.094846}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.094662}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0946259}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0945189}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.094635}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0947428}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0947208}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.094615}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.094677}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.094615}", "{'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]' : 0.0965021}"]
+returning from 'run': {'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]': ([0.0949359, 0.0948949, 0.094826, 0.0956008, 0.095221, 0.0951021, 0.0971279, 0.0973551, 0.097559, 0.0981789, 0.0981259, 0.0982749, 0.097513, 0.0950701, 0.0945358, 0.095149, 0.096127, 0.094768, 0.0945759, 0.094846, 0.094662, 0.0946259, 0.0945189, 0.094635, 0.0947428, 0.0947208, 0.094615, 0.094677, 0.094615, 0.0965021], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Stored as a sucessful configuration
+Final perf_costs: {'[5, 0, 2, 6, 2, 2, 1, 1, 5, 6, 0, 7, 1, 0, 0, 0, 0, 0]': ([0.0949359, 0.0948949, 0.094826, 0.0956008, 0.095221, 0.0951021, 0.0971279, 0.0973551, 0.097559, 0.0981789, 0.0981259, 0.0982749, 0.097513, 0.0950701, 0.0945358, 0.095149, 0.096127, 0.094768, 0.0945759, 0.094846, 0.094662, 0.0946259, 0.0945189, 0.094635, 0.0947428, 0.0947208, 0.094615, 0.094677, 0.094615, 0.0965021], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Length of requested configs: 1
+Code stats:
+        Number of loops: 	55
+        Max loop nest depth: 	6
+        Additions: 		1161
+        Multiplications: 	320
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			2397
+        Writes: 		502
+        Comparisons:		55
+        Gotos: 			0
+        
+ building test:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -o __orio_perftest10.exe __orio_perftest10.c timer_cpu.o -lm
+ running test:
+	 ./__orio_perftest10.exe  
+out:
+ ["{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0901361}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.089803}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0900681}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0898142}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0897939}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0897532}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.089725}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0898108}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.089736}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0898092}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0897288}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0897539}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0898759}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0901341}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0899689}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.089951}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.089736}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0897331}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0897949}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.090739}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.089781}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.089771}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0897801}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0897751}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.089889}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0897672}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0898468}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0897031}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0897911}", "{'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]' : 0.0899661}"]
+returning from 'run': {'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]': ([0.0901361, 0.089803, 0.0900681, 0.0898142, 0.0897939, 0.0897532, 0.089725, 0.0898108, 0.089736, 0.0898092, 0.0897288, 0.0897539, 0.0898759, 0.0901341, 0.0899689, 0.089951, 0.089736, 0.0897331, 0.0897949, 0.090739, 0.089781, 0.089771, 0.0897801, 0.0897751, 0.089889, 0.0897672, 0.0898468, 0.0897031, 0.0897911, 0.0899661], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Stored as a sucessful configuration
+Final perf_costs: {'[6, 0, 1, 6, 1, 3, 0, 1, 7, 6, 0, 7, 1, 0, 0, 1, 0, 0]': ([0.0901361, 0.089803, 0.0900681, 0.0898142, 0.0897939, 0.0897532, 0.089725, 0.0898108, 0.089736, 0.0898092, 0.0897288, 0.0897539, 0.0898759, 0.0901341, 0.0899689, 0.089951, 0.089736, 0.0897331, 0.0897949, 0.090739, 0.089781, 0.089771, 0.0897801, 0.0897751, 0.089889, 0.0897672, 0.0898468, 0.0897031, 0.0897911, 0.0899661], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Code stats:
+        Number of loops: 	33
+        Max loop nest depth: 	5
+        Additions: 		794
+        Multiplications: 	320
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			1737
+        Writes: 		364
+        Comparisons:		33
+        Gotos: 			0
+        
+ building test:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -o __orio_perftest11.exe __orio_perftest11.c timer_cpu.o -lm
+ running test:
+	 ./__orio_perftest11.exe  
+out:
+ ["{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082689}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0820649}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.084105}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082653}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.081979}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0821249}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0819709}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0822842}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0821469}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082037}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0828609}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0834081}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.081965}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.08231}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0822101}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0820341}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0822611}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0820251}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082063}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0821619}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0823882}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0821579}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.082164}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0820041}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0823679}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0821941}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.081969}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0821879}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0818889}", "{'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]' : 0.0820062}"]
+returning from 'run': {'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]': ([0.082689, 0.0820649, 0.084105, 0.082653, 0.081979, 0.0821249, 0.0819709, 0.0822842, 0.0821469, 0.082037, 0.0828609, 0.0834081, 0.081965, 0.08231, 0.0822101, 0.0820341, 0.0822611, 0.0820251, 0.082063, 0.0821619, 0.0823882, 0.0821579, 0.082164, 0.0820041, 0.0823679, 0.0821941, 0.081969, 0.0821879, 0.0818889, 0.0820062], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Stored as a sucessful configuration
+Final perf_costs: {'[0, 0, 2, 4, 1, 1, 1, 0, 18, 6, 0, 7, 1, 0, 0, 1, 0, 1]': ([0.082689, 0.0820649, 0.084105, 0.082653, 0.081979, 0.0821249, 0.0819709, 0.0822842, 0.0821469, 0.082037, 0.0828609, 0.0834081, 0.081965, 0.08231, 0.0822101, 0.0820341, 0.0822611, 0.0820251, 0.082063, 0.0821619, 0.0823882, 0.0821579, 0.082164, 0.0820041, 0.0823679, 0.0821941, 0.081969, 0.0821879, 0.0818889, 0.0820062], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Length of requested configs: 1
+Code stats:
+        Number of loops: 	49
+        Max loop nest depth: 	6
+        Additions: 		1344
+        Multiplications: 	288
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			2226
+        Writes: 		293
+        Comparisons:		49
+        Gotos: 			0
+        
+ building test:
+	gcc -O3 -fopenmp -DDYNAMIC  -DORIO_REPS=30 -o __orio_perftest12.exe __orio_perftest12.c timer_cpu.o -lm
+ running test:
+	 ./__orio_perftest12.exe  
+out:
+ ["{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0997381}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0995438}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.099329}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.099153}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0995181}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0994458}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0994821}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.099216}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.099298}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.099251}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0996261}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0993199}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0992591}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0993609}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0994351}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.099061}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0999539}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0992031}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.099334}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0991871}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0993319}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0992541}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.09918}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0991068}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0993161}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.099509}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0991039}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.099647}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.100949}", "{'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]' : 0.0992968}"]
+returning from 'run': {'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]': ([0.0997381, 0.0995438, 0.099329, 0.099153, 0.0995181, 0.0994458, 0.0994821, 0.099216, 0.099298, 0.099251, 0.0996261, 0.0993199, 0.0992591, 0.0993609, 0.0994351, 0.099061, 0.0999539, 0.0992031, 0.099334, 0.0991871, 0.0993319, 0.0992541, 0.09918, 0.0991068, 0.0993161, 0.099509, 0.0991039, 0.099647, 0.100949, 0.0992968], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Stored as a sucessful configuration
+Final perf_costs: {'[1, 0, 2, 3, 4, 3, 1, 1, 13, 6, 0, 7, 1, 0, 1, 0, 0, 0]': ([0.0997381, 0.0995438, 0.099329, 0.099153, 0.0995181, 0.0994458, 0.0994821, 0.099216, 0.099298, 0.099251, 0.0996261, 0.0993199, 0.0992591, 0.0993609, 0.0994351, 0.099061, 0.0999539, 0.0992031, 0.099334, 0.0991871, 0.0993319, 0.0992541, 0.09918, 0.0991068, 0.0993161, 0.099509, 0.0991039, 0.099647, 0.100949, 0.0992968], [inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf])}
+Complete design, with measurements:
+       T1_I T1_J T1_K T2_I T2_J T2_K ACOPY_x ACOPY_y U1_I U_I U_J U_K RT_I RT_J
+128711    1    0    6    2    3    5       0       1    1   6   0   7    1    0
+157874    1    0    4    2    4    4       0       1   25   6   0   7    1    1
+231476    3    0    3    5    5    4       1       0    6   6   0   7    1    1
+378850    5    0    4    4    0    0       0       1    5   6   0   7    1    0
+388071    0    0    0    1    2    0       1       0   20   6   0   7    1    1
+481987    4    0    1    2    3    4       0       0   21   6   0   7    1    0
+530812    1    0    3    6    2    4       1       1    0   6   0   7    1    0
+533928    5    0    2    6    2    2       1       1    5   6   0   7    1    0
+604324    6    0    1    6    1    3       0       1    7   6   0   7    1    0
+743327    0    0    0    6    2    1       0       0   22   6   0   7    1    0
+765164    0    0    2    4    1    1       1       0   18   6   0   7    1    0
+782309    1    0    2    3    4    3       1       1   13   6   0   7    1    0
+       RT_K SCR VEC1 VEC2  cost_mean
+128711    1   0    0    1 0.09274328
+157874    0   0    0    0 0.09193380
+231476    0   0    0    1 0.10216483
+378850    1   0    0    1 0.09364227
+388071    0   0    0    0 0.09708579
+481987    1   0    0    1 0.10230267
+530812    0   1    0    1 0.08263107
+533928    0   0    0    0 0.09560339
+604324    0   1    0    0 0.08986452
+743327    1   1    0    1 0.08194467
+765164    0   1    0    1 0.08228941
+782309    1   0    0    0 0.09941366
+
+Best Predicted:        T1_I T1_J T1_K T2_I T2_J T2_K ACOPY_x ACOPY_y U1_I U_I U_J U_K RT_I RT_J
+743327    0    0    0    6    2    1       0       0   22   6   0   7    1    0
+       RT_K SCR VEC1 VEC2  cost_mean
+743327    1   1    0    1 0.08194467
+
+Pruned Factors: ['T1_I', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'RT_J', 'RT_K', 'SCR', 'VEC2']
+Fixed Factors: {'RT_I': 1, 'T1_J': 0, 'U_K': 7, 'U_J': 0, 'U_I': 6, 'VEC1': 0}
+Length of requested configs: 1
+Result was on Database, Returning Now
+Starting Point (-O3):
+0.1290727
+Predicted Best Point:
+[0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1, 0]
+Length of requested configs: 1
+Result was on Database, Returning Now
+Slowdown: 0.634872181853
+Budget: 74/180
+Step 2
+No more configurations to test, exiting
+Ending DOPT-ANOVA
+Best Point: [0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Speedup: 1.57512020306
+----- end random search -----
+----- begin random search summary -----
+ total completed runs: 0
+ total successful runs: 0
+ total failed runs: 0
+ speedup: 1.57512020306
+----- end random search summary -----
+----- begin summary -----
+ best coordinate: [0, 0, 0, 6, 2, 1, 0, 0, 22, 6, 0, 7, 1, 0, 1, 1, 0, 1]={'ACOPY_x': False, 'ACOPY_y': False, 'RT_K': 8, 'T1_I': 1, 'T1_J': 1, 'T1_K': 1, 'U_K': 8, 'U_J': 1, 'U_I': 7, 'U1_I': 23, 'T2_K': 64, 'T2_J': 128, 'T2_I': 2048, 'VEC2': True, 'VEC1': False, 'RT_I': 8, 'SCR': True, 'RT_J': 1}, cost=8.194467e-02, transfer_time=inf, inputs=[('N', 10000)], search_time=-167.93, runs=0
+----- end summary -----
+Length of requested configs: 1
+Result was on Database, Returning Now
+----- the obtained best performance parameters -----
+ ACOPY_x = False
+ ACOPY_y = False
+ RT_I = 8
+ RT_J = 1
+ RT_K = 8
+ SCR = True
+ T1_I = 1
+ T1_J = 1
+ T1_K = 1
+ T2_I = 2048
+ T2_J = 128
+ T2_K = 64
+ U1_I = 23
+ U_I = 7
+ U_J = 1
+ U_K = 8
+ VEC1 = False
+ VEC2 = True
+Code stats:
+        Number of loops: 	36
+        Max loop nest depth: 	4
+        Additions: 		1456
+        Multiplications: 	576
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			3148
+        Writes: 		670
+        Comparisons:		36
+        Gotos: 			0
+        
+----- finish optimizations -----
+
+----- begin removing annotations from output-----
+----- finished removing annotations from output-----
+
+----- begin writing the output file(s) -----
+--> writing output to: _atax2.src1.c
+----- finished writing the output file(s) -----
+
+====== END ORIO ======
