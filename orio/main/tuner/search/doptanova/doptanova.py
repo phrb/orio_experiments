@@ -29,7 +29,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def __init__(self, params):
         '''To instantiate a random search engine'''
-        numpy.random.seed(39920)
+        #numpy.random.seed(39920)
 
         self.base      = importr("base")
         self.utils     = importr("utils")
@@ -70,7 +70,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Starting \"optMonteCarlo\" run")
         info(str(data))
 
-        self.base.set_seed(77126)
+        #self.base.set_seed(77126)
 
         candidate_multiplier = 20
         repetitions          = 8
@@ -329,7 +329,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
             regression, prf_values = self.anova(design, lm_formula)
             ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
             predicted_best         = self.predict_best(regression, step_space)
-            info("prf_values: " + str(prf_values))
             fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
                                                               prf_values, fixed_factors)
 
@@ -344,8 +343,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
             prf_values = []
             ordered_prf_keys = []
             pruned_space = []
-            pruned_factors = []
-            pruned_inverse_factors = []
+            pruned_factors = factors
+            pruned_inverse_factors = inverse_factors
 
             step_data = self.measure_design(step_space, response, fixed_factors)
             predicted_best = step_data.rx((step_data.rx2(response[0]).ro == min(step_data.rx(response[0])[0])),
@@ -379,6 +378,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         budget = initial_budget
         used_experiments = 0
         iterations = 10
+        best_value = float("inf")
+        best_point = []
 
         for i in range(iterations):
             info("Step {0}".format(i))
@@ -400,8 +401,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
             used_experiments += step_data["used_experiments"]
             fixed_factors = step_data["fixed_factors"]
 
-            info("Fixed Factors: " + str(fixed_factors))
-
             starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
             info("Starting Point (-O3):")
             info(str(starting_point))
@@ -414,7 +413,11 @@ class Doptanova(orio.main.tuner.search.search.Search):
             info("Slowdown: " + str(predicted_best_value / starting_point))
             info("Budget: {0}/{1}".format(used_experiments, initial_budget))
 
-        return True
+            if predicted_best_value < best_value or best_point == []:
+                best_point = predicted_best
+                best_value = predicted_best_value
+
+        return best_point
 
     def searchBestCoord(self, startCoord = None):
         '''
@@ -490,7 +493,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
             for experiment in search_space_database['experiments']:
                 search_space.append(eval(experiment["value"]))
 
-        sys.exit()
         info("Starting DOPT-anova")
 
         r_search_space = {}
@@ -504,15 +506,16 @@ class Doptanova(orio.main.tuner.search.search.Search):
         data = DataFrame(r_search_space)
         data = data.rx(StrVector(initial_factors))
 
-        self.dopt_anova(initial_factors, initial_inverse_factors, data)
+        best_point = self.dopt_anova(initial_factors, initial_inverse_factors, data)
 
-        perf_cost, mean_perf_cost = self.MAXFLOAT, self.MAXFLOAT
-
-        params = self.coordToPerfParams(coord)
+        params = self.coordToPerfParams(best_point)
         end_time = time.time()
         search_time = start_time - end_time
-        speedup = float(eval_cost[0]) / float(best_perf_cost)
-        search_time = time.time() - start_time
+
+        starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
+        predicted_best_value = numpy.mean((self.getPerfCosts([best_point]).values()[0])[0])
+        speedup = starting_point / predicted_best_value
+        info("Speedup: " + str(speedup))
 
         info('----- end random search -----')
 
@@ -521,11 +524,10 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(' total successful runs: %s' % sruns)
         info(' total failed runs: %s' % fruns)
         info(' speedup: %s' % speedup)
-        info(' fount at: %s' % num_eval_best)
         info('----- end random search summary -----')
 
         # return the best coordinate
-        return best_coord, best_perf_cost, search_time, sruns
+        return best_point, predicted_best_value, search_time, sruns
 
     # Private methods
 
