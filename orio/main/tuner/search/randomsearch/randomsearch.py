@@ -218,7 +218,11 @@ class Randomsearch(orio.main.tuner.search.search.Search):
         #print best_coord
         end_time = time.time()
         search_time = start_time - end_time
-        speedup = float(eval_cost[0]) / float(best_perf_cost)
+
+        starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
+
+        #speedup = float(eval_cost[0]) / float(best_perf_cost)
+        speedup = float(starting_point) / float(best_perf_cost)
 
         # compute the total search time
         search_time = time.time() - start_time
