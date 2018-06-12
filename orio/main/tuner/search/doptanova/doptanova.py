@@ -150,7 +150,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return pruned_data
 
     def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 5, prf_threshold = 0.1):
-        ordered_keys     = [k.replace("I(1 / (1 + ", "").strip(") ") for k in ordered_keys]
+        ordered_keys     = [k.replace("I(1/(1 + ", "").strip(") ") for k in ordered_keys]
         unique_variables = []
         for k in ordered_keys:
             if k not in unique_variables and prf_values[str(k)] < prf_threshold:
@@ -297,7 +297,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         design_formula = full_model
         lm_formula     = response[0] + full_model
-        trials         = int(2 * len(factors))
+        trials         = int(2 * (len(factors) + len(inverse_factors)))
 
         fixed_variables = fixed_factors
         info("Fixed Factors: " + str(fixed_factors))
@@ -384,6 +384,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         for i in range(iterations):
             info("Step {0}".format(i))
             if step_space == []:
+                info("No more configurations to test, exiting")
                 break
 
             step_data = self.dopt_anova_step(response,
@@ -427,8 +428,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info('\n----- begin random search -----')
 
         initial_factors = self.params["axis_names"]
-        #initial_inverse_factors = [f for f in initial_factors if self.parameter_ranges[f][1] > 2]
-        initial_inverse_factors = []
+        initial_inverse_factors = [f for f in initial_factors if self.parameter_ranges[f][1] > 2]
+        #initial_inverse_factors = []
 
         info("Initial Factors: " + str(initial_factors))
         info("Initial Inverse Factors: " + str(initial_inverse_factors))
@@ -446,7 +447,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         full_candidate_set = {}
         search_space = []
 
-        self.seed_space_size = 800000
+        self.seed_space_size = 400000
 
         info("Building seed search space (does not spend evaluations)")
         if not os.path.isfile("search_space_{0}.db".format(self.seed_space_size)):
@@ -508,13 +509,18 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         best_point = self.dopt_anova(initial_factors, initial_inverse_factors, data)
 
+        info("Ending DOPT-ANOVA")
+        info("Best Point: " + str(best_point))
+
         params = self.coordToPerfParams(best_point)
+
         end_time = time.time()
         search_time = start_time - end_time
 
         starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
         predicted_best_value = numpy.mean((self.getPerfCosts([best_point]).values()[0])[0])
         speedup = starting_point / predicted_best_value
+
         info("Speedup: " + str(speedup))
 
         info('----- end random search -----')
