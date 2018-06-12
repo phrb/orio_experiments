@@ -447,7 +447,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         full_candidate_set = {}
         search_space = []
 
-        self.seed_space_size = 400000
+        self.seed_space_size = 800000
 
         info("Building seed search space (does not spend evaluations)")
         if not os.path.isfile("search_space_{0}.db".format(self.seed_space_size)):
