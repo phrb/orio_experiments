@@ -37,7 +37,7 @@ class Randomsearch(orio.main.tuner.search.search.Search):
         # read all algorithm-specific arguments
         self.__readAlgoArgs()
 
-        self.init_samp = 2 * self.total_runs  # BN: used to be hard-coded to 10,000
+        self.init_samp = self.total_runs  # BN: used to be hard-coded to 10,000
         # complain if both the search time limit and the total number of search runs are undefined
         if self.time_limit <= 0 and self.total_runs <= 0:
             err((
@@ -88,7 +88,8 @@ class Randomsearch(orio.main.tuner.search.search.Search):
         neigh_coords = [[0] * self.total_dims]
 
         while len(uneval_coords) < self.init_samp:
-            coord = self.__getNextCoord(coord_records, neigh_coords, init)
+            #coord = self.__getNextCoord(coord_records, neigh_coords, init)
+            coord = self.getRandomCoord()
             coord_key = str(coord)
 
             if not coord or len(coord) == 0:
