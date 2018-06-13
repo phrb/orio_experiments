@@ -297,7 +297,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         design_formula = full_model
         lm_formula     = response[0] + full_model
-        trials         = int(2 * (len(factors) + len(inverse_factors)))
+        trials         = int(5 + (len(factors) + len(inverse_factors)))
 
         fixed_variables = fixed_factors
         info("Fixed Factors: " + str(fixed_factors))
