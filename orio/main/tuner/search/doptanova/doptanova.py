@@ -29,7 +29,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def __init__(self, params):
         '''To instantiate a random search engine'''
-        #numpy.random.seed(39920)
+        numpy.random.seed(39920)
 
         self.base      = importr("base")
         self.utils     = importr("utils")
@@ -70,7 +70,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Starting \"optMonteCarlo\" run")
         info(str(data))
 
-        #self.base.set_seed(77126)
+        self.base.set_seed(77126)
 
         candidate_multiplier = 20
         repetitions          = 8
