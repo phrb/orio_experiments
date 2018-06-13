@@ -329,7 +329,7 @@ class TestException(Exception):
         return s
 
 
-""" 
+"""
 Various error-handling related miscellaneous
 """
 

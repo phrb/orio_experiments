@@ -361,7 +361,8 @@ class PerfTestDriver:
                 #out = f.readlines()
                 #f.close()
                 out = sp.check_output(cmd, shell = True)
-                print(str(out))
+                info("Program Test Output: ")
+                info(str(out))
             except Exception, e:
                 self.failedRuns += 1
                 err('orio.main.tuner.ptest_driver: failed to execute the test code: "%s"\n --> %s: %s' \
