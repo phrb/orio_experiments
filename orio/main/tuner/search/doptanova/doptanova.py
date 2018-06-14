@@ -30,6 +30,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
     def __init__(self, params):
         '''To instantiate a random search engine'''
         #numpy.random.seed(39920)
+        numpy.random.seed(99291)
 
         self.base      = importr("base")
         self.utils     = importr("utils")
@@ -71,9 +72,10 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(data))
 
         #self.base.set_seed(77126)
+        self.base.set_seed(66182)
 
-        candidate_multiplier = 30
-        repetitions          = 16
+        candidate_multiplier = 20
+        repetitions          = 5
 
         output = self.algdesign.optMonteCarlo(frml        = Formula(design_formula),
                                               data        = data,
@@ -98,6 +100,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def anova(self, design, formula):
         regression = self.stats.lm(Formula(formula), data = design)
+        info("Initial Regression Step: " + str(self.stats.summary_aov(regression)))
         heteroscedasticity_test = self.car.ncvTest(regression)
         info("Heteroscedasticity Test p-value: " + str(heteroscedasticity_test.rx("p")[0][0]))
 
@@ -131,6 +134,13 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Identical predictions (tol = 1e-5): {0}".format(identical_predictions))
         return data.rx(predicted.ro == self.base.min(predicted), True)
 
+    def get_design_best(self, design, response):
+        info("Getting Best from Design")
+        info("Response: " + str(response))
+        info("Design Names: " + str(self.base.names(design)))
+        info("Design Response: " + str(design.rx(str(response[0]))))
+        return design.rx(design.rx2(str(response[0])).ro == self.base.min(design.rx(str(response[0]))), True)
+
     def prune_data(self, data, predicted_best, fixed_variables):
         info("Pruning Data")
         conditions = []
@@ -149,7 +159,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(self.utils.str(pruned_data)))
         return pruned_data
 
-    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 5, prf_threshold = 0.1):
+    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 3, prf_threshold = 0.1):
         ordered_keys     = [k.replace("I(1/(1 + ", "").strip(") ") for k in ordered_keys]
         unique_variables = []
         for k in ordered_keys:
@@ -297,7 +307,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         design_formula = full_model
         lm_formula     = response[0] + full_model
-        trials         = int(5 + (len(factors) + len(inverse_factors)))
+        trials         = int(10 + (len(factors) + len(inverse_factors)))
 
         fixed_variables = fixed_factors
         info("Fixed Factors: " + str(fixed_factors))
@@ -329,6 +339,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
             regression, prf_values = self.anova(design, lm_formula)
             ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
             predicted_best         = self.predict_best(regression, step_space)
+            design_best            = self.get_design_best(design, response)
             fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
                                                               prf_values, fixed_factors)
 
@@ -351,11 +362,13 @@ class Doptanova(orio.main.tuner.search.search.Search):
                                       True)
 
         info("Best Predicted: " + str(predicted_best))
+        info("Best From Design : " + str(design_best))
         info("Pruned Factors: " + str(pruned_factors))
         info("Fixed Factors: " + str(fixed_variables))
 
         return {"prf_values": prf_values,
                 "ordered_prf_keys": ordered_prf_keys,
+                "design_best": design_best,
                 "predicted_best": predicted_best,
                 "pruned_space": pruned_space,
                 "pruned_factors": pruned_factors,
@@ -411,7 +424,12 @@ class Doptanova(orio.main.tuner.search.search.Search):
             info(str(predicted_best))
             predicted_best_value = numpy.mean((self.getPerfCosts([predicted_best]).values()[0])[0])
 
-            info("Slowdown: " + str(predicted_best_value / starting_point))
+            design_best = step_data["design_best"]
+            info("Design Best Point:")
+            info(str(design_best))
+
+            info("Slowdown (Design Best): " + str(float(design_best.rx(1, response[0])[0]) / starting_point))
+            info("Slowdown (Predicted Best): " + str(predicted_best_value / starting_point))
             info("Budget: {0}/{1}".format(used_experiments, initial_budget))
 
             if predicted_best_value < best_value or best_point == []:
