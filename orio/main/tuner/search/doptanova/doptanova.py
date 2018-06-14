@@ -100,7 +100,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def anova(self, design, formula):
         regression = self.stats.lm(Formula(formula), data = design)
-        info("Initial Regression Step: " + str(self.stats.summary_aov(regression)))
         heteroscedasticity_test = self.car.ncvTest(regression)
         info("Heteroscedasticity Test p-value: " + str(heteroscedasticity_test.rx("p")[0][0]))
 
@@ -249,7 +248,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
             result = eval(constraint_text)
             return result
 
-        info("Updated Constraint: " + str(self.constraint))
+        info("Updated Constraint: " + str(constraint_text))
         return constraint
 
     def measure_design(self, design, response, fixed_factors):
@@ -307,7 +306,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         design_formula = full_model
         lm_formula     = response[0] + full_model
-        trials         = int(10 + (len(factors) + len(inverse_factors)))
+        trials         = int(1.5 * (len(factors) + len(inverse_factors)))
 
         fixed_variables = fixed_factors
         info("Fixed Factors: " + str(fixed_factors))
