@@ -49,6 +49,13 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         info("Parameters: " + str(self.parameter_ranges))
 
+        self.parameter_values = {}
+
+        for i in range(len(self.params["axis_val_ranges"])):
+            self.parameter_values[self.params["axis_names"][i]] = self.params["axis_val_ranges"][i]
+
+        info("Parameter Range Values: " + str(self.parameter_values))
+
         # set all algorithm-specific arguments to their default values
         self.local_distance = 0
 
@@ -76,13 +83,14 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         candidate_multiplier = 20
         repetitions          = 5
+        #nCand       = candidate_multiplier * trials,
+        #nRepeats    = repetitions,
 
         output = self.algdesign.optMonteCarlo(frml        = Formula(design_formula),
                                               data        = data,
-                                              nCand       = candidate_multiplier * trials,
-                                              nRepeats    = repetitions,
                                               constraints = constraint,
-                                              nTrials     = trials)
+                                              nTrials     = trials,
+                                              args        = True)
 
         return output
 
@@ -226,25 +234,27 @@ class Doptanova(orio.main.tuner.search.search.Search):
     def get_updated_constraints(self, factors, fixed_variables):
         info("Updating Constraints")
         constraint_text = self.constraint
-        variable_ranges = self.axis_val_ranges
-        variable_names = self.params["axis_names"]
+        variable_ranges = self.parameter_values
+
+        info("Parameter Range Values: " + str(variable_ranges))
 
         for k, v in fixed_variables.items():
-            current_value = str(variable_ranges[variable_names.index(k)][int(v)])
+            current_value = str(variable_ranges[k][int(v)])
             constraint_text = constraint_text.replace(k, current_value)
 
         for i in range(len(factors)):
-            current_value = ("variable_ranges[variable_names.index"
-                             "(factors[{0}])][int(round(x[{0}]))]".format(i))
+            current_value = ("variable_ranges[\"{0}\"][int(x[{1}])]".format(factors[i], i))
 
-            old_value = variable_names[variable_names.index(factors[i])]
+            old_value = factors[i]
             constraint_text = constraint_text.replace(old_value, current_value)
+
+        info("Variable Ranges: " + str(variable_ranges))
+        info("Current Factors: " + str(factors))
+        info("Constraint Text: " + str(self.constraint))
 
         @ri.rternalize
         def constraint(x):
             type(variable_ranges)
-            type(variable_names)
-            type(factors)
             result = eval(constraint_text)
             return result
 
