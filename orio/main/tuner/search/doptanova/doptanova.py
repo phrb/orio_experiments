@@ -12,7 +12,7 @@ import os
 import rpy2.rinterface as ri
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
-from rpy2.robjects import DataFrame, IntVector, FloatVector, StrVector, BoolVector, Formula, r
+from rpy2.robjects import DataFrame, IntVector, FloatVector, StrVector, BoolVector, Formula, NULL, r
 
 class Doptanova(orio.main.tuner.search.search.Search):
     '''
@@ -74,23 +74,91 @@ class Doptanova(orio.main.tuner.search.search.Search):
     def isclose(self, a, b, rel_tol = 1e-09, abs_tol = 0.0):
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
-    def opt_federov(self, design_formula, trials, constraint, data):
+    def generate_valid_sample(self, sample_size, fixed_variables):
+        search_space_dataframe = {}
+
+        for n in self.axis_names:
+            search_space_dataframe[n] = []
+
+        search_space = {}
+        evaluated = 0
+
+        info("Generating search space of size {0} for optFederov (does not spend evaluations)".format(sample_size))
+
+        while len(search_space) < sample_size:
+            candidate_point      = self.getRandomCoord()
+            candidate_point_key  = str(candidate_point)
+            evaluated           += 1
+
+            if candidate_point_key not in search_space:
+                perf_params = self.coordToPerfParams(candidate_point)
+
+                for k, v in fixed_variables.items():
+                    perf_params[k] = self.parameter_values[k][int(v)]
+
+                is_valid = eval(self.constraint, copy.copy(perf_params),
+                                dict(self.input_params))
+
+                if is_valid:
+                    search_space[candidate_point_key] = candidate_point
+
+                    for n in perf_params:
+                        candidate_value = self.parameter_values[n].index(perf_params[n])
+                        search_space_dataframe[n].append(candidate_value)
+
+                    if len(search_space) % int(sample_size / 5) == 0:
+                        info("Valid coordinates: " + str(len(search_space)))
+
+                if evaluated % 10000 == 0:
+                    info("Tested coordinates: " + str(evaluated))
+
+        info("Valid/Tested configurations: " + str(len(search_space)) + "/" +
+             str(evaluated))
+
+        for k in search_space_dataframe:
+            search_space_dataframe[k] = IntVector(search_space_dataframe[k])
+
+        search_space_dataframe_r = DataFrame(search_space_dataframe)
+        search_space_dataframe_r = search_space_dataframe_r.rx(StrVector(self.axis_names))
+        info("Generated Search Space:")
+        info(str(self.utils.str(search_space_dataframe_r)))
+
+        return search_space_dataframe_r
+
+    def opt_monte(self, design_formula, trials, constraint, data):
         info("Starting \"optMonteCarlo\" run")
         info(str(data))
 
         #self.base.set_seed(77126)
         self.base.set_seed(66182)
 
-        candidate_multiplier = 20
-        repetitions          = 5
-        #nCand       = candidate_multiplier * trials,
-        #nRepeats    = repetitions,
+        candidate_multiplier = 10
+        repetitions          = 1
 
         output = self.algdesign.optMonteCarlo(frml        = Formula(design_formula),
                                               data        = data,
                                               constraints = constraint,
-                                              nTrials     = trials,
-                                              args        = True)
+                                              nCand       = candidate_multiplier * trials,
+                                              nRepeats    = repetitions,
+                                              nTrials     = trials)
+        return output
+
+    def opt_federov(self, design_formula, trials, data):
+        info("Starting \"optFederov\" run")
+        info("Using Search Space:")
+        info(str(self.utils.str(data)))
+
+
+        #self.base.set_seed(77126)
+        self.base.set_seed(66182)
+
+        info("Correlation between variables in the dataset:")
+        info(str(self.stats.cor(data)))
+
+        output = self.algdesign.optFederov(frml    = Formula(design_formula),
+                                           data    = data,
+                                           nTrials = trials,
+                                           nullify = 1)
 
         return output
 
@@ -304,7 +372,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return design
 
     def dopt_anova_step(self, response, factors, inverse_factors, step_space,
-                        search_space, fixed_factors, budget):
+                        search_space, fixed_factors, budget, step_number):
         full_model     = "".join([" ~ ",
                                   " + ".join(factors)])
 
@@ -332,8 +400,12 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
             opt_federov_dataframe = self.get_federov_data(factors)
 
-            output = self.opt_federov(design_formula, trials, constraint,
-                                      opt_federov_dataframe)
+            federov_search_space = self.generate_valid_sample(30 * trials, fixed_variables)
+
+            # output = self.opt_monte(design_formula, trials, constraint,
+            #                         opt_federov_dataframe)
+
+            output = self.opt_federov(design_formula, trials, federov_search_space)
 
             design = output.rx("design")[0]
 
@@ -368,10 +440,11 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
             step_data = self.measure_design(step_space, response, fixed_factors)
             predicted_best = step_data.rx((step_data.rx2(response[0]).ro == min(step_data.rx(response[0])[0])),
-                                      True)
+                                          True)
+            design_best = predicted_best
 
         info("Best Predicted: " + str(predicted_best))
-        info("Best From Design : " + str(design_best))
+        info("Best From Design: " + str(design_best))
         info("Pruned Factors: " + str(pruned_factors))
         info("Fixed Factors: " + str(fixed_variables))
 
@@ -415,7 +488,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
                                              step_space,
                                              search_space,
                                              fixed_factors,
-                                             budget)
+                                             budget,
+                                             i)
 
             step_space = step_data["pruned_space"]
             step_factors = step_data["pruned_factors"]
