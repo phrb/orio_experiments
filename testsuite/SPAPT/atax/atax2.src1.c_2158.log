@@ -1,0 +1,55 @@
+
+====== START ORIO ======
+
+----- begin reading the source file: atax2.src1.c -----
+----- finished reading the source file -----
+
+----- begin parsing annotations -----
+----- finished parsing annotations -----
+
+----- begin optimizations -----
+Search_Space         = 8.234e+13
+Number_of_Parameters = 18
+Numeric_Parameters   = 13
+Binary_Parameters    = 05
+['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+[[1, 16, 32, 64, 128, 256, 512], [1, 16, 32, 64, 128, 256, 512], [1, 16, 32, 64, 128, 256, 512], [1, 64, 128, 256, 512, 1024, 2048], [1, 64, 128, 256, 512, 1024, 2048], [1, 64, 128, 256, 512, 1024, 2048], [False, True], [False, True], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 8, 32], [1, 8, 32], [1, 8, 32], [False, True], [False, True], [False, True]]
+
+----- begin empirical tuning for problem size -----
+ N = 10000
+Parameters: {'ACOPY_x': [0, 2], 'ACOPY_y': [0, 2], 'RT_K': [0, 3], 'T1_I': [0, 7], 'T1_J': [0, 7], 'T1_K': [0, 7], 'U_K': [0, 30], 'U_J': [0, 30], 'U_I': [0, 30], 'U1_I': [0, 30], 'T2_K': [0, 7], 'T2_J': [0, 7], 'T2_I': [0, 7], 'VEC2': [0, 2], 'VEC1': [0, 2], 'RT_I': [0, 3], 'SCR': [0, 2], 'RT_J': [0, 3]}
+Parameter Range Values: {'ACOPY_x': [False, True], 'ACOPY_y': [False, True], 'RT_K': [1, 8, 32], 'T1_I': [1, 16, 32, 64, 128, 256, 512], 'T1_J': [1, 16, 32, 64, 128, 256, 512], 'T1_K': [1, 16, 32, 64, 128, 256, 512], 'U_K': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U_J': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U_I': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U1_I': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'T2_K': [1, 64, 128, 256, 512, 1024, 2048], 'T2_J': [1, 64, 128, 256, 512, 1024, 2048], 'T2_I': [1, 64, 128, 256, 512, 1024, 2048], 'VEC2': [False, True], 'VEC1': [False, True], 'RT_I': [1, 8, 32], 'SCR': [False, True], 'RT_J': [1, 8, 32]}
+
+----- begin random search -----
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Initial Inverse Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K']
+Building seed search space (does not spend evaluations)
+Using pre-generated space for this size
+Starting DOPT-anova
+Step 0
+Full Model:  ~ T1_I + T1_J + T1_K + T2_I + T2_J + T2_K + ACOPY_x + ACOPY_y + U1_I + U_I + U_J + U_K + RT_I + RT_J + RT_K + SCR + VEC1 + VEC2 + I(1 / (1 + T1_I)) + I(1 / (1 + T1_J)) + I(1 / (1 + T1_K)) + I(1 / (1 + T2_I)) + I(1 / (1 + T2_J)) + I(1 / (1 + T2_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + U_I)) + I(1 / (1 + U_J)) + I(1 / (1 + U_K)) + I(1 / (1 + RT_I)) + I(1 / (1 + RT_J)) + I(1 / (1 + RT_K))
+Fixed Factors: {}
+Full data does not fit on budget
+Computing D-Optimal Design
+Updating Constraints
+Parameter Range Values: {'ACOPY_x': [False, True], 'ACOPY_y': [False, True], 'RT_K': [1, 8, 32], 'T1_I': [1, 16, 32, 64, 128, 256, 512], 'T1_J': [1, 16, 32, 64, 128, 256, 512], 'T1_K': [1, 16, 32, 64, 128, 256, 512], 'U_K': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U_J': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U_I': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U1_I': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'T2_K': [1, 64, 128, 256, 512, 1024, 2048], 'T2_J': [1, 64, 128, 256, 512, 1024, 2048], 'T2_I': [1, 64, 128, 256, 512, 1024, 2048], 'VEC2': [False, True], 'VEC1': [False, True], 'RT_I': [1, 8, 32], 'SCR': [False, True], 'RT_J': [1, 8, 32]}
+Variable Ranges: {'ACOPY_x': [False, True], 'ACOPY_y': [False, True], 'RT_K': [1, 8, 32], 'T1_I': [1, 16, 32, 64, 128, 256, 512], 'T1_J': [1, 16, 32, 64, 128, 256, 512], 'T1_K': [1, 16, 32, 64, 128, 256, 512], 'U_K': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U_J': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U_I': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U1_I': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'T2_K': [1, 64, 128, 256, 512, 1024, 2048], 'T2_J': [1, 64, 128, 256, 512, 1024, 2048], 'T2_I': [1, 64, 128, 256, 512, 1024, 2048], 'VEC2': [False, True], 'VEC1': [False, True], 'RT_I': [1, 8, 32], 'SCR': [False, True], 'RT_J': [1, 8, 32]}
+Current Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Constraint Text: True and (((T2_I ==1 )or (T2_I %T1_I ==0 ))) and (((T2_J ==1 )or (T2_J %T1_J ==0 ))) and (((T2_K ==1 )or (T2_K %T1_K ==0 ))) and ((RT_I *RT_J +RT_I *RT_K +RT_J *RT_K <=150 )) and (((U_I ==1 )or (U_J ==1 )or (U_K ==1 )))
+Updated Constraint: True and (((variable_ranges["T2_I"][int(x[3])] ==1 )or (variable_ranges["T2_I"][int(x[3])] %variable_ranges["T1_I"][int(x[0])] ==0 ))) and (((variable_ranges["T2_J"][int(x[4])] ==1 )or (variable_ranges["T2_J"][int(x[4])] %variable_ranges["T1_J"][int(x[1])] ==0 ))) and (((variable_ranges["T2_K"][int(x[5])] ==1 )or (variable_ranges["T2_K"][int(x[5])] %variable_ranges["T1_K"][int(x[2])] ==0 ))) and ((variable_ranges["RT_I"][int(x[12])] *variable_ranges["RT_J"][int(x[13])] +variable_ranges["RT_I"][int(x[12])] *variable_ranges["RT_K"][int(x[14])] +variable_ranges["RT_J"][int(x[13])] *variable_ranges["RT_K"][int(x[14])] <=150 )) and (((variable_ranges["U_I"][int(x[9])] ==1 )or (variable_ranges["U_J"][int(x[10])] ==1 )or (variable_ranges["U_K"][int(x[11])] ==1 )))
+Computing D-Optimal Design with 46 experiments
+Design Formula:  ~ T1_I + T1_J + T1_K + T2_I + T2_J + T2_K + ACOPY_x + ACOPY_y + U1_I + U_I + U_J + U_K + RT_I + RT_J + RT_K + SCR + VEC1 + VEC2 + I(1 / (1 + T1_I)) + I(1 / (1 + T1_J)) + I(1 / (1 + T1_K)) + I(1 / (1 + T2_I)) + I(1 / (1 + T2_J)) + I(1 / (1 + T2_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + U_I)) + I(1 / (1 + U_J)) + I(1 / (1 + U_K)) + I(1 / (1 + RT_I)) + I(1 / (1 + RT_J)) + I(1 / (1 + RT_K))
+Generating search space of size 1380 for optFederov (does not spend evaluations)
+Tested coordinates: 10000
+Valid coordinates: 276
+Tested coordinates: 20000
+Valid coordinates: 552
+Tested coordinates: 30000
+Valid coordinates: 828
+Tested coordinates: 40000
+Valid coordinates: 1104
+Tested coordinates: 50000
+Valid coordinates: 1380
+Valid/Tested configurations: 1380/56055
+Generated Search Space:
+NULL

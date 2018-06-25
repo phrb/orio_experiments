@@ -2,6 +2,7 @@ import sys, time
 import math
 import random
 import numpy
+import scipy.linalg
 import orio.main.tuner.search.search
 from orio.main.util.globals import *
 import copy
@@ -148,7 +149,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Using Search Space:")
         info(str(self.utils.str(data)))
 
-
         #self.base.set_seed(77126)
         self.base.set_seed(66182)
 
@@ -158,6 +158,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         output = self.algdesign.optFederov(frml    = Formula(design_formula),
                                            data    = data,
                                            nTrials = trials,
+                                           center  = True,
                                            nullify = 1)
 
         return output
@@ -400,10 +401,51 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
             opt_federov_dataframe = self.get_federov_data(factors)
 
-            federov_search_space = self.generate_valid_sample(30 * trials, fixed_variables)
+            federov_search_space = self.generate_valid_sample(10 * trials, fixed_variables)
 
             # output = self.opt_monte(design_formula, trials, constraint,
             #                         opt_federov_dataframe)
+
+            X = self.stats.model_matrix(Formula(design_formula), federov_search_space)
+            info("Model Matrix Names: " + str(self.base.names(X)))
+            X_t = self.base.t(X)
+            X_I = numpy.matmul(X_t, X)
+            numpy.set_printoptions(precision = 2, linewidth = 120)
+
+            X_I_P, X_I_L, X_I_U = scipy.linalg.lu(X_I)
+            determinant = numpy.linalg.det(X_I)
+
+            info("Model Matrix Det: " + str(determinant))
+            info("LU Decomposition L:")
+            info(str(X_I_L))
+            info("LU Decomposition U:")
+            info(str(X_I_U))
+            info("LU Decomposition P:")
+            info(str(X_I_P))
+
+            X_I = numpy.array(X_I)
+
+            info("Computing Dependency Between Columns")
+            for i in range(X_I.shape[1]):
+                for j in range(X_I.shape[1]):
+                    if i != j:
+                        info("(i: " + str(i) + ", j: " + str(j) + ")")
+                        inner_product = numpy.inner(
+                                X_I[:,i],
+                                X_I[:,j]
+                                )
+                        norm_i = numpy.linalg.norm(X_I[:,i])
+                        norm_j = numpy.linalg.norm(X_I[:,j])
+
+                        if numpy.abs(inner_product - norm_j * norm_i) < 1E-5:
+                            info('Dependent')
+                            info('I: ' + str(X_I[:,i]))
+                            info('J: ' + str(X_I[:,j]))
+                            info('Prod: ' + str(inner_product))
+                            info('Norm i: ' + str(norm_i))
+                            info('Norm j: ' + str(norm_j))
+                        else:
+                            info('Independent')
 
             output = self.opt_federov(design_formula, trials, federov_search_space)
 
@@ -511,11 +553,16 @@ class Doptanova(orio.main.tuner.search.search.Search):
             info("Design Best Point:")
             info(str(design_best))
 
+            design_best_slowdown    = float(design_best.rx(1, response[0])[0]) / starting_point
+            predicted_best_slowdown = predicted_best_value / starting_point
+
             info("Slowdown (Design Best): " + str(float(design_best.rx(1, response[0])[0]) / starting_point))
             info("Slowdown (Predicted Best): " + str(predicted_best_value / starting_point))
             info("Budget: {0}/{1}".format(used_experiments, initial_budget))
 
-            if predicted_best_value < best_value or best_point == []:
+            current_best = design_best_slowdown if design_best_slowdown < predicted_best_slowdown else predicted_best_slowdown
+
+            if current_best < best_value or best_point == []:
                 best_point = predicted_best
                 best_value = predicted_best_value
 
