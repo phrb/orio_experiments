@@ -152,12 +152,15 @@ class Doptanova(orio.main.tuner.search.search.Search):
         #self.base.set_seed(77126)
         self.base.set_seed(66182)
 
-        info("Correlation between variables in the dataset:")
-        info(str(self.stats.cor(data)))
+        #info("Correlation between variables in the dataset:")
+        #info(str(self.stats.cor(data)))
+
+        info("Data Dimensions: " + str(self.base.dim(data)))
 
         output = self.algdesign.optFederov(frml    = Formula(design_formula),
                                            data    = data,
                                            nTrials = trials,
+                                           maxIteration = 1000,
                                            center  = True,
                                            nullify = 1)
 
@@ -235,7 +238,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(self.utils.str(pruned_data)))
         return pruned_data
 
-    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 3, prf_threshold = 0.1):
+    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 10, prf_threshold = 0.1):
         ordered_keys     = [k.replace("I(1/(1 + ", "").strip(") ") for k in ordered_keys]
         unique_variables = []
         for k in ordered_keys:
@@ -401,7 +404,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
             opt_federov_dataframe = self.get_federov_data(factors)
 
-            federov_search_space = self.generate_valid_sample(10 * trials, fixed_variables)
+            federov_search_space = self.generate_valid_sample(30 * trials, fixed_variables)
+            federov_search_space = federov_search_space.rx(StrVector(factors))
 
             # output = self.opt_monte(design_formula, trials, constraint,
             #                         opt_federov_dataframe)
@@ -416,12 +420,12 @@ class Doptanova(orio.main.tuner.search.search.Search):
             determinant = numpy.linalg.det(X_I)
 
             info("Model Matrix Det: " + str(determinant))
-            info("LU Decomposition L:")
-            info(str(X_I_L))
-            info("LU Decomposition U:")
-            info(str(X_I_U))
-            info("LU Decomposition P:")
-            info(str(X_I_P))
+            #info("LU Decomposition L:")
+            #info(str(X_I_L))
+            #info("LU Decomposition U:")
+            #info(str(X_I_U))
+            #info("LU Decomposition P:")
+            #info(str(X_I_P))
 
             X_I = numpy.array(X_I)
 
@@ -429,7 +433,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
             for i in range(X_I.shape[1]):
                 for j in range(X_I.shape[1]):
                     if i != j:
-                        info("(i: " + str(i) + ", j: " + str(j) + ")")
                         inner_product = numpy.inner(
                                 X_I[:,i],
                                 X_I[:,j]
@@ -438,14 +441,13 @@ class Doptanova(orio.main.tuner.search.search.Search):
                         norm_j = numpy.linalg.norm(X_I[:,j])
 
                         if numpy.abs(inner_product - norm_j * norm_i) < 1E-5:
+                            info("(i: " + str(i) + ", j: " + str(j) + ")")
                             info('Dependent')
                             info('I: ' + str(X_I[:,i]))
                             info('J: ' + str(X_I[:,j]))
                             info('Prod: ' + str(inner_product))
                             info('Norm i: ' + str(norm_i))
                             info('Norm j: ' + str(norm_j))
-                        else:
-                            info('Independent')
 
             output = self.opt_federov(design_formula, trials, federov_search_space)
 
