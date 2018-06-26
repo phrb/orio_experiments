@@ -75,6 +75,43 @@ class Doptanova(orio.main.tuner.search.search.Search):
     def isclose(self, a, b, rel_tol = 1e-09, abs_tol = 0.0):
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
+
+    def clean_search_space(self, federov_search_space, factors, inverse_factors, fixed_factors):
+        data = {}
+        r_snippet = """data <- %s
+        clean_data <- Filter(function(x)(length(unique(x)) > 1), data)
+        removed_factors <- names(Filter(function(x)(length(unique(x)) == 1), data))
+        removed_inverse_factors <- names(Filter(function(x)(length(unique(x)) == 2), data))
+
+        list("clean_data" = clean_data, "removed_factors" = removed_factors, "removed_inverse_factors" = removed_inverse_factors)
+        """ % (federov_search_space.r_repr())
+
+        output = robjects.r(r_snippet)
+
+        removed_factors = output[1]
+        removed_inverse_factors = output[2]
+
+        info("Clean Info:")
+        info("Removed Factors: " + str(removed_factors))
+        info("Removed Inverse Factors: " + str(removed_inverse_factors))
+
+        factors = [f for f in factors if f not in removed_factors]
+        inverse_factors = [f for f in inverse_factors if f not in removed_inverse_factors + removed_factors]
+
+        info("New Factors: " + str(factors))
+        info("New Inverse Factors: " + str(inverse_factors))
+
+        for f in removed_factors:
+            fixed_factors[f] = int(federov_search_space.rx(1, f)[0])
+
+        info("New Fixed Factors: " + str(fixed_factors))
+
+        data["search_space"]    = output[0]
+        data["factors"]         = factors
+        data["inverse_factors"] = inverse_factors
+        data["fixed_factors"]   = fixed_factors
+        return data
+
     def generate_valid_sample(self, sample_size, fixed_variables):
         search_space_dataframe = {}
 
@@ -84,7 +121,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         search_space = {}
         evaluated = 0
 
-        info("Generating search space of size {0} for optFederov (does not spend evaluations)".format(sample_size))
+        info("Generating valid search space of size {0} (does not spend evaluations)".format(sample_size))
 
         while len(search_space) < sample_size:
             candidate_point      = self.getRandomCoord()
@@ -121,6 +158,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         search_space_dataframe_r = DataFrame(search_space_dataframe)
         search_space_dataframe_r = search_space_dataframe_r.rx(StrVector(self.axis_names))
+
         info("Generated Search Space:")
         info(str(self.utils.str(search_space_dataframe_r)))
 
@@ -156,13 +194,38 @@ class Doptanova(orio.main.tuner.search.search.Search):
         #info(str(self.stats.cor(data)))
 
         info("Data Dimensions: " + str(self.base.dim(data)))
+        info("Data Column Classes: " + str([column.rclass[0] for column in data]))
 
-        output = self.algdesign.optFederov(frml    = Formula(design_formula),
-                                           data    = data,
-                                           nTrials = trials,
-                                           maxIteration = 1000,
-                                           center  = True,
-                                           nullify = 1)
+        r_snippet = """library(AlgDesign)
+        df <- %s
+        df <- df[sample(1:nrow(df), 30, replace = F), ]
+        df <- model.matrix(%s, df)
+        data <- t(df) %%*%% df
+        dim(data)
+        str(data)
+        det(data)""" % (self.base.as_data_frame(data).r_repr(), Formula(design_formula).r_repr())
+
+        r_federov = """library(AlgDesign)
+        data <- %s
+        frml <- %s
+        trials <- %s
+        output <- optFederov(frml, data = data, nTrials = trials, center = T, nullify = 1)
+        output
+        """ % (data.r_repr(), Formula(design_formula).r_repr(), trials)
+
+        output = robjects.r(r_snippet)
+        info("Looking at Data: ")
+        info(str(output))
+
+        output = robjects.r(r_federov)
+        info(str(output))
+
+        output = self.algdesign.optFederov(frml         = Formula(design_formula),
+                                           data         = data,
+                                           nTrials      = trials,
+                                           maxIteration = 10000,
+                                           center       = True,
+                                           nullify      = 1)
 
         return output
 
@@ -199,8 +262,9 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         return regression, prf_values
 
-    def predict_best(self, regression, data):
+    def predict_best(self, regression, size, fixed_variables):
         info("Predicting Best")
+        data = self.generate_valid_sample(size, fixed_variables)
         predicted = self.stats.predict(regression, data)
 
         predicted_min = min(predicted)
@@ -238,7 +302,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(self.utils.str(pruned_data)))
         return pruned_data
 
-    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 10, prf_threshold = 0.1):
+    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 3, prf_threshold = 0.1):
         ordered_keys     = [k.replace("I(1/(1 + ", "").strip(") ") for k in ordered_keys]
         unique_variables = []
         for k in ordered_keys:
@@ -375,8 +439,25 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         return design
 
-    def dopt_anova_step(self, response, factors, inverse_factors, step_space,
-                        search_space, fixed_factors, budget, step_number):
+    def dopt_anova_step(self, response, factors, inverse_factors,
+                        fixed_factors, budget, step_number):
+        trials = int(1.5 * (len(factors) + len(inverse_factors)))
+        federov_samples = 40 * trials
+        prediction_samples = 5 * federov_samples
+
+        federov_search_space = self.generate_valid_sample(federov_samples, fixed_factors)
+        federov_search_space = federov_search_space.rx(StrVector(factors))
+
+        clean_search_space_data = self.clean_search_space(federov_search_space,
+                                                          factors,
+                                                          inverse_factors,
+                                                          fixed_factors)
+
+        federov_search_space = clean_search_space_data["search_space"]
+        factors              = clean_search_space_data["factors"]
+        inverse_factors      = clean_search_space_data["inverse_factors"]
+        fixed_factors        = clean_search_space_data["fixed_factors"]
+
         full_model     = "".join([" ~ ",
                                   " + ".join(factors)])
 
@@ -388,104 +469,78 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         design_formula = full_model
         lm_formula     = response[0] + full_model
-        trials         = int(1.5 * (len(factors) + len(inverse_factors)))
 
         fixed_variables = fixed_factors
         info("Fixed Factors: " + str(fixed_factors))
+        info("Computing D-Optimal Design")
+        #constraint = self.get_updated_constraints(factors, fixed_variables)
 
-        if budget - len(step_space[0]) < 0 and trials < len(step_space[0]):
-            info("Full data does not fit on budget")
-            info("Computing D-Optimal Design")
-            constraint = self.get_updated_constraints(factors, fixed_variables)
+        info("Computing D-Optimal Design with " + str(trials) +
+             " experiments")
+        info("Design Formula: " + str(design_formula))
 
-            info("Computing D-Optimal Design with " + str(trials) +
-                 " experiments")
-            info("Design Formula: " + str(design_formula))
+        # opt_federov_dataframe = self.get_federov_data(factors)
+        # output = self.opt_monte(design_formula, trials, constraint,
+        #                         opt_federov_dataframe)
 
-            opt_federov_dataframe = self.get_federov_data(factors)
+        # X = self.stats.model_matrix(Formula(design_formula), federov_search_space)
+        # info("Model Matrix Names: " + str(self.base.names(X)))
+        # X_t = self.base.t(X)
+        # X_I = numpy.matmul(X_t, X)
+        # numpy.set_printoptions(precision = 2, linewidth = 120)
 
-            federov_search_space = self.generate_valid_sample(30 * trials, fixed_variables)
-            federov_search_space = federov_search_space.rx(StrVector(factors))
+        # X_I_P, X_I_L, X_I_U = scipy.linalg.lu(X_I)
+        # determinant = numpy.linalg.det(X_I)
 
-            # output = self.opt_monte(design_formula, trials, constraint,
-            #                         opt_federov_dataframe)
+        # info("Model Matrix Det: " + str(determinant))
+        # info("LU Decomposition L:")
+        # info(str(X_I_L))
+        # info("LU Decomposition U:")
+        # info(str(X_I_U))
+        # info("LU Decomposition P:")
+        # info(str(X_I_P))
 
-            X = self.stats.model_matrix(Formula(design_formula), federov_search_space)
-            info("Model Matrix Names: " + str(self.base.names(X)))
-            X_t = self.base.t(X)
-            X_I = numpy.matmul(X_t, X)
-            numpy.set_printoptions(precision = 2, linewidth = 120)
+        # X_I = numpy.array(X_I)
 
-            X_I_P, X_I_L, X_I_U = scipy.linalg.lu(X_I)
-            determinant = numpy.linalg.det(X_I)
+        # info("Computing Dependency Between Columns")
+        # for i in range(X_I.shape[1]):
+        #     for j in range(X_I.shape[1]):
+        #         if i != j:
+        #             inner_product = numpy.inner(
+        #                     X_I[:,i],
+        #                     X_I[:,j]
+        #                     )
+        #             norm_i = numpy.linalg.norm(X_I[:,i])
+        #             norm_j = numpy.linalg.norm(X_I[:,j])
 
-            info("Model Matrix Det: " + str(determinant))
-            #info("LU Decomposition L:")
-            #info(str(X_I_L))
-            #info("LU Decomposition U:")
-            #info(str(X_I_U))
-            #info("LU Decomposition P:")
-            #info(str(X_I_P))
+        #             if numpy.abs(inner_product - norm_j * norm_i) < 1E-5:
+        #                 info("(i: " + str(i) + ", j: " + str(j) + ")")
+        #                 info('Dependent')
+        #                 info('I: ' + str(X_I[:,i]))
+        #                 info('J: ' + str(X_I[:,j]))
+        #                 info('Prod: ' + str(inner_product))
+        #                 info('Norm i: ' + str(norm_i))
+        #                 info('Norm j: ' + str(norm_j))
 
-            X_I = numpy.array(X_I)
+        output = self.opt_federov(design_formula, trials, federov_search_space)
 
-            info("Computing Dependency Between Columns")
-            for i in range(X_I.shape[1]):
-                for j in range(X_I.shape[1]):
-                    if i != j:
-                        inner_product = numpy.inner(
-                                X_I[:,i],
-                                X_I[:,j]
-                                )
-                        norm_i = numpy.linalg.norm(X_I[:,i])
-                        norm_j = numpy.linalg.norm(X_I[:,j])
+        design = output.rx("design")[0]
 
-                        if numpy.abs(inner_product - norm_j * norm_i) < 1E-5:
-                            info("(i: " + str(i) + ", j: " + str(j) + ")")
-                            info('Dependent')
-                            info('I: ' + str(X_I[:,i]))
-                            info('J: ' + str(X_I[:,j]))
-                            info('Prod: ' + str(inner_product))
-                            info('Norm i: ' + str(norm_i))
-                            info('Norm j: ' + str(norm_j))
+        info(str(design))
+        info("D-Efficiency Approximation: " + str(output.rx("Dea")[0]))
 
-            output = self.opt_federov(design_formula, trials, federov_search_space)
+        design = self.measure_design(design, response, fixed_factors)
 
-            design = output.rx("design")[0]
+        used_experiments       = len(design[0])
+        regression, prf_values = self.anova(design, lm_formula)
+        ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
+        predicted_best         = self.predict_best(regression, prediction_samples, fixed_variables)
+        design_best            = self.get_design_best(design, response)
+        fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
+                                                          prf_values, fixed_factors)
 
-            info(str(design))
-            info("D-Efficiency Approximation: " + str(output.rx("Dea")[0]))
-
-            design = self.measure_design(design, response, fixed_factors)
-
-            info("Step Space Names: " + str(self.base.names(step_space)))
-
-            used_experiments       = len(design[0])
-            regression, prf_values = self.anova(design, lm_formula)
-            ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
-            predicted_best         = self.predict_best(regression, step_space)
-            design_best            = self.get_design_best(design, response)
-            fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
-                                                              prf_values, fixed_factors)
-
-            pruned_space = self.prune_data(step_space, predicted_best, fixed_variables)
-            pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
-                                                                      ordered_prf_keys, prf_values)
-        else:
-            info(("Full data fits on budget, or too few data points"
-                  " for a D-Optimal design. Picking best value."))
-
-            used_experiments = len(step_space[0])
-            prf_values = []
-            ordered_prf_keys = []
-            pruned_space = []
-            pruned_factors = factors
-            pruned_inverse_factors = inverse_factors
-
-            step_data = self.measure_design(step_space, response, fixed_factors)
-            predicted_best = step_data.rx((step_data.rx2(response[0]).ro == min(step_data.rx(response[0])[0])),
-                                          True)
-            design_best = predicted_best
+        pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
+                                                                  ordered_prf_keys, prf_values)
 
         info("Best Predicted: " + str(predicted_best))
         info("Best From Design: " + str(design_best))
@@ -496,20 +551,17 @@ class Doptanova(orio.main.tuner.search.search.Search):
                 "ordered_prf_keys": ordered_prf_keys,
                 "design_best": design_best,
                 "predicted_best": predicted_best,
-                "pruned_space": pruned_space,
                 "pruned_factors": pruned_factors,
                 "pruned_inverse_factors": pruned_inverse_factors,
                 "fixed_factors": fixed_variables,
                 "used_experiments": used_experiments}
 
 
-    def dopt_anova(self, initial_factors, initial_inverse_factors, search_space):
+    def dopt_anova(self, initial_factors, initial_inverse_factors):
         response = ["cost_mean"]
 
         step_factors = initial_factors
         step_inverse_factors = initial_inverse_factors
-
-        step_space = search_space
 
         fixed_factors = {}
 
@@ -522,20 +574,14 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         for i in range(iterations):
             info("Step {0}".format(i))
-            if step_space == []:
-                info("No more configurations to test, exiting")
-                break
 
             step_data = self.dopt_anova_step(response,
                                              step_factors,
                                              step_inverse_factors,
-                                             step_space,
-                                             search_space,
                                              fixed_factors,
                                              budget,
                                              i)
 
-            step_space = step_data["pruned_space"]
             step_factors = step_data["pruned_factors"]
             step_inverse_factors = step_data["pruned_inverse_factors"]
             budget -= step_data["used_experiments"]
@@ -562,11 +608,17 @@ class Doptanova(orio.main.tuner.search.search.Search):
             info("Slowdown (Predicted Best): " + str(predicted_best_value / starting_point))
             info("Budget: {0}/{1}".format(used_experiments, initial_budget))
 
-            current_best = design_best_slowdown if design_best_slowdown < predicted_best_slowdown else predicted_best_slowdown
+            if design_best_slowdown < predicted_best_slowdown:
+                current_best = design_best
+                current_best_value = float(design_best.rx(1, response[0])[0])
+            else:
+                current_best = predicted_best
+                current_best_value = predicted_best_value
 
-            if current_best < best_value or best_point == []:
-                best_point = predicted_best
-                best_value = predicted_best_value
+            if current_best_value < best_value or best_point == []:
+                info("Updating global best slowdown: " + str(current_best_value))
+                best_point = current_best
+                best_value = current_best_value
 
         return best_point
 
@@ -594,70 +646,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         fruns = 0
         start_time = time.time()
 
-        full_candidate_set = {}
-        search_space = []
-
-        self.seed_space_size = 800000
-
-        info("Building seed search space (does not spend evaluations)")
-        if not os.path.isfile("search_space_{0}.db".format(self.seed_space_size)):
-            info("Generating new search space for this size")
-            write_buffer = []
-            write_buffer_size = 50000
-
-            search_space_database = dataset.connect("sqlite:///search_space_{0}.db".format(self.seed_space_size))
-            experiments = search_space_database['experiments']
-
-            while len(search_space) < self.seed_space_size:
-                if len(full_candidate_set) % 20000 == 0:
-                    info("Evaluated coordinates: " + str(len(full_candidate_set)))
-
-                candidate_point = self.getRandomCoord()
-                candidate_point_key = str(candidate_point)
-
-                if candidate_point_key not in full_candidate_set:
-                    full_candidate_set[candidate_point_key] = candidate_point
-                    try:
-                        perf_params = self.coordToPerfParams(candidate_point)
-                        is_valid = eval(self.constraint, copy.copy(perf_params),
-                                        dict(self.input_params))
-                    except Exception, e:
-                        err('failed to evaluate the constraint expression: "%s"\n%s %s'
-                            % (self.constraint, e.__class__.__name__, e))
-
-                    if is_valid:
-                        write_buffer.append({"value": str(candidate_point)})
-                        search_space.append(candidate_point)
-                        if len(search_space) % 5000 == 0:
-                            info("Valid coordinates: " + str(len(search_space)))
-
-                    if len(write_buffer) >= write_buffer_size:
-                        info("Writing to Database")
-                        experiments.insert_many([e for e in write_buffer if not experiments.find_one(value = e["value"])])
-                        write_buffer = []
-
-            info("Valid/Tested configurations: " + str(len(search_space)) + "/" +
-                str(len(full_candidate_set)))
-        else:
-            info("Using pre-generated space for this size")
-            search_space_database = dataset.connect("sqlite:///search_space_{0}.db".format(self.seed_space_size))
-            for experiment in search_space_database['experiments']:
-                search_space.append(eval(experiment["value"]))
-
         info("Starting DOPT-anova")
-
-        r_search_space = {}
-        for i in range(len(search_space[0])):
-            r_row = [self.dim_uplimits[i] - 1, 0]
-            for col in search_space:
-                r_row.append(col[i])
-
-            r_search_space[initial_factors[i]] = IntVector(r_row)
-
-        data = DataFrame(r_search_space)
-        data = data.rx(StrVector(initial_factors))
-
-        best_point = self.dopt_anova(initial_factors, initial_inverse_factors, data)
+        best_point = self.dopt_anova(initial_factors, initial_inverse_factors)
 
         info("Ending DOPT-ANOVA")
         info("Best Point: " + str(best_point))
