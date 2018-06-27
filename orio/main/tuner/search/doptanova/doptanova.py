@@ -31,7 +31,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
     def __init__(self, params):
         '''To instantiate a random search engine'''
         #numpy.random.seed(39920)
-        numpy.random.seed(99291)
+        #numpy.random.seed(99291)
+        numpy.random.seed(22010)
 
         self.base      = importr("base")
         self.utils     = importr("utils")
@@ -169,7 +170,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(data))
 
         #self.base.set_seed(77126)
-        self.base.set_seed(66182)
+        #self.base.set_seed(66182)
+        self.base.set_seed(22331)
 
         candidate_multiplier = 10
         repetitions          = 1
@@ -188,44 +190,20 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(self.utils.str(data)))
 
         #self.base.set_seed(77126)
-        self.base.set_seed(66182)
+        #self.base.set_seed(66182)
+        self.base.set_seed(22331)
 
         #info("Correlation between variables in the dataset:")
         #info(str(self.stats.cor(data)))
 
         info("Data Dimensions: " + str(self.base.dim(data)))
-        info("Data Column Classes: " + str([column.rclass[0] for column in data]))
-
-        r_snippet = """library(AlgDesign)
-        df <- %s
-        df <- df[sample(1:nrow(df), 30, replace = F), ]
-        df <- model.matrix(%s, df)
-        data <- t(df) %%*%% df
-        dim(data)
-        str(data)
-        det(data)""" % (self.base.as_data_frame(data).r_repr(), Formula(design_formula).r_repr())
-
-        r_federov = """library(AlgDesign)
-        data <- %s
-        frml <- %s
-        trials <- %s
-        output <- optFederov(frml, data = data, nTrials = trials, center = T, nullify = 1)
-        output
-        """ % (data.r_repr(), Formula(design_formula).r_repr(), trials)
-
-        output = robjects.r(r_snippet)
-        info("Looking at Data: ")
-        info(str(output))
-
-        output = robjects.r(r_federov)
-        info(str(output))
 
         output = self.algdesign.optFederov(frml         = Formula(design_formula),
                                            data         = data,
                                            nTrials      = trials,
-                                           maxIteration = 10000,
+                                           maxIteration = 100000,
                                            center       = True,
-                                           nullify      = 1)
+                                           nullify      = 2)
 
         return output
 
@@ -441,8 +419,9 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def dopt_anova_step(self, response, factors, inverse_factors,
                         fixed_factors, budget, step_number):
-        trials = int(1.5 * (len(factors) + len(inverse_factors)))
-        federov_samples = 40 * trials
+        trials = int((len(factors) + len(inverse_factors))) + 5
+
+        federov_samples = 80 * trials
         prediction_samples = 5 * federov_samples
 
         federov_search_space = self.generate_valid_sample(federov_samples, fixed_factors)
