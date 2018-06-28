@@ -416,8 +416,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
                         fixed_factors, budget, step_number):
         trials = int(2 * (len(factors) + len(inverse_factors)))
 
-        federov_samples = 80 * trials
-        prediction_samples = 5 * federov_samples
+        federov_samples = 20 * trials
+        prediction_samples = 4 * federov_samples
 
         federov_search_space = self.generate_valid_sample(federov_samples, fixed_factors)
         federov_search_space = federov_search_space.rx(StrVector(factors))
@@ -598,7 +598,19 @@ class Doptanova(orio.main.tuner.search.search.Search):
                 best_point = current_best
                 best_value = current_best_value
 
-        return best_point
+        target_names = [n for n in self.base.names(best_point) if n != response[0]]
+        info("Target Names: " + str(target_names))
+
+        design_line = [int(v[0]) for v in best_point.rx(1, StrVector(target_names))]
+        candidate = [0] * len(initial_factors)
+
+        for k, v in fixed_factors.items():
+            candidate[initial_factors.index(k)] = int(v)
+
+        for i in range(len(target_names)):
+            candidate[initial_factors.index(target_names[i])] = design_line[i]
+
+        return candidate
 
     def searchBestCoord(self, startCoord = None):
         '''
@@ -631,9 +643,9 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Ending DOPT-ANOVA")
         info("Best Point: " + str(best_point))
 
-        predicted_best_value = float(best_point.rx(2, "cost_mean"))
-        starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
-        speedup = starting_point / predicted_best_value
+        predicted_best_value = numpy.mean((self.getPerfCosts([best_point]).values()[0])[0])
+        starting_point       = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
+        speedup              = starting_point / predicted_best_value
 
         end_time = time.time()
         search_time = start_time - end_time
