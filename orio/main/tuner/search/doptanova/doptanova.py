@@ -43,6 +43,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
 
+        self.name = "DLMT"
+
         self.parameter_ranges = {}
 
         for i in range(len(self.params["axis_val_ranges"])):
@@ -63,8 +65,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         # read all algorithm-specific arguments
         self.__readAlgoArgs()
-
-        self.init_samp = 2 * self.total_runs  # BN: used to be hard-coded to 10,000
 
         # complain if both the search time limit and the total number of search runs are undefined
         if self.time_limit <= 0 and self.total_runs <= 0:
@@ -200,9 +200,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         output = self.algdesign.optFederov(frml         = Formula(design_formula),
                                            data         = data,
                                            nTrials      = trials,
-                                           maxIteration = 100000,
-                                           center       = True,
-                                           nullify      = 2)
+                                           nullify      = 2,
+                                           maxIteration = 100000)
 
         return output
 
@@ -414,10 +413,10 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def dopt_anova_step(self, response, factors, inverse_factors,
                         fixed_factors, budget, step_number):
-        trials = int(2 * (len(factors) + len(inverse_factors)))
+        trials = int(1.3 * (len(factors) + len(inverse_factors)))
 
-        federov_samples = 20 * trials
-        prediction_samples = 4 * federov_samples
+        federov_samples = 40 * trials
+        prediction_samples = federov_samples
 
         federov_search_space = self.generate_valid_sample(federov_samples, fixed_factors)
         federov_search_space = federov_search_space.rx(StrVector(factors))
@@ -537,8 +536,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         step_factors = initial_factors
         step_inverse_factors = initial_inverse_factors
 
-        # iterations = int((len(initial_factors) + len(initial_inverse_factors)) / 2)
-        iterations = 4
+        iterations = 3
 
         fixed_factors = {}
 
@@ -594,23 +592,17 @@ class Doptanova(orio.main.tuner.search.search.Search):
                 current_best_value = predicted_best_value
 
             if current_best_value < best_value or best_point == []:
-                info("Updating Global Best Slowdown: " + str(current_best_value))
+                info("Updating Global Best: " + str(current_best_value))
                 best_point = current_best
                 best_value = current_best_value
 
-        target_names = [n for n in self.base.names(best_point) if n != response[0]]
-        info("Target Names: " + str(target_names))
+            info("Current Best Point: ")
+            info(str(best_point))
 
-        design_line = [int(v[0]) for v in best_point.rx(1, StrVector(target_names))]
-        candidate = [0] * len(initial_factors)
+        info("Final Best Point: ")
+        info(str(best_point))
 
-        for k, v in fixed_factors.items():
-            candidate[initial_factors.index(k)] = int(v)
-
-        for i in range(len(target_names)):
-            candidate[initial_factors.index(target_names[i])] = design_line[i]
-
-        return candidate
+        return best_point
 
     def searchBestCoord(self, startCoord = None):
         '''
@@ -662,7 +654,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info('----- end random search summary -----')
 
         # return the best coordinate
-        return best_point, predicted_best_value, search_time, sruns
+        return best_point, predicted_best_value, search_time, sruns, speedup
 
     # Private methods
 

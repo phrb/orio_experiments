@@ -17,6 +17,8 @@ class Search:
     def __init__(self, params):
         '''To instantiate a search engine'''
 
+        self.name = "Generic Search Class"
+
         #print params
         #print 'done'
 
@@ -26,13 +28,20 @@ class Search:
         # the class variables that are essential to know when developing a new search engine subclass
         if 'search_time_limit' in params.keys(): self.time_limit = params['search_time_limit']
         else: self.time_limit = -1
+
         if 'search_total_runs' in params.keys(): self.total_runs = params['search_total_runs']
+
         if 'search_resume' in params.keys(): self.resume = params['search_resume']
         else: self.resume = False
+
         if 'search_opts' in params.keys(): self.search_opts = params['search_opts']
         else: self.search_opts = {}
-        if 'search_database' in params.keys(): self.database = dataset.connect("sqlite:///" + params['search_database'])
-        else: self.database = dataset.connect("sqlite:///" + 'search_space.db')
+
+        if 'search_database' in params.keys(): self.search_database = dataset.connect("sqlite:///" + params['search_database'])
+        else: self.search_database = dataset.connect("sqlite:///" + 'search_space.db')
+
+        if 'result_database' in params.keys(): self.result_database = dataset.connect("sqlite:///" + params['result_database'])
+        else: self.result_database = dataset.connect("sqlite:///" + 'results.db')
 
         if 'axis_names' in params.keys():
             self.total_dims = len(params['axis_names'])
@@ -119,7 +128,7 @@ class Search:
                 startCoord = self.__findLastCoord()
 
         # find the coordinate resulting in the best performance
-        best_coord,best_perf,search_time,runs = self.searchBestCoord(startCoord)
+        best_coord,best_perf,search_time,runs,speedup = self.searchBestCoord(startCoord)
         corr_transfer = self.MAXFLOAT
         if isinstance(best_perf,tuple): #unpack optionally
             corr_transfer = best_perf[1]
@@ -146,6 +155,13 @@ class Search:
             best_perf_cost=0
             best_perf_params=Globals().config
 
+        results              = self.result_database["results"]
+        result               = best_perf_params
+        result["technique"]  = self.name
+        result["cost_mean"]  = best_perf_cost
+        result["speedup_O3"] = speedup
+
+        results.insert(result)
 
         # return the best performance parameters
         return (best_perf_params, best_perf_cost)
@@ -230,7 +246,7 @@ class Search:
             perf_params = self.coordToPerfParams(coord)
 
             # test if parameters are in database
-            experiments = self.database['experiments']
+            experiments = self.search_database['experiments']
             result = experiments.find_one(**perf_params)
 
             if result:
@@ -336,7 +352,7 @@ class Search:
 
         #info(str(perf_costs.values()))
 
-        experiments = self.database['experiments']
+        experiments = self.search_database['experiments']
         measurement = perf_params
 
         if perf_costs.values() != []:
