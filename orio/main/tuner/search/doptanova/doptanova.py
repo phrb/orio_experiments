@@ -99,12 +99,11 @@ class Doptanova(orio.main.tuner.search.search.Search):
         factors = [f for f in factors if f not in removed_factors]
         inverse_factors = [f for f in inverse_factors if f not in removed_inverse_factors + removed_factors]
 
-        info("New Factors: " + str(factors))
-        info("New Inverse Factors: " + str(inverse_factors))
-
         for f in removed_factors:
             fixed_factors[f] = int(federov_search_space.rx(1, f)[0])
 
+        info("New Factors: " + str(factors))
+        info("New Inverse Factors: " + str(inverse_factors))
         info("New Fixed Factors: " + str(fixed_factors))
 
         data["search_space"]    = output[0]
@@ -280,13 +279,13 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(self.utils.str(pruned_data)))
         return pruned_data
 
-    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 3, prf_threshold = 0.1):
+    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 7, prf_threshold = 0.1):
         ordered_keys     = [k.replace("I(1/(1 + ", "").strip(") ") for k in ordered_keys]
         unique_variables = []
         for k in ordered_keys:
             if k not in unique_variables and prf_values[str(k)] < prf_threshold:
                 unique_variables.append(k)
-            if len(unique_variables) > threshold:
+            if len(unique_variables) >= threshold:
                 break
 
         if unique_variables == []:
@@ -302,7 +301,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         for v in unique_variables:
             fixed_variables[v] = predicted_best.rx2(1, str(v))[0]
 
-        info("Fixed Variables: " + str(fixed_variables))
         return fixed_variables
 
     def prune_model(self, factors, inverse_factors, ordered_prf_keys,
@@ -319,7 +317,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         factor_centers    = IntVector([0 for f in factors])
         factor_levels     = IntVector([self.parameter_ranges[f][1] for f in factors])
         factor_round      = IntVector([0 for f in factors])
-        # TODO Find a way to keep track of factor information
         is_factor         = BoolVector([False for f in factors])
         mix               = BoolVector([False for f in factors])
 
@@ -349,8 +346,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Updating Constraints")
         constraint_text = self.constraint
         variable_ranges = self.parameter_values
-
-        info("Parameter Range Values: " + str(variable_ranges))
 
         for k, v in fixed_variables.items():
             current_value = str(variable_ranges[k][int(v)])
@@ -419,7 +414,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def dopt_anova_step(self, response, factors, inverse_factors,
                         fixed_factors, budget, step_number):
-        trials = int((len(factors) + len(inverse_factors))) + 5
+        trials = int(2 * (len(factors) + len(inverse_factors)))
 
         federov_samples = 80 * trials
         prediction_samples = 5 * federov_samples
@@ -542,12 +537,14 @@ class Doptanova(orio.main.tuner.search.search.Search):
         step_factors = initial_factors
         step_inverse_factors = initial_inverse_factors
 
+        # iterations = int((len(initial_factors) + len(initial_inverse_factors)) / 2)
+        iterations = 4
+
         fixed_factors = {}
 
         initial_budget = 180
         budget = initial_budget
         used_experiments = 0
-        iterations = 10
         best_value = float("inf")
         best_point = []
 
@@ -561,11 +558,11 @@ class Doptanova(orio.main.tuner.search.search.Search):
                                              budget,
                                              i)
 
-            step_factors = step_data["pruned_factors"]
-            step_inverse_factors = step_data["pruned_inverse_factors"]
-            budget -= step_data["used_experiments"]
-            used_experiments += step_data["used_experiments"]
-            fixed_factors = step_data["fixed_factors"]
+            step_factors          = step_data["pruned_factors"]
+            step_inverse_factors  = step_data["pruned_inverse_factors"]
+            budget               -= step_data["used_experiments"]
+            used_experiments     += step_data["used_experiments"]
+            fixed_factors         = step_data["fixed_factors"]
 
             starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
             info("Starting Point (-O3):")
@@ -579,6 +576,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
             design_best = step_data["design_best"]
             info("Design Best Point:")
             info(str(design_best))
+
+            info("Fixed Factors: " + str(fixed_factors))
 
             design_best_slowdown    = float(design_best.rx(1, response[0])[0]) / starting_point
             predicted_best_slowdown = predicted_best_value / starting_point
@@ -595,7 +594,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
                 current_best_value = predicted_best_value
 
             if current_best_value < best_value or best_point == []:
-                info("Updating global best slowdown: " + str(current_best_value))
+                info("Updating Global Best Slowdown: " + str(current_best_value))
                 best_point = current_best
                 best_value = current_best_value
 
@@ -626,19 +625,18 @@ class Doptanova(orio.main.tuner.search.search.Search):
         start_time = time.time()
 
         info("Starting DOPT-anova")
+
         best_point = self.dopt_anova(initial_factors, initial_inverse_factors)
 
         info("Ending DOPT-ANOVA")
         info("Best Point: " + str(best_point))
 
-        params = self.coordToPerfParams(best_point)
+        predicted_best_value = float(best_point.rx(2, "cost_mean"))
+        starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
+        speedup = starting_point / predicted_best_value
 
         end_time = time.time()
         search_time = start_time - end_time
-
-        starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
-        predicted_best_value = numpy.mean((self.getPerfCosts([best_point]).values()[0])[0])
-        speedup = starting_point / predicted_best_value
 
         info("Speedup: " + str(speedup))
 
