@@ -88,7 +88,6 @@ class Randomsearch(orio.main.tuner.search.search.Search):
         neigh_coords = [[0] * self.total_dims]
 
         while len(uneval_coords) < self.init_samp:
-            #coord = self.__getNextCoord(coord_records, neigh_coords, init)
             coord = self.getRandomCoord()
             coord_key = str(coord)
 
@@ -223,7 +222,6 @@ class Randomsearch(orio.main.tuner.search.search.Search):
 
         starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
 
-        #speedup = float(eval_cost[0]) / float(best_perf_cost)
         speedup = float(starting_point) / float(best_perf_cost)
 
         # compute the total search time
@@ -240,7 +238,7 @@ class Randomsearch(orio.main.tuner.search.search.Search):
         info('----- end random search summary -----')
 
         # return the best coordinate
-        return best_coord, best_perf_cost, search_time, sruns
+        return best_coord, best_perf_cost, search_time, runs, speedup
 
     # Private methods
 

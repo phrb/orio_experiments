@@ -420,7 +420,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         # info("Measurements: " + str(measurements))
 
         design = self.base.cbind(design, DataFrame({response[0]: FloatVector(measurements)}))
-
         design = design.rx(self.base.is_finite(design.rx2(response[0])), True)
 
         info("Complete design, with measurements:")
@@ -430,7 +429,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def dopt_anova_step(self, response, factors, inverse_factors,
                         fixed_factors, budget, step_number):
-        trials = int(1.3 * (len(factors) + len(inverse_factors)))
+        trials = int(1.5 * (len(factors) + len(inverse_factors)))
 
         federov_samples = 100 * trials
         prediction_samples = federov_samples
@@ -519,8 +518,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(design))
         info("D-Efficiency Approximation: " + str(output.rx("Dea")[0]))
 
-        design = self.measure_design(design, response, fixed_factors)
-
+        design                 = self.measure_design(design, response, fixed_factors)
         used_experiments       = len(design[0])
         regression, prf_values = self.anova(design, lm_formula)
         ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
