@@ -32,7 +32,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         '''To instantiate a random search engine'''
         #numpy.random.seed(39920)
         #numpy.random.seed(99291)
-        numpy.random.seed(22010)
+        #numpy.random.seed(22010)
 
         self.base      = importr("base")
         self.utils     = importr("utils")
@@ -170,7 +170,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         #self.base.set_seed(77126)
         #self.base.set_seed(66182)
-        self.base.set_seed(22331)
+        #self.base.set_seed(22331)
 
         candidate_multiplier = 10
         repetitions          = 1
@@ -190,7 +190,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         #self.base.set_seed(77126)
         #self.base.set_seed(66182)
-        self.base.set_seed(22331)
+        #self.base.set_seed(22331)
 
         #info("Correlation between variables in the dataset:")
         #info(str(self.stats.cor(data)))
@@ -253,12 +253,29 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Identical predictions (tol = 1e-5): {0}".format(identical_predictions))
         return data.rx(predicted.ro == self.base.min(predicted), True)
 
-    def get_design_best(self, design, response):
+    def get_design_best(self, design, response, fixed_factors):
         info("Getting Best from Design")
         info("Response: " + str(response))
         info("Design Names: " + str(self.base.names(design)))
         info("Design Response: " + str(design.rx(str(response[0]))))
-        return design.rx(design.rx2(str(response[0])).ro == self.base.min(design.rx(str(response[0]))), True)
+
+        best_line       = design.rx(design.rx2(str(response[0])).ro == self.base.min(design.rx(str(response[0]))), True)
+        design_names    = [str(n) for n in self.base.names(design) if n != response[0]]
+        initial_factors = self.params["axis_names"]
+
+        info("Current Design Names: " + str(design_names))
+        info("Initial Factors: " + str(initial_factors))
+
+        design_line = [int(v[0]) for v in best_line.rx(1, True)]
+        candidate   = [0] * len(initial_factors)
+
+        for k, v in fixed_factors.items():
+            candidate[initial_factors.index(k)] = int(v)
+
+        for i in range(len(design_names)):
+            candidate[initial_factors.index(design_names[i])] = design_line[i]
+
+        return candidate
 
     def prune_data(self, data, predicted_best, fixed_variables):
         info("Pruning Data")
@@ -415,7 +432,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
                         fixed_factors, budget, step_number):
         trials = int(1.3 * (len(factors) + len(inverse_factors)))
 
-        federov_samples = 40 * trials
+        federov_samples = 100 * trials
         prediction_samples = federov_samples
 
         federov_search_space = self.generate_valid_sample(federov_samples, fixed_factors)
@@ -508,7 +525,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         regression, prf_values = self.anova(design, lm_formula)
         ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
         predicted_best         = self.predict_best(regression, prediction_samples, fixed_variables)
-        design_best            = self.get_design_best(design, response)
+        design_best            = self.get_design_best(design, response, fixed_variables)
         fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
                                                           prf_values, fixed_factors)
 
@@ -536,7 +553,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         step_factors = initial_factors
         step_inverse_factors = initial_inverse_factors
 
-        iterations = 3
+        iterations = 2
 
         fixed_factors = {}
 
@@ -574,19 +591,20 @@ class Doptanova(orio.main.tuner.search.search.Search):
             design_best = step_data["design_best"]
             info("Design Best Point:")
             info(str(design_best))
+            design_best_value = numpy.mean((self.getPerfCosts([design_best]).values()[0])[0])
 
             info("Fixed Factors: " + str(fixed_factors))
 
-            design_best_slowdown    = float(design_best.rx(1, response[0])[0]) / starting_point
+            design_best_slowdown    = design_best_value / starting_point
             predicted_best_slowdown = predicted_best_value / starting_point
 
-            info("Slowdown (Design Best): " + str(float(design_best.rx(1, response[0])[0]) / starting_point))
+            info("Slowdown (Design Best): " + str(design_best_value / starting_point))
             info("Slowdown (Predicted Best): " + str(predicted_best_value / starting_point))
             info("Budget: {0}/{1}".format(used_experiments, initial_budget))
 
             if design_best_slowdown < predicted_best_slowdown:
                 current_best = design_best
-                current_best_value = float(design_best.rx(1, response[0])[0])
+                current_best_value = design_best_value
             else:
                 current_best = predicted_best
                 current_best_value = predicted_best_value
@@ -602,7 +620,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Final Best Point: ")
         info(str(best_point))
 
-        return best_point
+        return best_point, used_experiments
 
     def searchBestCoord(self, startCoord = None):
         '''
@@ -630,7 +648,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         info("Starting DOPT-anova")
 
-        best_point = self.dopt_anova(initial_factors, initial_inverse_factors)
+        best_point, used_points = self.dopt_anova(initial_factors, initial_inverse_factors)
 
         info("Ending DOPT-ANOVA")
         info("Best Point: " + str(best_point))
@@ -654,7 +672,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info('----- end random search summary -----')
 
         # return the best coordinate
-        return best_point, predicted_best_value, search_time, sruns, speedup
+        return best_point, predicted_best_value, search_time, used_points, speedup
 
     # Private methods
 

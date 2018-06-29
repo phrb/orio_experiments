@@ -1,0 +1,254 @@
+
+====== START ORIO ======
+
+----- begin reading the source file: atax2.src1.c -----
+----- finished reading the source file -----
+
+----- begin parsing annotations -----
+----- finished parsing annotations -----
+
+----- begin optimizations -----
+Search_Space         = 8.234e+13
+Number_of_Parameters = 18
+Numeric_Parameters   = 13
+Binary_Parameters    = 05
+['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+[[1, 16, 32, 64, 128, 256, 512], [1, 16, 32, 64, 128, 256, 512], [1, 16, 32, 64, 128, 256, 512], [1, 64, 128, 256, 512, 1024, 2048], [1, 64, 128, 256, 512, 1024, 2048], [1, 64, 128, 256, 512, 1024, 2048], [False, True], [False, True], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 8, 32], [1, 8, 32], [1, 8, 32], [False, True], [False, True], [False, True]]
+
+----- begin empirical tuning for problem size -----
+ N = 10000
+Parameters: {'ACOPY_x': [0, 2], 'ACOPY_y': [0, 2], 'RT_K': [0, 3], 'T1_I': [0, 7], 'T1_J': [0, 7], 'T1_K': [0, 7], 'U_K': [0, 30], 'U_J': [0, 30], 'U_I': [0, 30], 'U1_I': [0, 30], 'T2_K': [0, 7], 'T2_J': [0, 7], 'T2_I': [0, 7], 'VEC2': [0, 2], 'VEC1': [0, 2], 'RT_I': [0, 3], 'SCR': [0, 2], 'RT_J': [0, 3]}
+Parameter Range Values: {'ACOPY_x': [False, True], 'ACOPY_y': [False, True], 'RT_K': [1, 8, 32], 'T1_I': [1, 16, 32, 64, 128, 256, 512], 'T1_J': [1, 16, 32, 64, 128, 256, 512], 'T1_K': [1, 16, 32, 64, 128, 256, 512], 'U_K': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U_J': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U_I': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U1_I': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'T2_K': [1, 64, 128, 256, 512, 1024, 2048], 'T2_J': [1, 64, 128, 256, 512, 1024, 2048], 'T2_I': [1, 64, 128, 256, 512, 1024, 2048], 'VEC2': [False, True], 'VEC1': [False, True], 'RT_I': [1, 8, 32], 'SCR': [False, True], 'RT_J': [1, 8, 32]}
+
+----- begin random search -----
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Initial Inverse Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K']
+Starting DOPT-anova
+Step 0
+Generating valid search space of size 660 (does not spend evaluations)
+Valid coordinates: 132
+Tested coordinates: 10000
+Valid coordinates: 264
+Valid coordinates: 396
+Tested coordinates: 20000
+Valid coordinates: 528
+Valid coordinates: 660
+Valid/Tested configurations: 660/27393
+Generated Search Space:
+NULL
+Clean Info:
+Removed Factors: character(0)
+
+Removed Inverse Factors: [1] "ACOPY_x" "ACOPY_y" "SCR"     "VEC1"    "VEC2"   
+
+New Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+New Inverse Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K']
+New Fixed Factors: {}
+Full Model:  ~ T1_I + T1_J + T1_K + T2_I + T2_J + T2_K + ACOPY_x + ACOPY_y + U1_I + U_I + U_J + U_K + RT_I + RT_J + RT_K + SCR + VEC1 + VEC2 + I(1 / (1 + T1_I)) + I(1 / (1 + T1_J)) + I(1 / (1 + T1_K)) + I(1 / (1 + T2_I)) + I(1 / (1 + T2_J)) + I(1 / (1 + T2_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + U_I)) + I(1 / (1 + U_J)) + I(1 / (1 + U_K)) + I(1 / (1 + RT_I)) + I(1 / (1 + RT_J)) + I(1 / (1 + RT_K))
+Fixed Factors: {}
+Computing D-Optimal Design
+Computing D-Optimal Design with 33 experiments
+Design Formula:  ~ T1_I + T1_J + T1_K + T2_I + T2_J + T2_K + ACOPY_x + ACOPY_y + U1_I + U_I + U_J + U_K + RT_I + RT_J + RT_K + SCR + VEC1 + VEC2 + I(1 / (1 + T1_I)) + I(1 / (1 + T1_J)) + I(1 / (1 + T1_K)) + I(1 / (1 + T2_I)) + I(1 / (1 + T2_J)) + I(1 / (1 + T2_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + U_I)) + I(1 / (1 + U_J)) + I(1 / (1 + U_K)) + I(1 / (1 + RT_I)) + I(1 / (1 + RT_J)) + I(1 / (1 + RT_K))
+Starting "optFederov" run
+Using Search Space:
+NULL
+Data Dimensions: [1] 660  18
+
+    T1_I T1_J T1_K T2_I T2_J T2_K ACOPY_x ACOPY_y U1_I U_I U_J U_K RT_I RT_J
+43     3    4    6    2    3    4       0       1    6   0  22   5    2    0
+56     6    6    0    5    5    3       1       1   27  14  17   0    1    0
+94     4    4    0    0    2    0       0       0   26  25   0  29    0    0
+138    4    1    6    4    6    0       1       1   18  23  19   0    0    2
+141    0    3    1    6    3    1       1       0   11   0  25  20    0    1
+146    0    6    2    4    0    6       0       0   27  29   0   8    0    0
+151    3    4    6    5    6    6       1       0   18   0   4   1    0    1
+154    2    0    1    3    0    6       0       0   20  10   0  20    1    1
+174    0    0    1    5    6    0       1       0    0  23   0   3    2    0
+182    5    2    2    6    1    0       1       1   29   0   9   7    0    0
+184    6    0    0    0    4    0       0       0   28   1  27   0    0    0
+196    0    1    3    3    1    0       1       0    4  10   2   0    2    0
+214    0    4    5    0    5    0       1       1    4  16   0   8    1    1
+220    0    0    6    4    3    0       1       1   10   0   0  23    1    0
+266    6    2    6    5    6    5       0       0    0   0  24  15    1    0
+277    3    0    0    6    6    1       1       1    1  18   0   6    0    0
+285    6    6    2    0    4    3       1       0   28   0  25   0    0    0
+307    4    5    5    5    0    5       1       1    0   1   0  28    0    1
+327    0    1    4    1    1    2       0       1    0  18   0  21    0    1
+342    3    3    3    6    0    2       0       1    8   7   0   0    0    2
+363    2    3    1    0    6    5       1       1   16   0  10  27    1    0
+430    0    0    4    1    5    0       0       1   12   0  13  29    0    0
+436    2    5    1    1    4    1       0       0    9   0   1   7    0    2
+477    2    3    4    4    0    4       1       1   29  29   0  22    2    0
+507    6    3    2    4    5    6       1       1    2  29   0  24    0    1
+527    0    1    0    6    3    6       0       1   10   0  17   0    2    0
+570    0    0    2    0    2    5       1       0   26   0  11  16    0    2
+605    2    1    0    1    3    6       1       0   12   0  19  20    0    2
+608    1    4    0    2    0    3       0       1    0   0  12   4    1    0
+645    6    1    4    5    0    5       1       1    3   3   0   7    0    0
+652    1    3    3    1    5    5       1       1   29  11  20   0    1    0
+659    5    1    4    0    1    2       1       0    2  23  15   0    1    0
+660    2    4    2    0    3    6       1       0    1  24  13   0    0    0
+    RT_K SCR VEC1 VEC2
+43     0   1    0    1
+56     0   1    0    1
+94     1   0    0    1
+138    0   1    0    0
+141    1   0    0    1
+146    1   1    1    0
+151    0   1    1    1
+154    0   1    0    0
+174    0   1    0    1
+182    2   1    1    0
+184    0   1    1    1
+196    0   0    1    0
+214    0   0    1    1
+220    0   1    1    0
+266    0   0    1    1
+277    2   0    1    0
+285    2   1    0    1
+307    1   1    1    0
+327    0   1    0    0
+342    0   1    1    0
+363    0   1    0    0
+430    2   0    0    1
+436    0   0    0    0
+477    0   0    1    1
+507    1   1    1    0
+527    0   0    0    0
+570    0   0    1    1
+605    0   1    1    1
+608    1   1    1    1
+645    1   0    0    1
+652    1   0    1    0
+659    1   1    0    0
+660    0   0    0    1
+
+D-Efficiency Approximation: [1] 0.012
+
+Measuring design of size 33
+Current Design Names: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Complete design, with measurements:
+    T1_I T1_J T1_K T2_I T2_J T2_K ACOPY_x ACOPY_y U1_I U_I U_J U_K RT_I RT_J
+43     3    4    6    2    3    4       0       1    6   0  22   5    2    0
+56     6    6    0    5    5    3       1       1   27  14  17   0    1    0
+94     4    4    0    0    2    0       0       0   26  25   0  29    0    0
+141    0    3    1    6    3    1       1       0   11   0  25  20    0    1
+146    0    6    2    4    0    6       0       0   27  29   0   8    0    0
+151    3    4    6    5    6    6       1       0   18   0   4   1    0    1
+154    2    0    1    3    0    6       0       0   20  10   0  20    1    1
+174    0    0    1    5    6    0       1       0    0  23   0   3    2    0
+184    6    0    0    0    4    0       0       0   28   1  27   0    0    0
+196    0    1    3    3    1    0       1       0    4  10   2   0    2    0
+214    0    4    5    0    5    0       1       1    4  16   0   8    1    1
+220    0    0    6    4    3    0       1       1   10   0   0  23    1    0
+266    6    2    6    5    6    5       0       0    0   0  24  15    1    0
+285    6    6    2    0    4    3       1       0   28   0  25   0    0    0
+307    4    5    5    5    0    5       1       1    0   1   0  28    0    1
+327    0    1    4    1    1    2       0       1    0  18   0  21    0    1
+342    3    3    3    6    0    2       0       1    8   7   0   0    0    2
+363    2    3    1    0    6    5       1       1   16   0  10  27    1    0
+436    2    5    1    1    4    1       0       0    9   0   1   7    0    2
+477    2    3    4    4    0    4       1       1   29  29   0  22    2    0
+507    6    3    2    4    5    6       1       1    2  29   0  24    0    1
+527    0    1    0    6    3    6       0       1   10   0  17   0    2    0
+608    1    4    0    2    0    3       0       1    0   0  12   4    1    0
+645    6    1    4    5    0    5       1       1    3   3   0   7    0    0
+652    1    3    3    1    5    5       1       1   29  11  20   0    1    0
+659    5    1    4    0    1    2       1       0    2  23  15   0    1    0
+660    2    4    2    0    3    6       1       0    1  24  13   0    0    0
+    RT_K SCR VEC1 VEC2 cost_mean
+43     0   1    0    1 0.4644226
+56     0   1    0    1 0.2755368
+94     1   0    0    1 0.4166543
+141    1   0    0    1 0.8069453
+146    1   1    1    0 0.3664325
+151    0   1    1    1 0.6655752
+154    0   1    0    0 0.2674345
+174    0   1    0    1 0.3292850
+184    0   1    1    1 0.3656494
+196    0   0    1    0 0.5316741
+214    0   0    1    1 0.2530861
+220    0   1    1    0 0.2098801
+266    0   0    1    1 0.4240909
+285    2   1    0    1 0.6890424
+307    1   1    1    0 0.5160824
+327    0   1    0    0 0.4273842
+342    0   1    1    0 0.4665145
+363    0   1    0    0 0.3374816
+436    0   0    0    0 1.1010567
+477    0   0    1    1 0.3677097
+507    1   1    1    0 0.4444761
+527    0   0    0    0 0.4088803
+608    1   1    1    1 0.3626592
+645    1   0    0    1 0.4654922
+652    1   0    1    0 0.3680863
+659    1   1    0    0 0.3118967
+660    0   0    0    1 0.7505708
+

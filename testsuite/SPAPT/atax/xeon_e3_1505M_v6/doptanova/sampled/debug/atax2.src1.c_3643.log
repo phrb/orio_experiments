@@ -1,0 +1,42 @@
+
+====== START ORIO ======
+
+----- begin reading the source file: atax2.src1.c -----
+----- finished reading the source file -----
+
+----- begin parsing annotations -----
+----- finished parsing annotations -----
+
+----- begin optimizations -----
+Search_Space         = 8.234e+13
+Number_of_Parameters = 18
+Numeric_Parameters   = 13
+Binary_Parameters    = 05
+['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+[[1, 16, 32, 64, 128, 256, 512], [1, 16, 32, 64, 128, 256, 512], [1, 16, 32, 64, 128, 256, 512], [1, 64, 128, 256, 512, 1024, 2048], [1, 64, 128, 256, 512, 1024, 2048], [1, 64, 128, 256, 512, 1024, 2048], [False, True], [False, True], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 8, 32], [1, 8, 32], [1, 8, 32], [False, True], [False, True], [False, True]]
+orio.main.dyn_loader: failed to load module "orio.main.tuner.search.doptanova.doptanova"
+ --> SyntaxError: invalid syntax (doptanova.py, line 556)
+  File "../../../orcc", line 27, in <module>
+    orio.main.orio_main.start(sys.argv, orio.main.orio_main.C_CPP)
+
+  File "/home/phrb/code/orio/orio/main/orio_main.py", line 109, in start
+    optimized_code_seq = odriver.optimizeCodeFrags(cfrags, True)
+
+  File "/home/phrb/code/orio/orio/main/opt_driver.py", line 45, in optimizeCodeFrags
+    cur_seq = self.__optimizeCodeFrag(cf, perf_params)
+
+  File "/home/phrb/code/orio/orio/main/opt_driver.py", line 120, in __optimizeCodeFrag
+    cfrag.cfrags)
+
+  File "/home/phrb/code/orio/orio/main/tuner/tuner.py", line 110, in tune
+    search_class = self.dloader.loadClass(mod_name, class_name)
+
+  File "/home/phrb/code/orio/orio/main/dyn_loader.py", line 54, in loadClass
+    module = self.__loadModule(mod_name)
+
+  File "/home/phrb/code/orio/orio/main/dyn_loader.py", line 35, in __loadModule
+    err('orio.main.dyn_loader: failed to load module "%s"\n --> %s: %s' % (mod_name,e.__class__.__name__, e))
+
+  File "/home/phrb/code/orio/orio/main/util/globals.py", line 342, in err
+    errmsg + "\n" + "\n".join(traceback.format_stack())
+

@@ -1,0 +1,885 @@
+
+====== START ORIO ======
+
+----- begin reading the source file: atax2.src1.c -----
+----- finished reading the source file -----
+
+----- begin parsing annotations -----
+----- finished parsing annotations -----
+
+----- begin optimizations -----
+Search_Space         = 8.234e+13
+Number_of_Parameters = 18
+Numeric_Parameters   = 13
+Binary_Parameters    = 05
+['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+[[1, 16, 32, 64, 128, 256, 512], [1, 16, 32, 64, 128, 256, 512], [1, 16, 32, 64, 128, 256, 512], [1, 64, 128, 256, 512, 1024, 2048], [1, 64, 128, 256, 512, 1024, 2048], [1, 64, 128, 256, 512, 1024, 2048], [False, True], [False, True], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], [1, 8, 32], [1, 8, 32], [1, 8, 32], [False, True], [False, True], [False, True]]
+
+----- begin empirical tuning for problem size -----
+ N = 10000
+Parameters: {'ACOPY_x': [0, 2], 'ACOPY_y': [0, 2], 'RT_K': [0, 3], 'T1_I': [0, 7], 'T1_J': [0, 7], 'T1_K': [0, 7], 'U_K': [0, 30], 'U_J': [0, 30], 'U_I': [0, 30], 'U1_I': [0, 30], 'T2_K': [0, 7], 'T2_J': [0, 7], 'T2_I': [0, 7], 'VEC2': [0, 2], 'VEC1': [0, 2], 'RT_I': [0, 3], 'SCR': [0, 2], 'RT_J': [0, 3]}
+Parameter Range Values: {'ACOPY_x': [False, True], 'ACOPY_y': [False, True], 'RT_K': [1, 8, 32], 'T1_I': [1, 16, 32, 64, 128, 256, 512], 'T1_J': [1, 16, 32, 64, 128, 256, 512], 'T1_K': [1, 16, 32, 64, 128, 256, 512], 'U_K': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U_J': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U_I': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'U1_I': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 'T2_K': [1, 64, 128, 256, 512, 1024, 2048], 'T2_J': [1, 64, 128, 256, 512, 1024, 2048], 'T2_I': [1, 64, 128, 256, 512, 1024, 2048], 'VEC2': [False, True], 'VEC1': [False, True], 'RT_I': [1, 8, 32], 'SCR': [False, True], 'RT_J': [1, 8, 32]}
+
+----- begin random search -----
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Initial Inverse Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K']
+Starting DOPT-anova
+Step 0
+Generating valid search space of size 1600 (does not spend evaluations)
+Tested coordinates: 10000
+Valid coordinates: 320
+Tested coordinates: 20000
+Valid coordinates: 640
+Tested coordinates: 30000
+Tested coordinates: 40000
+Valid coordinates: 960
+Tested coordinates: 50000
+Valid coordinates: 1280
+Tested coordinates: 60000
+Valid coordinates: 1600
+Valid/Tested configurations: 1600/66397
+Generated Search Space:
+NULL
+Clean Info:
+Removed Factors: character(0)
+
+Removed Inverse Factors: [1] "ACOPY_x" "ACOPY_y" "SCR"     "VEC1"    "VEC2"   
+
+New Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+New Inverse Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K']
+New Fixed Factors: {}
+Full Model:  ~ T1_I + T1_J + T1_K + T2_I + T2_J + T2_K + ACOPY_x + ACOPY_y + U1_I + U_I + U_J + U_K + RT_I + RT_J + RT_K + SCR + VEC1 + VEC2 + I(1 / (1 + T1_I)) + I(1 / (1 + T1_J)) + I(1 / (1 + T1_K)) + I(1 / (1 + T2_I)) + I(1 / (1 + T2_J)) + I(1 / (1 + T2_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + U_I)) + I(1 / (1 + U_J)) + I(1 / (1 + U_K)) + I(1 / (1 + RT_I)) + I(1 / (1 + RT_J)) + I(1 / (1 + RT_K))
+Fixed Factors: {}
+Computing D-Optimal Design
+Computing D-Optimal Design with 40 experiments
+Design Formula:  ~ T1_I + T1_J + T1_K + T2_I + T2_J + T2_K + ACOPY_x + ACOPY_y + U1_I + U_I + U_J + U_K + RT_I + RT_J + RT_K + SCR + VEC1 + VEC2 + I(1 / (1 + T1_I)) + I(1 / (1 + T1_J)) + I(1 / (1 + T1_K)) + I(1 / (1 + T2_I)) + I(1 / (1 + T2_J)) + I(1 / (1 + T2_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + U_I)) + I(1 / (1 + U_J)) + I(1 / (1 + U_K)) + I(1 / (1 + RT_I)) + I(1 / (1 + RT_J)) + I(1 / (1 + RT_K))
+Starting "optFederov" run
+Using Search Space:
+NULL
+Data Dimensions: [1] 1600   18
+
+     T1_I T1_J T1_K T2_I T2_J T2_K ACOPY_x ACOPY_y U1_I U_I U_J U_K RT_I RT_J
+15      0    4    6    6    0    4       0       0    9   0   4   4    0    0
+120     1    2    6    0    3    0       0       1   10  17  19   0    0    1
+228     0    6    1    1    4    3       0       0   17   7   0  24    1    1
+233     5    0    0    6    3    6       1       1   17  10   4   0    1    0
+256     2    1    6    0    0    4       0       1   29  19  29   0    1    1
+373     5    2    5    3    5    0       1       0    1  27  29   0    1    0
+396     2    6    6    0    6    5       0       0    2   0  11  14    1    0
+460     5    1    5    5    3    3       1       0    0  18   7   0    0    0
+488     6    5    6    6    0    6       0       0   20  17   0  10    0    1
+504     0    2    5    0    1    6       0       1    0  16   8   0    0    0
+509     0    2    2    4    6    2       1       1    8  29   0  13    1    0
+541     0    6    2    4    5    0       1       1   29  15  10   0    0    2
+558     1    6    3    6    6    0       1       1   29   0  11  11    0    1
+579     0    2    6    2    4    6       0       1    3   2   0  28    0    0
+621     2    5    5    5    4    5       0       0    0  26   4   0    1    1
+722     4    0    2    4    3    1       0       0    4   0   5   3    0    2
+791     3    4    0    0    0    0       1       1    0  18   0  19    0    0
+865     2    3    0    6    1    1       0       1   26   0  29   8    0    0
+885     3    3    2    6    1    2       0       1   12   0   9  26    2    0
+945     0    6    0    5    0    0       1       1    3  16  26   0    2    0
+963     2    0    0    6    6    0       0       0    5  14   4   0    1    0
+1015    0    0    6    5    6    6       1       0   28  29   0   1    2    0
+1119    1    2    4    1    1    2       1       0   25  12  16   0    1    1
+1182    0    0    3    6    6    0       1       0   25   0  28   2    0    0
+1186    0    0    0    1    0    0       1       0   26   0   9  18    2    0
+1193    6    5    1    0    0    0       0       1   27  23   0  18    1    0
+1194    1    2    0    6    1    4       1       0   13   3   0  25    0    0
+1217    6    2    6    0    5    5       1       1    5   1   4   0    1    1
+1225    6    6    0    6    6    5       0       0    1  21   0  12    0    1
+1232    0    0    4    4    0    5       0       1    1  28   0  29    0    1
+1270    3    4    2    0    0    6       1       0   23   0  29  29    2    0
+1303    3    3    2    6    0    5       0       0   10   2   0   2    0    0
+1305    1    1    1    5    2    6       0       1   22  29  12   0    0    0
+1338    6    5    1    0    3    2       0       0   13  12   8   0    1    0
+1350    2    0    5    5    6    6       1       1    2   5   0   6    0    0
+1389    6    0    6    4    4    6       1       0   27   0  12  28    0    0
+1420    0    0    0    5    3    0       1       0    6   0  17   0    1    1
+1474    0    5    0    4    6    4       0       1    0   1   0   0    0    0
+1475    2    0    0    1    0    0       0       1    7  27  20   0    0    0
+1519    6    2    6    5    5    0       0       1   26   5   0  27    1    0
+     RT_K SCR VEC1 VEC2
+15      0   0    0    1
+120     1   0    0    0
+228     0   0    1    0
+233     1   1    0    0
+256     0   0    0    1
+373     0   0    1    1
+396     1   0    1    1
+460     1   0    1    0
+488     0   0    0    0
+504     2   1    0    0
+509     1   0    0    1
+541     0   1    0    0
+558     0   1    1    0
+579     0   1    0    1
+621     0   1    1    0
+722     0   1    1    1
+791     0   1    1    0
+865     2   1    1    0
+885     0   1    0    0
+945     0   1    1    1
+963     1   1    1    0
+1015    0   1    1    1
+1119    0   1    1    1
+1182    1   1    1    0
+1186    0   0    1    0
+1193    1   1    1    1
+1194    2   0    0    1
+1217    0   0    1    0
+1225    0   0    0    1
+1232    1   0    1    0
+1270    0   1    1    0
+1303    1   1    0    0
+1305    0   0    1    1
+1338    0   0    0    0
+1350    2   0    0    0
+1389    0   1    1    1
+1420    0   1    0    1
+1474    1   1    0    1
+1475    2   1    0    0
+1519    0   0    1    1
+
+D-Efficiency Approximation: [1] 0.209
+
+Measuring design of size 40
+Current Design Names: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Complete design, with measurements:
+     T1_I T1_J T1_K T2_I T2_J T2_K ACOPY_x ACOPY_y U1_I U_I U_J U_K RT_I RT_J
+15      0    4    6    6    0    4       0       0    9   0   4   4    0    0
+120     1    2    6    0    3    0       0       1   10  17  19   0    0    1
+228     0    6    1    1    4    3       0       0   17   7   0  24    1    1
+233     5    0    0    6    3    6       1       1   17  10   4   0    1    0
+256     2    1    6    0    0    4       0       1   29  19  29   0    1    1
+373     5    2    5    3    5    0       1       0    1  27  29   0    1    0
+396     2    6    6    0    6    5       0       0    2   0  11  14    1    0
+460     5    1    5    5    3    3       1       0    0  18   7   0    0    0
+488     6    5    6    6    0    6       0       0   20  17   0  10    0    1
+509     0    2    2    4    6    2       1       1    8  29   0  13    1    0
+558     1    6    3    6    6    0       1       1   29   0  11  11    0    1
+579     0    2    6    2    4    6       0       1    3   2   0  28    0    0
+621     2    5    5    5    4    5       0       0    0  26   4   0    1    1
+722     4    0    2    4    3    1       0       0    4   0   5   3    0    2
+791     3    4    0    0    0    0       1       1    0  18   0  19    0    0
+885     3    3    2    6    1    2       0       1   12   0   9  26    2    0
+945     0    6    0    5    0    0       1       1    3  16  26   0    2    0
+963     2    0    0    6    6    0       0       0    5  14   4   0    1    0
+1015    0    0    6    5    6    6       1       0   28  29   0   1    2    0
+1119    1    2    4    1    1    2       1       0   25  12  16   0    1    1
+1182    0    0    3    6    6    0       1       0   25   0  28   2    0    0
+1186    0    0    0    1    0    0       1       0   26   0   9  18    2    0
+1193    6    5    1    0    0    0       0       1   27  23   0  18    1    0
+1194    1    2    0    6    1    4       1       0   13   3   0  25    0    0
+1217    6    2    6    0    5    5       1       1    5   1   4   0    1    1
+1225    6    6    0    6    6    5       0       0    1  21   0  12    0    1
+1232    0    0    4    4    0    5       0       1    1  28   0  29    0    1
+1270    3    4    2    0    0    6       1       0   23   0  29  29    2    0
+1303    3    3    2    6    0    5       0       0   10   2   0   2    0    0
+1305    1    1    1    5    2    6       0       1   22  29  12   0    0    0
+1338    6    5    1    0    3    2       0       0   13  12   8   0    1    0
+1389    6    0    6    4    4    6       1       0   27   0  12  28    0    0
+1420    0    0    0    5    3    0       1       0    6   0  17   0    1    1
+1474    0    5    0    4    6    4       0       1    0   1   0   0    0    0
+1519    6    2    6    5    5    0       0       1   26   5   0  27    1    0
+     RT_K SCR VEC1 VEC2 cost_mean
+15      0   0    0    1 0.6562672
+120     1   0    0    0 0.8382042
+228     0   0    1    0 0.2934117
+233     1   1    0    0 0.2949688
+256     0   0    0    1 0.2737617
+373     0   0    1    1 0.3599622
+396     1   0    1    1 0.3036678
+460     1   0    1    0 0.5135986
+488     0   0    0    0 0.3657921
+509     1   0    0    1 0.2775316
+558     0   1    1    0 0.7958204
+579     0   1    0    1 0.4154901
+621     0   1    1    0 0.2251648
+722     0   1    1    1 0.6753172
+791     0   1    1    0 0.3472132
+885     0   1    0    0 0.4687182
+945     0   1    1    1 0.6482400
+963     1   1    1    0 0.2600750
+1015    0   1    1    1 0.3171642
+1119    0   1    1    1 0.2429714
+1182    1   1    1    0 0.7404959
+1186    0   0    1    0 0.4928996
+1193    1   1    1    1 0.2761866
+1194    2   0    0    1 0.4095465
+1217    0   0    1    0 0.2578101
+1225    0   0    0    1 0.3391220
+1232    1   0    1    0 0.5265036
+1270    0   1    1    0 0.5648955
+1303    1   1    0    0 0.3090767
+1305    0   0    1    1 1.0578630
+1338    0   0    0    0 0.2641629
+1389    0   1    1    1 0.7236827
+1420    0   1    0    1 0.2299077
+1474    1   1    0    1 0.4265326
+1519    0   0    1    1 0.2051668
+
+Heteroscedasticity Test p-value: 0.855942744662
+Regression Step:                Df  Sum Sq Mean Sq F value  Pr(>F)   
+T1_I             1 0.09164 0.09164  18.779 0.02267 * 
+T1_J             1 0.01462 0.01462   2.995 0.18194   
+T1_K             1 0.00385 0.00385   0.789 0.43993   
+T2_I             1 0.03941 0.03941   8.077 0.06554 . 
+T2_J             1 0.02995 0.02995   6.138 0.08947 . 
+T2_K             1 0.00469 0.00469   0.962 0.39907   
+ACOPY_x          1 0.00092 0.00092   0.189 0.69318   
+ACOPY_y          1 0.03387 0.03387   6.942 0.07801 . 
+U1_I             1 0.02986 0.02986   6.119 0.08978 . 
+U_I              1 0.01617 0.01617   3.314 0.16627   
+U_J              1 0.17687 0.17687  36.247 0.00918 **
+U_K              1 0.00584 0.00584   1.197 0.35398   
+RT_I             1 0.29306 0.29306  60.057 0.00447 **
+RT_J             1 0.00187 0.00187   0.384 0.57938   
+RT_K             1 0.03803 0.03803   7.794 0.06832 . 
+SCR              1 0.00790 0.00790   1.619 0.29295   
+VEC1             1 0.13873 0.13873  28.429 0.01289 * 
+VEC2             1 0.00765 0.00765   1.568 0.29926   
+I(1/(1 + T1_I))  1 0.00009 0.00009   0.018 0.90206   
+I(1/(1 + T1_J))  1 0.01117 0.01117   2.290 0.22742   
+I(1/(1 + T1_K))  1 0.05239 0.05239  10.736 0.04655 * 
+I(1/(1 + T2_I))  1 0.00082 0.00082   0.167 0.71000   
+I(1/(1 + T2_J))  1 0.05669 0.05669  11.617 0.04220 * 
+I(1/(1 + T2_K))  1 0.01496 0.01496   3.065 0.17827   
+I(1/(1 + U1_I))  1 0.00330 0.00330   0.677 0.47098   
+I(1/(1 + U_I))   1 0.14663 0.14663  30.050 0.01194 * 
+I(1/(1 + U_J))   1 0.01117 0.01117   2.289 0.22748   
+I(1/(1 + U_K))   1 0.01722 0.01722   3.528 0.15695   
+I(1/(1 + RT_I))  1 0.20847 0.20847  42.723 0.00728 **
+I(1/(1 + RT_J))  1 0.02240 0.02240   4.590 0.12158   
+I(1/(1 + RT_K))  1 0.00783 0.00783   1.604 0.29479   
+Residuals        3 0.01464 0.00488                   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Predicting Best
+Generating valid search space of size 1600 (does not spend evaluations)
+Tested coordinates: 10000
+Valid coordinates: 320
+Tested coordinates: 20000
+Valid coordinates: 640
+Tested coordinates: 30000
+Valid coordinates: 960
+Tested coordinates: 40000
+Tested coordinates: 50000
+Valid coordinates: 1280
+Tested coordinates: 60000
+Valid coordinates: 1600
+Valid/Tested configurations: 1600/66011
+Generated Search Space:
+NULL
+Identical predictions (tol = 1e-5): 1
+Getting Best from Design
+Response: ['cost_mean']
+Design Names:  [1] "T1_I"      "T1_J"      "T1_K"      "T2_I"      "T2_J"      "T2_K"     
+ [7] "ACOPY_x"   "ACOPY_y"   "U1_I"      "U_I"       "U_J"       "U_K"      
+[13] "RT_I"      "RT_J"      "RT_K"      "SCR"       "VEC1"      "VEC2"     
+[19] "cost_mean"
+
+Design Response:      cost_mean
+15   0.6562672
+120  0.8382042
+228  0.2934117
+233  0.2949688
+256  0.2737617
+373  0.3599622
+396  0.3036678
+460  0.5135986
+488  0.3657921
+509  0.2775316
+558  0.7958204
+579  0.4154901
+621  0.2251648
+722  0.6753172
+791  0.3472132
+885  0.4687182
+945  0.6482400
+963  0.2600750
+1015 0.3171642
+1119 0.2429714
+1182 0.7404959
+1186 0.4928996
+1193 0.2761866
+1194 0.4095465
+1217 0.2578101
+1225 0.3391220
+1232 0.5265036
+1270 0.5648955
+1303 0.3090767
+1305 1.0578630
+1338 0.2641629
+1389 0.7236827
+1420 0.2299077
+1474 0.4265326
+1519 0.2051668
+
+Current Design Names: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Getting fixed variables
+Pruning Model
+Best Predicted:     T1_I T1_J T1_K T2_I T2_J T2_K ACOPY_x ACOPY_y U1_I U_I U_J U_K RT_I RT_J
+618    4    0    4    3    2    5       1       1    0   3   0  11    2    0
+    RT_K SCR VEC1 VEC2
+618    0   0    0    1
+
+Best From Design: [6, 2, 6, 5, 5, 0, 0, 1, 26, 5, 0, 27, 1, 0, 0, 0, 1, 1]
+Pruned Factors: ['T1_J', 'T1_K', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_K', 'RT_J', 'SCR', 'VEC2']
+Fixed Factors: {'RT_K': 0, 'T1_I': 4, 'RT_I': 2, 'U_J': 0, 'T2_J': 2, 'T2_I': 3, 'VEC1': 0}
+Length of requested configs: 1
+Result was on Database, Returning Now
+Starting Point (-O3):
+0.6593555
+Predicted Best Point:
+[4, 0, 4, 3, 2, 5, 1, 1, 0, 3, 0, 11, 2, 0, 0, 0, 0, 1]
+Length of requested configs: 1
+Result was on Database, Returning Now
+Design Best Point:
+[6, 2, 6, 5, 5, 0, 0, 1, 26, 5, 0, 27, 1, 0, 0, 0, 1, 1]
+Length of requested configs: 1
+Result was on Database, Returning Now
+Fixed Factors: {'RT_K': 0, 'T1_I': 4, 'RT_I': 2, 'U_J': 0, 'T2_J': 2, 'T2_I': 3, 'VEC1': 0}
+Slowdown (Design Best): 0.31116269346859665
+Slowdown (Predicted Best): 0.4897561330723715
+Budget: 35/180
+Updating Global Best: 0.20516683333333327
+Current Best Point: 
+[6, 2, 6, 5, 5, 0, 0, 1, 26, 5, 0, 27, 1, 0, 0, 0, 1, 1]
+Step 1
+Generating valid search space of size 920 (does not spend evaluations)
+Valid coordinates: 184
+Valid coordinates: 368
+Valid coordinates: 552
+Valid coordinates: 736
+Valid coordinates: 920
+Valid/Tested configurations: 920/4172
+Generated Search Space:
+NULL
+Clean Info:
+Removed Factors: [1] "RT_J"
+
+Removed Inverse Factors: [1] "ACOPY_x" "ACOPY_y" "SCR"     "VEC2"   
+
+New Factors: ['T1_J', 'T1_K', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_K', 'SCR', 'VEC2']
+New Inverse Factors: ['T1_J', 'T1_K', 'T2_K', 'U1_I', 'U_I', 'U_K']
+New Fixed Factors: {'RT_K': 0, 'T1_I': 4, 'RT_I': 2, 'U_J': 0, 'T2_J': 2, 'T2_I': 3, 'VEC1': 0, 'RT_J': 0}
+Full Model:  ~ T1_J + T1_K + T2_K + ACOPY_x + ACOPY_y + U1_I + U_I + U_K + SCR + VEC2 + I(1 / (1 + T1_J)) + I(1 / (1 + T1_K)) + I(1 / (1 + T2_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + U_I)) + I(1 / (1 + U_K))
+Fixed Factors: {'RT_K': 0, 'T1_I': 4, 'RT_I': 2, 'U_J': 0, 'T2_J': 2, 'T2_I': 3, 'VEC1': 0, 'RT_J': 0}
+Computing D-Optimal Design
+Computing D-Optimal Design with 23 experiments
+Design Formula:  ~ T1_J + T1_K + T2_K + ACOPY_x + ACOPY_y + U1_I + U_I + U_K + SCR + VEC2 + I(1 / (1 + T1_J)) + I(1 / (1 + T1_K)) + I(1 / (1 + T2_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + U_I)) + I(1 / (1 + U_K))
+Starting "optFederov" run
+Using Search Space:
+NULL
+Data Dimensions: [1] 920  10
+
+    T1_J T1_K T2_K ACOPY_x ACOPY_y U1_I U_I U_K SCR VEC2
+50     4    2    0       1       0   29   3  11   0    1
+55     3    4    0       0       0   15   0   8   1    1
+98     0    2    2       1       0    0   2   9   0    0
+201    1    2    5       1       1    0  22   9   1    0
+216    2    2    2       1       1   28   0   0   1    0
+245    0    6    0       1       1   11  20  29   1    1
+256    1    6    6       0       1    7   2  26   1    1
+276    0    0    6       0       1    4  27  17   0    1
+312    2    0    0       1       1   13   2   3   0    0
+335    0    3    1       0       1    5   0  26   0    1
+384    2    0    3       0       1   29  28  29   1    0
+431    1    2    2       0       0   11   2  12   1    0
+440    4    0    2       0       0    0  29   2   1    1
+448    3    3    2       0       1    5   5   3   1    1
+463    3    0    0       1       0    0   8  22   1    1
+530    0    4    0       0       0   10  21   0   0    0
+730    2    3    3       1       0   29  24   1   0    1
+798    0    0    6       1       1   13   3   1   1    0
+807    4    6    6       0       1   16  28   7   0    0
+815    2    1    6       0       1   28   0  24   0    1
+878    4    0    2       1       1   15   4  28   0    0
+902    4    1    5       1       0    7  25  29   0    0
+908    4    4    0       0       1   24   3  26   0    1
+
+D-Efficiency Approximation: [1] 0.466
+
+Measuring design of size 23
+Current Design Names: ['T1_J', 'T1_K', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_K', 'SCR', 'VEC2']
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Complete design, with measurements:
+    T1_J T1_K T2_K ACOPY_x ACOPY_y U1_I U_I U_K SCR VEC2 cost_mean
+50     4    2    0       1       0   29   3  11   0    1 0.5968512
+55     3    4    0       0       0   15   0   8   1    1 0.5361555
+98     0    2    2       1       0    0   2   9   0    0 0.5250755
+201    1    2    5       1       1    0  22   9   1    0 0.3483554
+216    2    2    2       1       1   28   0   0   1    0 0.3923319
+245    0    6    0       1       1   11  20  29   1    1 0.4833770
+256    1    6    6       0       1    7   2  26   1    1 0.3262859
+276    0    0    6       0       1    4  27  17   0    1 0.3667559
+312    2    0    0       1       1   13   2   3   0    0 0.4883213
+335    0    3    1       0       1    5   0  26   0    1 0.3381386
+384    2    0    3       0       1   29  28  29   1    0 0.4940548
+431    1    2    2       0       0   11   2  12   1    0 0.5171501
+440    4    0    2       0       0    0  29   2   1    1 0.4609846
+448    3    3    2       0       1    5   5   3   1    1 0.3227590
+463    3    0    0       1       0    0   8  22   1    1 0.4629643
+530    0    4    0       0       0   10  21   0   0    0 0.6126702
+730    2    3    3       1       0   29  24   1   0    1 0.4992586
+798    0    0    6       1       1   13   3   1   1    0 0.3252395
+807    4    6    6       0       1   16  28   7   0    0 0.5926501
+815    2    1    6       0       1   28   0  24   0    1 0.3486758
+878    4    0    2       1       1   15   4  28   0    0 0.4782202
+902    4    1    5       1       0    7  25  29   0    0 0.4938104
+908    4    4    0       0       1   24   3  26   0    1 0.3348863
+
+Heteroscedasticity Test p-value: 0.940358100277
+Regression Step:                Df  Sum Sq Mean Sq F value  Pr(>F)   
+T1_J             1 0.01021 0.01021   3.123 0.12761   
+T1_K             1 0.00381 0.00381   1.165 0.32191   
+T2_K             1 0.02288 0.02288   7.002 0.03823 * 
+ACOPY_x          1 0.00347 0.00347   1.061 0.34273   
+ACOPY_y          1 0.05346 0.05346  16.359 0.00677 **
+U1_I             1 0.00735 0.00735   2.250 0.18429   
+U_I              1 0.01982 0.01982   6.066 0.04893 * 
+U_K              1 0.00043 0.00043   0.132 0.72895   
+SCR              1 0.00640 0.00640   1.959 0.21113   
+VEC2             1 0.02764 0.02764   8.458 0.02704 * 
+I(1/(1 + T1_J))  1 0.00043 0.00043   0.132 0.72851   
+I(1/(1 + T1_K))  1 0.01292 0.01292   3.954 0.09390 . 
+I(1/(1 + T2_K))  1 0.00013 0.00013   0.040 0.84800   
+I(1/(1 + U1_I))  1 0.00000 0.00000   0.001 0.98021   
+I(1/(1 + U_I))   1 0.00122 0.00122   0.374 0.56342   
+I(1/(1 + U_K))   1 0.00979 0.00979   2.995 0.13422   
+Residuals        6 0.01961 0.00327                   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Predicting Best
+Generating valid search space of size 920 (does not spend evaluations)
+Valid coordinates: 184
+Valid coordinates: 368
+Valid coordinates: 552
+Valid coordinates: 736
+Valid coordinates: 920
+Valid/Tested configurations: 920/1462
+Generated Search Space:
+NULL
+Identical predictions (tol = 1e-5): 1
+Getting Best from Design
+Response: ['cost_mean']
+Design Names:  [1] "T1_J"      "T1_K"      "T2_K"      "ACOPY_x"   "ACOPY_y"   "U1_I"     
+ [7] "U_I"       "U_K"       "SCR"       "VEC2"      "cost_mean"
+
+Design Response:     cost_mean
+50  0.5968512
+55  0.5361555
+98  0.5250755
+201 0.3483554
+216 0.3923319
+245 0.4833770
+256 0.3262859
+276 0.3667559
+312 0.4883213
+335 0.3381386
+384 0.4940548
+431 0.5171501
+440 0.4609846
+448 0.3227590
+463 0.4629643
+530 0.6126702
+730 0.4992586
+798 0.3252395
+807 0.5926501
+815 0.3486758
+878 0.4782202
+902 0.4938104
+908 0.3348863
+
+Current Design Names: ['T1_J', 'T1_K', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_K', 'SCR', 'VEC2']
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Getting fixed variables
+Pruning Model
+Best Predicted:    T1_I T1_J T1_K T2_I T2_J T2_K ACOPY_x ACOPY_y U1_I U_I U_J U_K RT_I RT_J
+56    4    4    2    3    2    6       1       1    1  13   0  23    2    0
+   RT_K SCR VEC1 VEC2
+56    0   1    0    1
+
+Best From Design: [4, 3, 3, 3, 2, 2, 0, 1, 5, 5, 0, 3, 2, 0, 0, 1, 0, 1]
+Pruned Factors: ['T1_J', 'T1_K', 'ACOPY_x', 'U1_I', 'U_K', 'SCR']
+Fixed Factors: {'ACOPY_y': 1, 'RT_K': 0, 'T1_I': 4, 'RT_I': 2, 'U_J': 0, 'U_I': 13, 'T2_K': 6, 'T2_J': 2, 'T2_I': 3, 'VEC2': 1, 'VEC1': 0, 'RT_J': 0}
+Length of requested configs: 1
+Result was on Database, Returning Now
+Starting Point (-O3):
+0.6593555
+Predicted Best Point:
+[4, 4, 2, 3, 2, 6, 1, 1, 1, 13, 0, 23, 2, 0, 0, 1, 0, 1]
+Length of requested configs: 1
+Result was on Database, Returning Now
+Design Best Point:
+[4, 3, 3, 3, 2, 2, 0, 1, 5, 5, 0, 3, 2, 0, 0, 1, 0, 1]
+Length of requested configs: 1
+Result was on Database, Returning Now
+Fixed Factors: {'ACOPY_y': 1, 'RT_K': 0, 'T1_I': 4, 'RT_I': 2, 'U_J': 0, 'U_I': 13, 'T2_K': 6, 'T2_J': 2, 'T2_I': 3, 'VEC2': 1, 'VEC1': 0, 'RT_J': 0}
+Slowdown (Design Best): 0.4895067986844727
+Slowdown (Predicted Best): 0.6659871141844826
+Budget: 58/180
+Current Best Point: 
+[6, 2, 6, 5, 5, 0, 0, 1, 26, 5, 0, 27, 1, 0, 0, 0, 1, 1]
+Step 2
+Generating valid search space of size 520 (does not spend evaluations)
+Valid coordinates: 104
+Valid coordinates: 208
+Valid coordinates: 312
+Valid coordinates: 416
+Valid coordinates: 520
+Valid/Tested configurations: 520/715
+Generated Search Space:
+NULL
+Clean Info:
+Removed Factors: character(0)
+
+Removed Inverse Factors: [1] "ACOPY_x" "SCR"    
+
+New Factors: ['T1_J', 'T1_K', 'ACOPY_x', 'U1_I', 'U_K', 'SCR']
+New Inverse Factors: ['T1_J', 'T1_K', 'U1_I', 'U_K']
+New Fixed Factors: {'ACOPY_y': 1, 'RT_K': 0, 'T1_I': 4, 'RT_I': 2, 'U_J': 0, 'U_I': 13, 'T2_K': 6, 'T2_J': 2, 'T2_I': 3, 'VEC2': 1, 'VEC1': 0, 'RT_J': 0}
+Full Model:  ~ T1_J + T1_K + ACOPY_x + U1_I + U_K + SCR + I(1 / (1 + T1_J)) + I(1 / (1 + T1_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + U_K))
+Fixed Factors: {'ACOPY_y': 1, 'RT_K': 0, 'T1_I': 4, 'RT_I': 2, 'U_J': 0, 'U_I': 13, 'T2_K': 6, 'T2_J': 2, 'T2_I': 3, 'VEC2': 1, 'VEC1': 0, 'RT_J': 0}
+Computing D-Optimal Design
+Computing D-Optimal Design with 13 experiments
+Design Formula:  ~ T1_J + T1_K + ACOPY_x + U1_I + U_K + SCR + I(1 / (1 + T1_J)) + I(1 / (1 + T1_K)) + I(1 / (1 + U1_I)) + I(1 / (1 + U_K))
+Starting "optFederov" run
+Using Search Space:
+NULL
+Data Dimensions: [1] 520   6
+
+    T1_J T1_K ACOPY_x U1_I U_K SCR
+8      4    3       1   28  28   1
+9      4    0       0    2   0   0
+103    0    0       1    1   2   0
+168    0    0       0   10  29   1
+198    0    6       1   28   0   1
+221    4    0       0   29  10   0
+224    2    0       0   28   3   1
+256    1    6       1    3  20   0
+342    0    2       0   25   8   0
+363    1    3       0    0  21   0
+385    4    6       0    3   2   1
+407    1    1       1   12   5   1
+487    1    6       0    5  28   0
+
+D-Efficiency Approximation: [1] 0.369
+
+Measuring design of size 13
+Current Design Names: ['T1_J', 'T1_K', 'ACOPY_x', 'U1_I', 'U_K', 'SCR']
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Complete design, with measurements:
+    T1_J T1_K ACOPY_x U1_I U_K SCR cost_mean
+8      4    3       1   28  28   1 0.3802428
+9      4    0       0    2   0   0 0.3770475
+103    0    0       1    1   2   0 0.3314930
+168    0    0       0   10  29   1 0.5017230
+198    0    6       1   28   0   1 0.3392381
+221    4    0       0   29  10   0 0.3342245
+224    2    0       0   28   3   1 0.3190056
+256    1    6       1    3  20   0 0.3419830
+342    0    2       0   25   8   0 0.4223926
+363    1    3       0    0  21   0 0.3384701
+385    4    6       0    3   2   1 0.3088498
+407    1    1       1   12   5   1 0.3620144
+487    1    6       0    5  28   0 0.3527137
+
+Heteroscedasticity Test p-value: 0.843237131753
+Regression Step:                Df   Sum Sq  Mean Sq F value Pr(>F)
+T1_J             1 0.003230 0.003230   3.527  0.201
+T1_K             1 0.003952 0.003952   4.316  0.173
+ACOPY_x          1 0.001251 0.001251   1.366  0.363
+U1_I             1 0.000172 0.000172   0.188  0.707
+U_K              1 0.007613 0.007613   8.314  0.102
+SCR              1 0.001486 0.001486   1.623  0.331
+I(1/(1 + T1_J))  1 0.005957 0.005957   6.505  0.125
+I(1/(1 + T1_K))  1 0.000631 0.000631   0.689  0.494
+I(1/(1 + U1_I))  1 0.003577 0.003577   3.906  0.187
+I(1/(1 + U_K))   1 0.001963 0.001963   2.144  0.281
+Residuals        2 0.001831 0.000916               
+
+Predicting Best
+Generating valid search space of size 520 (does not spend evaluations)
+Valid coordinates: 104
+Valid coordinates: 208
+Valid coordinates: 312
+Valid coordinates: 416
+Valid coordinates: 520
+Valid/Tested configurations: 520/739
+Generated Search Space:
+NULL
+Identical predictions (tol = 1e-5): 1
+Getting Best from Design
+Response: ['cost_mean']
+Design Names: [1] "T1_J"      "T1_K"      "ACOPY_x"   "U1_I"      "U_K"       "SCR"      
+[7] "cost_mean"
+
+Design Response:     cost_mean
+8   0.3802428
+9   0.3770475
+103 0.3314930
+168 0.5017230
+198 0.3392381
+221 0.3342245
+224 0.3190056
+256 0.3419830
+342 0.4223926
+363 0.3384701
+385 0.3088498
+407 0.3620144
+487 0.3527137
+
+Current Design Names: ['T1_J', 'T1_K', 'ACOPY_x', 'U1_I', 'U_K', 'SCR']
+Initial Factors: ['T1_I', 'T1_J', 'T1_K', 'T2_I', 'T2_J', 'T2_K', 'ACOPY_x', 'ACOPY_y', 'U1_I', 'U_I', 'U_J', 'U_K', 'RT_I', 'RT_J', 'RT_K', 'SCR', 'VEC1', 'VEC2']
+Getting fixed variables
+Pruning Model
+Best Predicted:    T1_I T1_J T1_K T2_I T2_J T2_K ACOPY_x ACOPY_y U1_I U_I U_J U_K RT_I RT_J
+94    4    3    4    3    2    6       1       1    0  13   0   7    2    0
+   RT_K SCR VEC1 VEC2
+94    0   0    0    1
+
+Best From Design: [4, 4, 6, 3, 2, 6, 0, 1, 3, 13, 0, 2, 2, 0, 0, 1, 0, 1]
+Pruned Factors: ['T1_J', 'T1_K', 'ACOPY_x', 'U1_I', 'SCR']
+Fixed Factors: {'ACOPY_y': 1, 'RT_K': 0, 'T1_I': 4, 'RT_I': 2, 'U_K': 7, 'U_J': 0, 'U_I': 13, 'T2_K': 6, 'T2_J': 2, 'T2_I': 3, 'VEC2': 1, 'VEC1': 0, 'RT_J': 0}
+Length of requested configs: 1
+Result was on Database, Returning Now
+Starting Point (-O3):
+0.6593555
+Predicted Best Point:
+[4, 3, 4, 3, 2, 6, 1, 1, 0, 13, 0, 7, 2, 0, 0, 0, 0, 1]
+Length of requested configs: 1
+Result was on Database, Returning Now
+Design Best Point:
+[4, 4, 6, 3, 2, 6, 0, 1, 3, 13, 0, 2, 2, 0, 0, 1, 0, 1]
+Length of requested configs: 1
+Result was on Database, Returning Now
+Fixed Factors: {'ACOPY_y': 1, 'RT_K': 0, 'T1_I': 4, 'RT_I': 2, 'U_K': 7, 'U_J': 0, 'U_I': 13, 'T2_K': 6, 'T2_J': 2, 'T2_I': 3, 'VEC2': 1, 'VEC1': 0, 'RT_J': 0}
+Slowdown (Design Best): 0.46841165350103214
+Slowdown (Predicted Best): 0.49547560711432104
+Budget: 71/180
+Current Best Point: 
+[6, 2, 6, 5, 5, 0, 0, 1, 26, 5, 0, 27, 1, 0, 0, 0, 1, 1]
+Final Best Point: 
+[6, 2, 6, 5, 5, 0, 0, 1, 26, 5, 0, 27, 1, 0, 0, 0, 1, 1]
+Ending DOPT-ANOVA
+Best Point: [6, 2, 6, 5, 5, 0, 0, 1, 26, 5, 0, 27, 1, 0, 0, 0, 1, 1]
+Length of requested configs: 1
+Result was on Database, Returning Now
+Length of requested configs: 1
+Result was on Database, Returning Now
+Speedup: 3.213752872662168
+----- end random search -----
+----- begin random search summary -----
+ total completed runs: 0
+ total successful runs: 0
+ total failed runs: 0
+ speedup: 3.213752872662168
+----- end random search summary -----
+----- begin summary -----
+ best coordinate: [6, 2, 6, 5, 5, 0, 0, 1, 26, 5, 0, 27, 1, 0, 0, 0, 1, 1]={'ACOPY_x': False, 'ACOPY_y': True, 'RT_K': 1, 'T1_I': 512, 'T1_J': 32, 'T1_K': 512, 'U_K': 28, 'U_J': 1, 'U_I': 6, 'U1_I': 27, 'T2_K': 1, 'T2_J': 1024, 'T2_I': 1024, 'VEC2': True, 'VEC1': True, 'RT_I': 8, 'SCR': False, 'RT_J': 1}, cost=2.051668e-01, transfer_time=inf, inputs=[('N', 10000)], search_time=-49.51, runs=71
+----- end summary -----
+Length of requested configs: 1
+Result was on Database, Returning Now
+----- the obtained best performance parameters -----
+ ACOPY_x = False
+ ACOPY_y = True
+ RT_I = 8
+ RT_J = 1
+ RT_K = 1
+ SCR = False
+ T1_I = 512
+ T1_J = 32
+ T1_K = 512
+ T2_I = 1024
+ T2_J = 1024
+ T2_K = 1
+ U1_I = 27
+ U_I = 6
+ U_J = 1
+ U_K = 28
+ VEC1 = True
+ VEC2 = True
+ cost_mean = 0.20516683333333327
+ points = 71
+ speedup_O3 = 3.213752872662168
+ technique = DLMT
+Code stats:
+        Number of loops: 	51
+        Max loop nest depth: 	6
+        Additions: 		4002
+        Multiplications: 	900
+        Divisions: 		0
+        Logical: 		0
+        Reads: 			5959
+        Writes: 		634
+        Comparisons:		51
+        Gotos: 			0
+        
+----- finish optimizations -----
+
+----- begin removing annotations from output-----
+----- finished removing annotations from output-----
+
+----- begin writing the output file(s) -----
+--> writing output to: _atax2.src1.c
+----- finished writing the output file(s) -----
+
+====== END ORIO ======

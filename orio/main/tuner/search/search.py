@@ -160,6 +160,7 @@ class Search:
         result["technique"]  = self.name
         result["cost_mean"]  = best_perf_cost
         result["speedup_O3"] = speedup
+        result["points"]     = runs
 
         results.insert(result)
 
