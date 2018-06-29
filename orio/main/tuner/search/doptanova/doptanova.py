@@ -429,7 +429,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def dopt_anova_step(self, response, factors, inverse_factors,
                         fixed_factors, budget, step_number):
-        trials = int(1.3 * (len(factors) + len(inverse_factors)))
+        trials = int(1.5 * (len(factors) + len(inverse_factors)))
 
         federov_samples = 100 * trials
         prediction_samples = federov_samples
