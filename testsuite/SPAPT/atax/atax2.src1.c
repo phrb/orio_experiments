@@ -118,6 +118,3 @@ double* tmp=(double*) malloc(nx*sizeof(double));
 /*@ end @*/
 
 /*@ end @*/
-
-
-
