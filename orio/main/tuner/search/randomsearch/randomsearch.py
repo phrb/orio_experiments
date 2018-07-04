@@ -31,6 +31,8 @@ class Randomsearch(orio.main.tuner.search.search.Search):
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
 
+        self.name = "RS"
+
         # set all algorithm-specific arguments to their default values
         self.local_distance = 0
 
