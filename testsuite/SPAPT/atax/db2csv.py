@@ -2,11 +2,11 @@
 
 import dataset, csv
 
-database = dataset.connect("sqlite:///results.db")
+database = dataset.connect("sqlite:///search_space.db")
 
-experiments = database["results"]
+experiments = database["experiments"]
 
-with open("results.csv", "w") as csv_file:
+with open("search_space.csv", "w") as csv_file:
     writer = csv.DictWriter(csv_file, fieldnames = experiments.find_one(id = 1).keys())
 
     writer.writeheader()

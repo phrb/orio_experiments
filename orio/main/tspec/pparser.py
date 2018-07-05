@@ -20,7 +20,7 @@ keywords = [
     'msimplex_contraction_coef', 'msimplex_shrinkage_coef', 'msimplex_size', 'msimplex_x0',
     'simplex_reflection_coef', 'simplex_expansion_coef',
     'simplex_contraction_coef', 'simplex_shrinkage_coef', 'simplex_local_distance', 'simplex_x0',
-    'cudacfg_instmix',
+    'cudacfg_instmix', 'doptanova_interactions',
     'validation', 'validation_file', 'expected_output',
     'macro', 'performance_test_code', 'skeleton_test_code', 'skeleton_code_file',
     'other', 'device_spec_file',
@@ -216,6 +216,7 @@ def p_arg_type(p):
                 | SIMPLEX_CONTRACTION_COEF
                 | SIMPLEX_SHRINKAGE_COEF
                 | SIMPLEX_LOCAL_DISTANCE    
+                | DOPTANOVA_INTERACTIONS
                 | SIMPLEX_X0
                 | CUDACFG_INSTMIX
                 | VALIDATION_FILE

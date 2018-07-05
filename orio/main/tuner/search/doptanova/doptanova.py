@@ -16,29 +16,17 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects import DataFrame, IntVector, FloatVector, StrVector, BoolVector, Formula, NULL, r
 
 class Doptanova(orio.main.tuner.search.search.Search):
-    '''
-    The search engine that uses a random search approach, enhanced with a local search that finds
-    the best neighboring coordinate.
-
-    Below is a list of algorithm-specific arguments used to steer the search algorithm.
-      local_distance            the distance number used in the local search to find the best
-                                neighboring coordinate located within the specified distance
-    '''
-
-    # algorithm-specific argument names
-    __LOCAL_DIST = 'local_distance'  # default: 0
+    __INTERACTIONS = "interactions"
 
     def __init__(self, params):
-        '''To instantiate a random search engine'''
-        #numpy.random.seed(39920)
-        #numpy.random.seed(99291)
-        #numpy.random.seed(22010)
-
         self.base      = importr("base")
         self.utils     = importr("utils")
         self.stats     = importr("stats")
         self.algdesign = importr("AlgDesign")
         self.car       = importr("car")
+
+        numpy.random.seed(22010)
+        self.base.set_seed(22331)
 
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
@@ -48,8 +36,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         self.parameter_ranges = {}
 
         for i in range(len(self.params["axis_val_ranges"])):
-            self.parameter_ranges[self.params["axis_names"][i]] = [0,
-                    len(self.params["axis_val_ranges"][i])]
+            self.parameter_ranges[self.params["axis_names"][i]] = [0, len(self.params["axis_val_ranges"][i])]
 
         info("Parameters: " + str(self.parameter_ranges))
 
@@ -60,22 +47,15 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         info("Parameter Range Values: " + str(self.parameter_values))
 
-        # set all algorithm-specific arguments to their default values
-        self.local_distance = 0
+        self.interactions = []
 
-        # read all algorithm-specific arguments
         self.__readAlgoArgs()
 
-        # complain if both the search time limit and the total number of search runs are undefined
         if self.time_limit <= 0 and self.total_runs <= 0:
             err((
                 '%s search requires search time limit or '
                 + 'total number of search runs to be defined') %
                 self.__class__.__name__)
-
-    def isclose(self, a, b, rel_tol = 1e-09, abs_tol = 0.0):
-        return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
-
 
     def clean_search_space(self, federov_search_space, factors, inverse_factors, fixed_factors):
         data = {}
@@ -168,10 +148,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Starting \"optMonteCarlo\" run")
         info(str(data))
 
-        #self.base.set_seed(77126)
-        #self.base.set_seed(66182)
-        #self.base.set_seed(22331)
-
         candidate_multiplier = 10
         repetitions          = 1
 
@@ -183,25 +159,19 @@ class Doptanova(orio.main.tuner.search.search.Search):
                                               nTrials     = trials)
         return output
 
-    def opt_federov(self, design_formula, trials, data):
+    def opt_federov(self, design_formula, trials, data,
+                    max_iterations = 100000, nullify = 2):
         info("Starting \"optFederov\" run")
         info("Using Search Space:")
         info(str(self.utils.str(data)))
-
-        #self.base.set_seed(77126)
-        #self.base.set_seed(66182)
-        #self.base.set_seed(22331)
-
-        #info("Correlation between variables in the dataset:")
-        #info(str(self.stats.cor(data)))
 
         info("Data Dimensions: " + str(self.base.dim(data)))
 
         output = self.algdesign.optFederov(frml         = Formula(design_formula),
                                            data         = data,
                                            nTrials      = trials,
-                                           nullify      = 2,
-                                           maxIteration = 100000)
+                                           nullify      = nullify,
+                                           maxIteration = max_iterations)
 
         return output
 
@@ -217,12 +187,11 @@ class Doptanova(orio.main.tuner.search.search.Search):
         transformed_lm = robjects.r(r_snippet)
         return transformed_lm
 
-    def anova(self, design, formula):
+    def anova(self, design, formula, heteroscedasticity_threshold = 0.05):
         regression = self.stats.lm(Formula(formula), data = design)
         heteroscedasticity_test = self.car.ncvTest(regression)
         info("Heteroscedasticity Test p-value: " + str(heteroscedasticity_test.rx("p")[0][0]))
 
-        heteroscedasticity_threshold = 0.05
         if heteroscedasticity_test.rx("p")[0][0] < heteroscedasticity_threshold:
             regression = self.transform_lm(design, formula)
             heteroscedasticity_test = self.car.ncvTest(regression)
@@ -246,11 +215,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         predicted_min = min(predicted)
         identical_predictions = 0
 
-        for k in range(len(predicted)):
-            if self.isclose(predicted[k], predicted_min, rel_tol = 1e-5):
-                identical_predictions += 1
-
-        info("Identical predictions (tol = 1e-5): {0}".format(identical_predictions))
         return data.rx(predicted.ro == self.base.min(predicted), True)
 
     def get_design_best(self, design, response, fixed_factors):
@@ -296,7 +260,15 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return pruned_data
 
     def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 7, prf_threshold = 0.1):
-        ordered_keys     = [k.replace("I(1/(1 + ", "").strip(") ") for k in ordered_keys]
+        clean_keys = [k.replace("I(1/(1 + ", "").strip(") ") for k in ordered_keys]
+        new_ordered_keys = []
+
+        for k in clean_keys:
+            interaction = k.split(":")
+            for v in interaction:
+                new_ordered_keys.append(v)
+
+        ordered_keys = new_ordered_keys
         unique_variables = []
         for k in ordered_keys:
             if k not in unique_variables and prf_values[str(k)] < prf_threshold:
@@ -314,6 +286,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Getting fixed variables")
         unique_variables = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
         fixed_variables  = fixed_factors
+        info("Fixed Variables: " + str(fixed_variables))
+        info("Unique Variables: " + str(unique_variables))
         for v in unique_variables:
             fixed_variables[v] = predicted_best.rx2(1, str(v))[0]
 
@@ -407,17 +381,11 @@ class Doptanova(orio.main.tuner.search.search.Search):
             for i in range(len(design_names)):
                 candidate[initial_factors.index(design_names[i])] = design_line[i]
 
-            # info("Initial Design Line: " + str(design_line))
-            # info("Fixed Factors: " + str(fixed_factors))
-            # info("Testing candidate " + str(line + 1) + ": " + str(candidate))
-
             measurement = self.getPerfCosts([candidate])
             if measurement != {}:
                 measurements.append(float(numpy.mean(measurement[str(candidate)][0])))
             else:
                 measurements.append(float('inf'))
-
-        # info("Measurements: " + str(measurements))
 
         design = self.base.cbind(design, DataFrame({response[0]: FloatVector(measurements)}))
         design = design.rx(self.base.is_finite(design.rx2(response[0])), True)
@@ -427,9 +395,18 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         return design
 
-    def dopt_anova_step(self, response, factors, inverse_factors,
-                        fixed_factors, budget, step_number):
-        trials = int(1.5 * (len(factors) + len(inverse_factors)))
+    def dopt_anova_step(self, response, factors, inverse_factors, interactions,
+                        fixed_factors, budget, trials, step_number):
+        full_model     = "".join([" ~ ",
+                                  " + ".join(factors)])
+
+        if len(inverse_factors) > 0:
+            full_model += " + " + " + ".join(["I(1 / (1 + {0}))".format(f) for f in inverse_factors])
+
+        if len(interactions):
+            full_model += " + " + " + ".join(interactions)
+
+        info("Full Model: " + str(full_model))
 
         federov_samples = 100 * trials
         prediction_samples = federov_samples
@@ -447,72 +424,18 @@ class Doptanova(orio.main.tuner.search.search.Search):
         inverse_factors      = clean_search_space_data["inverse_factors"]
         fixed_factors        = clean_search_space_data["fixed_factors"]
 
-        full_model     = "".join([" ~ ",
-                                  " + ".join(factors)])
-
-        if len(inverse_factors) > 0:
-            full_model += " + " + " + ".join(["I(1 / (1 + {0}))".format(f) for f in
-                inverse_factors])
-
-        info("Full Model: " + str(full_model))
-
         design_formula = full_model
         lm_formula     = response[0] + full_model
 
         fixed_variables = fixed_factors
         info("Fixed Factors: " + str(fixed_factors))
         info("Computing D-Optimal Design")
-        #constraint = self.get_updated_constraints(factors, fixed_variables)
 
         info("Computing D-Optimal Design with " + str(trials) +
              " experiments")
         info("Design Formula: " + str(design_formula))
 
-        # opt_federov_dataframe = self.get_federov_data(factors)
-        # output = self.opt_monte(design_formula, trials, constraint,
-        #                         opt_federov_dataframe)
-
-        # X = self.stats.model_matrix(Formula(design_formula), federov_search_space)
-        # info("Model Matrix Names: " + str(self.base.names(X)))
-        # X_t = self.base.t(X)
-        # X_I = numpy.matmul(X_t, X)
-        # numpy.set_printoptions(precision = 2, linewidth = 120)
-
-        # X_I_P, X_I_L, X_I_U = scipy.linalg.lu(X_I)
-        # determinant = numpy.linalg.det(X_I)
-
-        # info("Model Matrix Det: " + str(determinant))
-        # info("LU Decomposition L:")
-        # info(str(X_I_L))
-        # info("LU Decomposition U:")
-        # info(str(X_I_U))
-        # info("LU Decomposition P:")
-        # info(str(X_I_P))
-
-        # X_I = numpy.array(X_I)
-
-        # info("Computing Dependency Between Columns")
-        # for i in range(X_I.shape[1]):
-        #     for j in range(X_I.shape[1]):
-        #         if i != j:
-        #             inner_product = numpy.inner(
-        #                     X_I[:,i],
-        #                     X_I[:,j]
-        #                     )
-        #             norm_i = numpy.linalg.norm(X_I[:,i])
-        #             norm_j = numpy.linalg.norm(X_I[:,j])
-
-        #             if numpy.abs(inner_product - norm_j * norm_i) < 1E-5:
-        #                 info("(i: " + str(i) + ", j: " + str(j) + ")")
-        #                 info('Dependent')
-        #                 info('I: ' + str(X_I[:,i]))
-        #                 info('J: ' + str(X_I[:,j]))
-        #                 info('Prod: ' + str(inner_product))
-        #                 info('Norm i: ' + str(norm_i))
-        #                 info('Norm j: ' + str(norm_j))
-
         output = self.opt_federov(design_formula, trials, federov_search_space)
-
         design = output.rx("design")[0]
 
         info(str(design))
@@ -545,11 +468,12 @@ class Doptanova(orio.main.tuner.search.search.Search):
                 "used_experiments": used_experiments}
 
 
-    def dopt_anova(self, initial_factors, initial_inverse_factors):
+    def dopt_anova(self, initial_factors, initial_inverse_factors, initial_interactions):
         response = ["cost_mean"]
 
         step_factors = initial_factors
         step_inverse_factors = initial_inverse_factors
+        step_interactions = initial_interactions
 
         iterations = 4
 
@@ -564,11 +488,15 @@ class Doptanova(orio.main.tuner.search.search.Search):
         for i in range(iterations):
             info("Step {0}".format(i))
 
+            trials = int(1.5 * (len(step_factors) + len(step_inverse_factors) + len(step_interactions)))
+
             step_data = self.dopt_anova_step(response,
                                              step_factors,
                                              step_inverse_factors,
+                                             step_interactions,
                                              fixed_factors,
                                              budget,
+                                             trials,
                                              i)
 
             step_factors          = step_data["pruned_factors"]
@@ -625,14 +553,16 @@ class Doptanova(orio.main.tuner.search.search.Search):
         To explore the search space and retun the coordinate that yields the best performance
         (i.e. minimum performance cost).
         '''
-        info('\n----- begin random search -----')
+        info('\n----- begin DLMT -----')
 
         initial_factors = self.params["axis_names"]
         #initial_inverse_factors = [f for f in initial_factors if self.parameter_ranges[f][1] > 2]
         initial_inverse_factors = []
+        initial_interactions = self.interactions
 
         info("Initial Factors: " + str(initial_factors))
         info("Initial Inverse Factors: " + str(initial_inverse_factors))
+        info("Initial Interactions: " + str(initial_interactions))
 
         best_coord = None
         best_perf_cost = self.MAXFLOAT
@@ -644,11 +574,11 @@ class Doptanova(orio.main.tuner.search.search.Search):
         fruns = 0
         start_time = time.time()
 
-        info("Starting DOPT-anova")
+        info("Starting DLMT")
 
-        best_point, used_points = self.dopt_anova(initial_factors, initial_inverse_factors)
+        best_point, used_points = self.dopt_anova(initial_factors, initial_inverse_factors, initial_interactions)
 
-        info("Ending DOPT-ANOVA")
+        info("Ending DLMT")
         info("Best Point: " + str(best_point))
 
         predicted_best_value = numpy.mean((self.getPerfCosts([best_point]).values()[0])[0])
@@ -660,14 +590,14 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         info("Speedup: " + str(speedup))
 
-        info('----- end random search -----')
+        info('----- end DLMT -----')
 
-        info('----- begin random search summary -----')
+        info('----- begin DLMT summary -----')
         info(' total completed runs: %s' % runs)
         info(' total successful runs: %s' % sruns)
         info(' total failed runs: %s' % fruns)
         info(' speedup: %s' % speedup)
-        info('----- end random search summary -----')
+        info('----- end DLMT summary -----')
 
         # return the best coordinate
         return best_point, predicted_best_value, search_time, used_points, speedup
@@ -675,19 +605,10 @@ class Doptanova(orio.main.tuner.search.search.Search):
     # Private methods
 
     def __readAlgoArgs(self):
-        '''To read all algorithm-specific arguments'''
-
-        # check for algorithm-specific arguments
         for vname, rhs in self.search_opts.iteritems():
             print vname, rhs
-            # local search distance
-            if vname == self.__LOCAL_DIST:
-                if not isinstance(rhs, int) or rhs < 0:
-                    err('orio.main.tuner.search.randomsearch: %s argument "%s" must be a positive integer or zero'
-                        % (self.__class__.__name__, vname))
-                self.local_distance = rhs
-
-            # unrecognized algorithm-specific argument
+            if vname == self.__INTERACTIONS:
+                self.interactions = eval(rhs)
             elif vname == 'total_runs':
                 self.total_runs = rhs
             else:
