@@ -551,7 +551,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         step_factors = initial_factors
         step_inverse_factors = initial_inverse_factors
 
-        iterations = 2
+        iterations = 4
 
         fixed_factors = {}
 
@@ -628,8 +628,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info('\n----- begin random search -----')
 
         initial_factors = self.params["axis_names"]
-        initial_inverse_factors = [f for f in initial_factors if self.parameter_ranges[f][1] > 2]
-        #initial_inverse_factors = []
+        #initial_inverse_factors = [f for f in initial_factors if self.parameter_ranges[f][1] > 2]
+        initial_inverse_factors = []
 
         info("Initial Factors: " + str(initial_factors))
         info("Initial Inverse Factors: " + str(initial_inverse_factors))
