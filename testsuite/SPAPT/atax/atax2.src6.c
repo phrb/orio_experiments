@@ -41,13 +41,12 @@
 
     # Constraints
 
-
   }
 
   def search
   {
-    arg algorithm = 'Randomsearch';
-    arg total_runs = 10000;
+    arg algorithm = 'Doptanova';
+    arg total_runs = 75;
 
   }
 
@@ -84,7 +83,6 @@ double* tmp=(double*) malloc(nx*sizeof(double));
   transform Composite(
     tile = [('i',T1_I,'ii'),('j',T1_J,'jj'),('k',T1_K,'kk'),
             (('ii','i'),T2_I,'iii'),(('jj','j'),T2_J,'jjj'),(('kk','k'),T2_K,'kkk')],
-    arrcopy = [(ACOPY_x, 'x[j]', [(T1_J if T1_J>1 else T2_J)],'_copy')],
     unrolljam = (['k','j','i'],[U_K,U_J,U_I]),
     regtile = (['i','j','k'],[RT_I,RT_J,RT_K])
 )
