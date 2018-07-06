@@ -293,13 +293,27 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         return fixed_variables
 
-    def prune_model(self, factors, inverse_factors, ordered_prf_keys,
-                    prf_values):
+    def prune_model(self, factors, inverse_factors, interactions,
+                    ordered_prf_keys, prf_values):
         info("Pruning Model")
         unique_variables       = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
         pruned_factors         = [f for f in factors if not f in unique_variables]
         pruned_inverse_factors = [f for f in inverse_factors if not f in unique_variables]
-        return pruned_factors, pruned_inverse_factors
+        pruned_interactions    = []
+
+        for i in interactions:
+            interaction_factors = i.split(":")
+            selected = True
+
+            for f in interactions_factors:
+                if f in unique_variables:
+                    selected = False
+                    break
+
+            if selected:
+                pruned_interaction.append(i)
+
+        return pruned_factors, pruned_inverse_factors, pruned_interactions
 
     def get_federov_data(self, factors):
         low_level_limits  = IntVector([self.parameter_ranges[f][0] for f in factors])
@@ -450,12 +464,14 @@ class Doptanova(orio.main.tuner.search.search.Search):
         fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
                                                           prf_values, fixed_factors)
 
-        pruned_factors, pruned_inverse_factors = self.prune_model(factors, inverse_factors,
-                                                                  ordered_prf_keys, prf_values)
+        pruned_factors, pruned_inverse_factors, pruned_interactions = self.prune_model(factors, inverse_factors, interactions,
+                                                                                       ordered_prf_keys, prf_values)
 
         info("Best Predicted: " + str(predicted_best))
         info("Best From Design: " + str(design_best))
         info("Pruned Factors: " + str(pruned_factors))
+        info("Pruned Inverse Factors: " + str(pruned_inverse_factors))
+        info("Pruned Interactions: " + str(pruned_interactions))
         info("Fixed Factors: " + str(fixed_variables))
 
         return {"prf_values": prf_values,
@@ -464,6 +480,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
                 "predicted_best": predicted_best,
                 "pruned_factors": pruned_factors,
                 "pruned_inverse_factors": pruned_inverse_factors,
+                "pruned_interactions": pruned_interactions,
                 "fixed_factors": fixed_variables,
                 "used_experiments": used_experiments}
 
@@ -501,6 +518,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
             step_factors          = step_data["pruned_factors"]
             step_inverse_factors  = step_data["pruned_inverse_factors"]
+            step_interactions     = step_data["pruned_interactions"]
             budget               -= step_data["used_experiments"]
             used_experiments     += step_data["used_experiments"]
             fixed_factors         = step_data["fixed_factors"]
