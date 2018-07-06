@@ -71,8 +71,8 @@
   
   def search
   {
-  arg algorithm = 'Randomsearch';
-  arg total_runs = 10000;
+  arg algorithm = 'Doptanova';
+  arg total_runs = 120;
   }
 
   def input_params
@@ -85,6 +85,10 @@
   {
   decl static double A[N][N+20] = random;
   decl static double B[N][N+20] = random;
+  }
+  
+  def validation {
+    arg validation_file = 'validation.c';
   }
 
 ) @*/   

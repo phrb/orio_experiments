@@ -51,8 +51,8 @@
   
   def search
   {
-  arg algorithm = 'Randomsearch';
-  arg total_runs = 5000;
+  arg algorithm = 'Doptanova';
+  arg total_runs = 75;
   }
   
   def input_params

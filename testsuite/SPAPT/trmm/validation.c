@@ -1,6 +1,7 @@
 
 int isValid() {
 
+  #pragma omp barrier
   double actual = 27885326029.756424;
   double s_sum = 0.0;
   double q_sum = 0.0;
