@@ -259,7 +259,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(self.utils.str(pruned_data)))
         return pruned_data
 
-    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 7, prf_threshold = 0.1):
+    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 7, prf_threshold = 0.01):
         clean_keys = [k.replace("I(1/(1 + ", "").strip(") ") for k in ordered_keys]
         new_ordered_keys = []
 
@@ -277,7 +277,9 @@ class Doptanova(orio.main.tuner.search.search.Search):
                 break
 
         if unique_variables == []:
-            unique_variables.append(ordered_keys[0])
+            info("No variables within acceptable threshold")
+        else:
+            info("Variables within threshold: " + str(unique_variables))
 
         return unique_variables
 
@@ -305,13 +307,13 @@ class Doptanova(orio.main.tuner.search.search.Search):
             interaction_factors = i.split(":")
             selected = True
 
-            for f in interactions_factors:
+            for f in interaction_factors:
                 if f in unique_variables:
                     selected = False
                     break
 
             if selected:
-                pruned_interaction.append(i)
+                pruned_interactions.append(i)
 
         return pruned_factors, pruned_inverse_factors, pruned_interactions
 
