@@ -54,38 +54,57 @@ class Doptanova(orio.main.tuner.search.search.Search):
                 + 'total number of search runs to be defined') %
                 self.__class__.__name__)
 
-    def clean_search_space(self, federov_search_space, factors, inverse_factors, fixed_factors):
+    def clean_search_space(self, federov_search_space, full_model, factors,
+                           inverse_factors, interactions, fixed_factors):
         data = {}
-        r_snippet = """data <- %s
+        r_snippet = """library(AlgDesign)
+        library(dplyr)
+
+        data <- %s
+        formula <- %s
+
+        model_matrix <- as.data.frame(model.matrix(formula, data))
         clean_data <- Filter(function(x)(length(unique(x)) > 1), data)
+
         removed_factors <- names(Filter(function(x)(length(unique(x)) == 1), data))
         removed_inverse_factors <- names(Filter(function(x)(length(unique(x)) == 2), data))
+        removed_interactions <- names(Filter(function(x)(length(unique(x)) == 1), model_matrix))
 
-        list("clean_data" = clean_data, "removed_factors" = removed_factors, "removed_inverse_factors" = removed_inverse_factors)
-        """ % (federov_search_space.r_repr())
+        list("clean_data" = clean_data, "removed_factors" = removed_factors, "removed_inverse_factors" = removed_inverse_factors, "removed_interactions" = removed_interactions)
+        """ % (federov_search_space.r_repr(), Formula(full_model).r_repr())
 
         output = robjects.r(r_snippet)
 
-        removed_factors = output[1]
+        removed_factors         = output[1]
         removed_inverse_factors = output[2]
+        removed_interactions    = output[3]
 
         info("Clean Info:")
         info("Removed Factors: " + str(removed_factors))
         info("Removed Inverse Factors: " + str(removed_inverse_factors))
+        info("Removed Interactions: " + str(removed_interactions))
 
-        factors = [f for f in factors if f not in removed_factors]
-        inverse_factors = [f for f in inverse_factors if f not in removed_inverse_factors + removed_factors]
+        if removed_factors:
+            factors = [f for f in factors if f not in removed_factors]
+
+        if removed_inverse_factors or removed_factors:
+            inverse_factors = [f for f in inverse_factors if f not in removed_inverse_factors + removed_factors]
+
+        if removed_interactions:
+            interactions = [i for i in interactions if i not in removed_interactions]
 
         for f in removed_factors:
             fixed_factors[f] = int(federov_search_space.rx(1, f)[0])
 
         info("New Factors: " + str(factors))
         info("New Inverse Factors: " + str(inverse_factors))
+        info("New Interactions: " + str(interactions))
         info("New Fixed Factors: " + str(fixed_factors))
 
         data["search_space"]    = output[0]
         data["factors"]         = factors
         data["inverse_factors"] = inverse_factors
+        data["interactions"]    = interactions
         data["fixed_factors"]   = fixed_factors
         return data
 
@@ -416,14 +435,28 @@ class Doptanova(orio.main.tuner.search.search.Search):
         federov_search_space = self.generate_valid_sample(federov_samples, fixed_factors)
         federov_search_space = federov_search_space.rx(StrVector(factors))
 
+        full_model     = "".join([" ~ ",
+                                  " + ".join(factors)])
+
+        if len(inverse_factors) > 0:
+            full_model += " + " + " + ".join(["I(1 / (1 + {0}))".format(f) for f in inverse_factors])
+
+        if len(interactions):
+            full_model += " + " + " + ".join(interactions)
+
+        info("Full Model: " + str(full_model))
+
         clean_search_space_data = self.clean_search_space(federov_search_space,
+                                                          full_model,
                                                           factors,
                                                           inverse_factors,
+                                                          interactions,
                                                           fixed_factors)
 
         federov_search_space = clean_search_space_data["search_space"]
         factors              = clean_search_space_data["factors"]
         inverse_factors      = clean_search_space_data["inverse_factors"]
+        interactions         = clean_search_space_data["interactions"]
         fixed_factors        = clean_search_space_data["fixed_factors"]
 
         full_model     = "".join([" ~ ",
@@ -435,7 +468,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         if len(interactions):
             full_model += " + " + " + ".join(interactions)
 
-        info("Full Model: " + str(full_model))
+        info("Updated Full Model: " + str(full_model))
 
         design_formula = full_model
         lm_formula     = response[0] + full_model
