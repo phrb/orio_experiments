@@ -14,7 +14,6 @@
   {
     arg algorithm = 'Doptanova';
     arg total_runs = 75;
-    arg doptanova_interactions = "[\"T2_I:T1_I\", \"T2_J:T1_J\", \"T2_K:T1_K\", \"RT_I:RT_J\", \"RT_I:RT_K\", \"RT_J:RT_K\", \"U_I:U_J\", \"U_I:U_K\", \"U_J:U_K\"]";
   }
 
   def performance_params

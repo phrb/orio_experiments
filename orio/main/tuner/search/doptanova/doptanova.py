@@ -28,7 +28,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
 
-        self.name = "DLMT_test"
+        self.name = "DLMT_30"
 
         self.parameter_ranges = {}
 
@@ -58,7 +58,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
                            inverse_factors, interactions, fixed_factors):
         data = {}
         r_snippet = """library(AlgDesign)
-        library(dplyr)
 
         data <- %s
         formula <- %s
@@ -176,7 +175,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return output
 
     def opt_federov(self, design_formula, trials, data,
-                    max_iterations = 100000, nullify = 2):
+                    max_iterations = 1000000, nullify = 2):
         info("Starting \"optFederov\" run")
         info("Using Search Space:")
         info(str(self.utils.str(data)))
@@ -429,7 +428,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def dopt_anova_step(self, response, factors, inverse_factors, interactions,
                         fixed_factors, budget, trials, step_number):
-        federov_samples = 80 * trials
+        federov_samples = 300 * trials
         prediction_samples = 3 * federov_samples
 
         federov_search_space = self.generate_valid_sample(federov_samples, fixed_factors)
@@ -524,7 +523,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         step_inverse_factors = initial_inverse_factors
         step_interactions = initial_interactions
 
-        iterations = 3
+        iterations = 1
 
         fixed_factors = {}
 
@@ -537,7 +536,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         for i in range(iterations):
             info("Step {0}".format(i))
 
-            trials = int((len(step_factors) + len(step_inverse_factors) + len(step_interactions)) + 5)
+            trials = int((len(step_factors) + len(step_inverse_factors) + len(step_interactions)) + 4)
 
             step_data = self.dopt_anova_step(response,
                                              step_factors,
