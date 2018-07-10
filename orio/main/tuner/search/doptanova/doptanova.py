@@ -25,13 +25,10 @@ class Doptanova(orio.main.tuner.search.search.Search):
         self.algdesign = importr("AlgDesign")
         self.car       = importr("car")
 
-        numpy.random.seed(22010)
-        self.base.set_seed(22331)
-
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
 
-        self.name = "DLMT"
+        self.name = "DLMT_test"
 
         self.parameter_ranges = {}
 
@@ -125,9 +122,9 @@ class Doptanova(orio.main.tuner.search.search.Search):
                         search_space_dataframe[n].append(candidate_value)
 
                     if len(search_space) % int(sample_size / 5) == 0:
-                        info("Valid coordinates: " + str(len(search_space)))
+                        info("Valid coordinates: " + str(len(search_space)) + "/" + str(sample_size))
 
-                if evaluated % 10000 == 0:
+                if evaluated % 1000000 == 0:
                     info("Tested coordinates: " + str(evaluated))
 
         info("Valid/Tested configurations: " + str(len(search_space)) + "/" +
@@ -259,20 +256,20 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(self.utils.str(pruned_data)))
         return pruned_data
 
-    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 7, prf_threshold = 0.01):
-        clean_keys = [k.replace("I(1/(1 + ", "").strip(") ") for k in ordered_keys]
-        new_ordered_keys = []
+    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 4, prf_threshold = 0.1):
+        info("Getting fixed variables")
+        info("Prf Values: ")
+        info(str(prf_values))
+        info("Ordered Keys: ")
+        info(str(ordered_keys))
 
-        for k in clean_keys:
-            interaction = k.split(":")
-            for v in interaction:
-                new_ordered_keys.append(v)
-
-        ordered_keys = new_ordered_keys
         unique_variables = []
         for k in ordered_keys:
-            if k not in unique_variables and prf_values[str(k)] < prf_threshold:
-                unique_variables.append(k)
+            clean_key = k.replace("I(1/(1 + ", "").strip(") ")
+
+            if (clean_key not in unique_variables) and (prf_values[k] < prf_threshold):
+                unique_variables.append(clean_key)
+
             if len(unique_variables) >= threshold:
                 break
 
@@ -413,19 +410,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def dopt_anova_step(self, response, factors, inverse_factors, interactions,
                         fixed_factors, budget, trials, step_number):
-        full_model     = "".join([" ~ ",
-                                  " + ".join(factors)])
-
-        if len(inverse_factors) > 0:
-            full_model += " + " + " + ".join(["I(1 / (1 + {0}))".format(f) for f in inverse_factors])
-
-        if len(interactions):
-            full_model += " + " + " + ".join(interactions)
-
-        info("Full Model: " + str(full_model))
-
-        federov_samples = 100 * trials
-        prediction_samples = federov_samples
+        federov_samples = 80 * trials
+        prediction_samples = 3 * federov_samples
 
         federov_search_space = self.generate_valid_sample(federov_samples, fixed_factors)
         federov_search_space = federov_search_space.rx(StrVector(factors))
@@ -439,6 +425,17 @@ class Doptanova(orio.main.tuner.search.search.Search):
         factors              = clean_search_space_data["factors"]
         inverse_factors      = clean_search_space_data["inverse_factors"]
         fixed_factors        = clean_search_space_data["fixed_factors"]
+
+        full_model     = "".join([" ~ ",
+                                  " + ".join(factors)])
+
+        if len(inverse_factors) > 0:
+            full_model += " + " + " + ".join(["I(1 / (1 + {0}))".format(f) for f in inverse_factors])
+
+        if len(interactions):
+            full_model += " + " + " + ".join(interactions)
+
+        info("Full Model: " + str(full_model))
 
         design_formula = full_model
         lm_formula     = response[0] + full_model
@@ -494,7 +491,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         step_inverse_factors = initial_inverse_factors
         step_interactions = initial_interactions
 
-        iterations = 4
+        iterations = 3
 
         fixed_factors = {}
 
@@ -507,7 +504,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         for i in range(iterations):
             info("Step {0}".format(i))
 
-            trials = int(1.5 * (len(step_factors) + len(step_inverse_factors) + len(step_interactions)))
+            trials = int((len(step_factors) + len(step_inverse_factors) + len(step_interactions)) + 5)
 
             step_data = self.dopt_anova_step(response,
                                              step_factors,
@@ -576,8 +573,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info('\n----- begin DLMT -----')
 
         initial_factors = self.params["axis_names"]
-        #initial_inverse_factors = [f for f in initial_factors if self.parameter_ranges[f][1] > 2]
-        initial_inverse_factors = []
+        initial_inverse_factors = [f for f in initial_factors if self.parameter_ranges[f][1] > 2]
+        #initial_inverse_factors = []
         initial_interactions = self.interactions
 
         info("Initial Factors: " + str(initial_factors))
