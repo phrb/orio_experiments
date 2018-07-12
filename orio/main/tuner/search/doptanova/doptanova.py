@@ -25,6 +25,9 @@ class Doptanova(orio.main.tuner.search.search.Search):
         self.algdesign = importr("AlgDesign")
         self.car       = importr("car")
 
+        numpy.random.seed(11221)
+        self.base.set_seed(11221)
+
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
 
@@ -222,14 +225,40 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         return regression, prf_values
 
+    def predict_best_values(self, regression, size, fixed_variables,
+                            ordered_prf_keys, prf_values,
+                            heteroscedasticity_threshold = 0.05):
+
+        unique_variables = self.get_ordered_fixed_terms(ordered_prf_keys, prf_values)
+        info("Predicting Best Values for: " + str(unique_variables))
+
+        if unique_variables == []:
+            model = ". ~ ."
+        else:
+            model = ". ~ " + " + ".join(unique_variables)
+
+        info("Using Model: " + str(model))
+        regression = self.stats.update(regression, Formula(model))
+
+        summary_regression = self.stats.summary_aov(regression)
+        info("Prediction Regression Step:" + str(summary_regression))
+
+        #TODO only look at the target variables
+        data = self.generate_valid_sample(size, fixed_variables)
+
+        predicted = self.stats.predict(regression, data)
+        predicted_min = min(predicted)
+
+        pruned_data = data.rx(predicted.ro == self.base.min(predicted), True)
+
+        return pruned_data.rx(1, True)
+
+
     def predict_best(self, regression, size, fixed_variables):
         info("Predicting Best")
-        data = self.generate_valid_sample(size, fixed_variables)
-        predicted = self.stats.predict(regression, data)
-
+        data          = self.generate_valid_sample(size, fixed_variables)
+        predicted     = self.stats.predict(regression, data)
         predicted_min = min(predicted)
-        identical_predictions = 0
-
         return data.rx(predicted.ro == self.base.min(predicted), True)
 
     def get_design_best(self, design, response, fixed_factors):
@@ -287,6 +316,28 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
             if (clean_key not in unique_variables) and (prf_values[k] < prf_threshold):
                 unique_variables.append(clean_key)
+
+            if len(unique_variables) >= threshold:
+                break
+
+        if unique_variables == []:
+            info("No variables within acceptable threshold")
+        else:
+            info("Variables within threshold: " + str(unique_variables))
+
+        return unique_variables
+
+    def get_ordered_fixed_terms(self, ordered_keys, prf_values, threshold = 4, prf_threshold = 0.1):
+        info("Getting fixed Model Terms")
+        info("Prf Values: ")
+        info(str(prf_values))
+        info("Ordered Keys: ")
+        info(str(ordered_keys))
+
+        unique_variables = []
+        for k in ordered_keys:
+            if prf_values[k] < prf_threshold:
+                unique_variables.append(k)
 
             if len(unique_variables) >= threshold:
                 break
@@ -428,7 +479,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def dopt_anova_step(self, response, factors, inverse_factors, interactions,
                         fixed_factors, budget, trials, step_number):
-        federov_samples = 300 * trials
+        federov_samples = 50 * trials
         prediction_samples = 3 * federov_samples
 
         federov_search_space = self.generate_valid_sample(federov_samples, fixed_factors)
@@ -490,9 +541,12 @@ class Doptanova(orio.main.tuner.search.search.Search):
         used_experiments       = len(design[0])
         regression, prf_values = self.anova(design, lm_formula)
         ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
-        predicted_best         = self.predict_best(regression, prediction_samples, fixed_variables)
-        design_best            = self.get_design_best(design, response, fixed_variables)
-        fixed_variables        = self.get_fixed_variables(predicted_best, ordered_prf_keys,
+
+        # predicted_best = self.predict_best(regression, prediction_samples, fixed_variables)
+        predicted_best  = self.predict_best_values(regression, prediction_samples, fixed_variables, ordered_prf_keys, prf_values)
+
+        design_best     = self.get_design_best(design, response, fixed_variables)
+        fixed_variables = self.get_fixed_variables(predicted_best, ordered_prf_keys,
                                                           prf_values, fixed_factors)
 
         pruned_factors, pruned_inverse_factors, pruned_interactions = self.prune_model(factors, inverse_factors, interactions,
@@ -523,7 +577,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         step_inverse_factors = initial_inverse_factors
         step_interactions = initial_interactions
 
-        iterations = 1
+        iterations = 2
 
         fixed_factors = {}
 
