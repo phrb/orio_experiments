@@ -1,7 +1,7 @@
 /*@ begin PerfTuning (
   def build
   {
-  arg build_command = 'gcc -O3 -fopenmp -DDYNAMIC';
+  arg build_command = 'gcc -O2 -fopenmp -DDYNAMIC';
   arg libs = '-lm';
   }
 
@@ -13,7 +13,7 @@
   def search
   {
     arg algorithm = 'Randomsearch';
-    arg total_runs = 30;
+    arg total_runs = 100;
   }
 
   def performance_params
@@ -56,6 +56,11 @@
   {
   arg decl_file = 'decl.h';
   arg init_file = 'init.c';
+  }
+
+  def validation
+  {
+  arg validation_file = 'validation.c';
   }
 ) @*/
 

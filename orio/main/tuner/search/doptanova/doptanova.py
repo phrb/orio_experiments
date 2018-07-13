@@ -31,7 +31,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
 
-        self.name = "DLMT_update_model_O2"
+        self.name = "DLMT"
 
         self.parameter_ranges = {}
 
@@ -303,7 +303,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(self.utils.str(pruned_data)))
         return pruned_data
 
-    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 3, prf_threshold = 0.1):
+    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 3, prf_threshold = 0.05):
         info("Getting fixed variables")
         info("Prf Values: ")
         info(str(prf_values))
@@ -312,7 +312,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         unique_variables = []
         for k in ordered_keys:
-            clean_key = k.replace("I(1/(1 + ", "").strip(") ")
+            clean_key = k.replace("I(", "").strip("^2) ")
 
             if (clean_key not in unique_variables) and (prf_values[k] < prf_threshold):
                 unique_variables.append(clean_key)
@@ -327,7 +327,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         return unique_variables
 
-    def get_ordered_fixed_terms(self, ordered_keys, prf_values, threshold = 4, prf_threshold = 0.1):
+    def get_ordered_fixed_terms(self, ordered_keys, prf_values, threshold = 3, prf_threshold = 0.05):
         info("Getting fixed Model Terms")
         info("Prf Values: ")
         info(str(prf_values))
@@ -489,7 +489,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
                                   " + ".join(factors)])
 
         if len(inverse_factors) > 0:
-            full_model += " + " + " + ".join(["I(1 / (1 + {0}))".format(f) for f in inverse_factors])
+            #full_model += " + " + " + ".join(["I(1 / (1 + {0}))".format(f) for f in inverse_factors])
+            full_model += " + " + " + ".join(["I({0} ^ 2)".format(f) for f in inverse_factors])
 
         if len(interactions):
             full_model += " + " + " + ".join(interactions)
@@ -513,7 +514,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
                                   " + ".join(factors)])
 
         if len(inverse_factors) > 0:
-            full_model += " + " + " + ".join(["I(1 / (1 + {0}))".format(f) for f in inverse_factors])
+            #full_model += " + " + " + ".join(["I(1 / (1 + {0}))".format(f) for f in inverse_factors])
+            full_model += " + " + " + ".join(["I({0} ^ 2)".format(f) for f in inverse_factors])
 
         if len(interactions):
             full_model += " + " + " + ".join(interactions)
@@ -542,8 +544,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
         regression, prf_values = self.anova(design, lm_formula)
         ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
 
-        # predicted_best = self.predict_best(regression, prediction_samples, fixed_variables)
-        predicted_best  = self.predict_best_values(regression, prediction_samples, fixed_variables, ordered_prf_keys, prf_values)
+        predicted_best = self.predict_best(regression, prediction_samples, fixed_variables)
+        # predicted_best  = self.predict_best_values(regression, prediction_samples, fixed_variables, ordered_prf_keys, prf_values)
 
         design_best     = self.get_design_best(design, response, fixed_variables)
         fixed_variables = self.get_fixed_variables(predicted_best, ordered_prf_keys,
@@ -590,7 +592,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         for i in range(iterations):
             info("Step {0}".format(i))
 
-            trials = int(1.4 * (len(step_factors) + len(step_inverse_factors) + len(step_interactions)))
+            trials = int(1.5 * (len(step_factors) + len(step_inverse_factors) + len(step_interactions)))
 
             step_data = self.dopt_anova_step(response,
                                              step_factors,
