@@ -25,13 +25,13 @@ class Doptanova(orio.main.tuner.search.search.Search):
         self.algdesign = importr("AlgDesign")
         self.car       = importr("car")
 
-        numpy.random.seed(11221)
-        self.base.set_seed(11221)
+        # numpy.random.seed(11221)
+        # self.base.set_seed(11221)
 
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
 
-        self.name = "DLMT_30"
+        self.name = "DLMT_update_model_O2"
 
         self.parameter_ranges = {}
 
@@ -303,7 +303,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(self.utils.str(pruned_data)))
         return pruned_data
 
-    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 4, prf_threshold = 0.1):
+    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 3, prf_threshold = 0.1):
         info("Getting fixed variables")
         info("Prf Values: ")
         info(str(prf_values))
@@ -479,7 +479,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def dopt_anova_step(self, response, factors, inverse_factors, interactions,
                         fixed_factors, budget, trials, step_number):
-        federov_samples = 50 * trials
+        federov_samples = 150 * trials
         prediction_samples = 3 * federov_samples
 
         federov_search_space = self.generate_valid_sample(federov_samples, fixed_factors)
@@ -577,7 +577,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         step_inverse_factors = initial_inverse_factors
         step_interactions = initial_interactions
 
-        iterations = 2
+        iterations = 4
 
         fixed_factors = {}
 
@@ -590,7 +590,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         for i in range(iterations):
             info("Step {0}".format(i))
 
-            trials = int((len(step_factors) + len(step_inverse_factors) + len(step_interactions)) + 4)
+            trials = int(1.4 * (len(step_factors) + len(step_inverse_factors) + len(step_interactions)))
 
             step_data = self.dopt_anova_step(response,
                                              step_factors,
@@ -609,7 +609,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
             fixed_factors         = step_data["fixed_factors"]
 
             starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
-            info("Starting Point (-O3):")
+            info("Baseline Point:")
             info(str(starting_point))
 
             predicted_best = [int(v[0]) for v in step_data["predicted_best"].rx(1, True)]
