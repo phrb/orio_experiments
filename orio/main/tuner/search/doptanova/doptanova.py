@@ -579,7 +579,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         step_inverse_factors = initial_inverse_factors
         step_interactions = initial_interactions
 
-        iterations = 4
+        iterations = 5
 
         fixed_factors = {}
 
