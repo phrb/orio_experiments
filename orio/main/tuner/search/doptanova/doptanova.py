@@ -178,7 +178,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return output
 
     def opt_federov(self, design_formula, trials, data,
-                    max_iterations = 1000000, nullify = 2):
+                    max_iterations = 1000000, nullify = 0):
         info("Starting \"optFederov\" run")
         info("Using Search Space:")
         info(str(self.utils.str(data)))
@@ -189,6 +189,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
                                            data         = data,
                                            nTrials      = trials,
                                            nullify      = nullify,
+                                           nRepeats     = 10,
                                            maxIteration = max_iterations)
 
         return output
@@ -453,7 +454,10 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Initial Factors: " + str(initial_factors))
 
         for line in range(1, len(design[0]) + 1):
-            design_line = [int(v[0]) for v in design.rx(line, True)]
+            if type(design.rx(line, True)[0]) is int:
+                design_line = [v for v in design.rx(line, True)]
+            else:
+                design_line = [int(v[0]) for v in design.rx(line, True)]
 
             candidate = [0] * len(initial_factors)
 
@@ -479,7 +483,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
     def dopt_anova_step(self, response, factors, inverse_factors, interactions,
                         fixed_factors, budget, trials, step_number):
-        federov_samples = 150 * trials
+        federov_samples = 300 * trials
         prediction_samples = 3 * federov_samples
 
         federov_search_space = self.generate_valid_sample(federov_samples, fixed_factors)
@@ -579,17 +583,21 @@ class Doptanova(orio.main.tuner.search.search.Search):
         step_inverse_factors = initial_inverse_factors
         step_interactions = initial_interactions
 
-        iterations = 5
+        iterations = 12
 
         fixed_factors = {}
 
-        initial_budget = 180
+        initial_budget = 1000
         budget = initial_budget
         used_experiments = 0
         best_value = float("inf")
         best_point = []
 
         for i in range(iterations):
+            if used_experiments >= initial_budget:
+                info("Stopping: Used budget")
+                break
+
             info("Step {0}".format(i))
 
             trials = int(1.5 * (len(step_factors) + len(step_inverse_factors) + len(step_interactions)))
