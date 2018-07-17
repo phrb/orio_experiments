@@ -1,4 +1,4 @@
-# 
+#
 # A PLY-based parser for the TSpec (Tuning Specifier)
 #
 import re
@@ -20,7 +20,7 @@ keywords = [
     'msimplex_contraction_coef', 'msimplex_shrinkage_coef', 'msimplex_size', 'msimplex_x0',
     'simplex_reflection_coef', 'simplex_expansion_coef',
     'simplex_contraction_coef', 'simplex_shrinkage_coef', 'simplex_local_distance', 'simplex_x0',
-    'cudacfg_instmix', 'doptanova_interactions',
+    'cudacfg_instmix', 'dlmt_interactions', 'dlmt_quadratic', 'dlmt_linear', 'dlmt_inverse', 'dlmt_cubic',
     'validation', 'validation_file', 'expected_output',
     'macro', 'performance_test_code', 'skeleton_test_code', 'skeleton_code_file',
     'other', 'device_spec_file',
@@ -66,7 +66,7 @@ def t_EQ(t):
 def t_pyexpr_EXPR(t):
     r'[^;]+'
     t.lexer.lineno += t.value.count('\n')
-    t.lexer.begin('INITIAL')           
+    t.lexer.begin('INITIAL')
     #print('lexed expr:%s' %t.value)
     return t
 
@@ -210,13 +210,13 @@ def p_arg_type(p):
                 | MSIMPLEX_CONTRACTION_COEF
                 | MSIMPLEX_SHRINKAGE_COEF
                 | MSIMPLEX_SIZE
-                | MSIMPLEX_X0   
+                | MSIMPLEX_X0
                 | SIMPLEX_EXPANSION_COEF
                 | SIMPLEX_REFLECTION_COEF
                 | SIMPLEX_CONTRACTION_COEF
                 | SIMPLEX_SHRINKAGE_COEF
-                | SIMPLEX_LOCAL_DISTANCE    
-                | DOPTANOVA_INTERACTIONS
+                | SIMPLEX_LOCAL_DISTANCE
+                | DLMT_INTERACTIONS
                 | SIMPLEX_X0
                 | CUDACFG_INSTMIX
                 | VALIDATION_FILE
@@ -308,7 +308,7 @@ def p_brackets(p):
         p[0] = False
     else:
         p[0] = True
-    
+
 #----------------------------------------------------------------------------------------------------------------------
 # optional array size expressions
 def p_arrsizes(p):
@@ -354,7 +354,7 @@ class TSpecParser:
     def __init__(self):
         '''To instantiate a TSpec parser'''
         pass
-        
+
     #----------------------------------------------------------------------------
 
     def __parse(self, code, line_no, start_symbol):
@@ -371,7 +371,7 @@ class TSpecParser:
 
         # create the parser
         p = getParser(start_symbol)
-        
+
         # parse the tuning specifications
         stmt_seq = p.parse(code)
 
