@@ -155,12 +155,12 @@ class Search:
             best_perf_cost=0
             best_perf_params=Globals().config
 
-        results              = self.result_database["results"]
-        result               = best_perf_params
-        result["technique"]  = self.name
-        result["cost_mean"]  = best_perf_cost
-        result["speedup_O3"] = speedup
-        result["points"]     = runs
+        results             = self.result_database["results"]
+        result              = best_perf_params
+        result["technique"] = self.name
+        result["cost_mean"] = best_perf_cost
+        result["speedup"]   = speedup
+        result["points"]    = runs
 
         results.insert(result)
 
@@ -351,10 +351,9 @@ class Search:
         perf_costs.update(new_perf_costs.items())
         # also take the compile time
 
-        #info(str(perf_costs.values()))
-
         experiments = self.search_database['experiments']
         measurement = perf_params
+        measurement["technique"] = self.name
 
         if perf_costs.values() != []:
             runs = perf_costs.values()[0][0]
