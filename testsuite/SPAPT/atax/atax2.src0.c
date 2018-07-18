@@ -12,7 +12,7 @@
 
   def search
   {
-    arg algorithm = 'Doptanova';
+    arg algorithm = 'Dlmt';
     arg total_runs = 75;
   }
 

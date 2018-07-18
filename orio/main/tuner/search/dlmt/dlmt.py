@@ -15,8 +15,12 @@ import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects import DataFrame, IntVector, FloatVector, StrVector, BoolVector, Formula, NULL, r
 
-class Doptanova(orio.main.tuner.search.search.Search):
+class DLMT(orio.main.tuner.search.search.Search):
     __INTERACTIONS = "interactions"
+    __QUADRATIC    = "quadratic"
+    __LINEAR       = "linear"
+    __INVERSE      = "inverse"
+    __CUBIC        = "cubic"
 
     def __init__(self, params):
         self.base      = importr("base")
@@ -47,7 +51,12 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         info("Parameter Range Values: " + str(self.parameter_values))
 
+        self.model = {}
         self.interactions = []
+        self.quadratic    = []
+        self.linear       = []
+        self.inverse      = []
+        self.cubic        = []
 
         self.__readAlgoArgs()
 
@@ -57,8 +66,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
                 + 'total number of search runs to be defined') %
                 self.__class__.__name__)
 
-    def clean_search_space(self, federov_search_space, full_model, factors,
-                           inverse_factors, interactions, fixed_factors):
+    def clean_search_space(self, federov_search_space, full_model):
         data = {}
         r_snippet = """library(AlgDesign)
 
@@ -68,49 +76,61 @@ class Doptanova(orio.main.tuner.search.search.Search):
         model_matrix <- as.data.frame(model.matrix(formula, data))
         clean_data <- Filter(function(x)(length(unique(x)) > 1), data)
 
-        removed_factors <- names(Filter(function(x)(length(unique(x)) == 1), data))
-        removed_inverse_factors <- names(Filter(function(x)(length(unique(x)) == 2), data))
-        removed_interactions <- names(Filter(function(x)(length(unique(x)) == 1), model_matrix))
+        one_level_factors <- names(Filter(function(x)(length(unique(x)) < 2), data))
+        two_level_factors <- names(Filter(function(x)(length(unique(x)) < 3), data))
+        three_level_factors <- names(Filter(function(x)(length(unique(x)) < 4), data))
 
-        list("clean_data" = clean_data, "removed_factors" = removed_factors, "removed_inverse_factors" = removed_inverse_factors, "removed_interactions" = removed_interactions)
+        one_level_terms <- names(Filter(function(x)(length(unique(x)) < 2), model_matrix))
+        two_level_terms <- names(Filter(function(x)(length(unique(x)) < 3), model_matrix))
+        three_level_terms <- names(Filter(function(x)(length(unique(x)) < 4), model_matrix))
+
+        list("clean_data" = clean_data,
+             "one_level_factors" = one_level_factors,
+             "two_level_factors" = two_level_factors,
+             "three_level_factors" = three_level_factors,
+             "one_level_terms" = one_level_terms,
+             "two_level_terms" = two_level_terms,
+             "three_level_terns" = three_level_terms)
         """ % (federov_search_space.r_repr(), Formula(full_model).r_repr())
 
         output = robjects.r(r_snippet)
 
-        removed_factors         = output[1]
-        removed_inverse_factors = output[2]
-        removed_interactions    = output[3]
+        one_level_factors   = output[1]
+        two_level_factors   = output[2]
+        three_level_factors = output[3]
+
+        one_level_terms   = output[4]
+        two_level_terms   = output[5]
+        three_level_terms = output[6]
 
         info("Clean Info:")
-        info("Removed Factors: " + str(removed_factors))
-        info("Removed Inverse Factors: " + str(removed_inverse_factors))
-        info("Removed Interactions: " + str(removed_interactions))
 
-        if removed_factors:
-            factors = [f for f in factors if f not in removed_factors]
+        info("One-Level Factors: " + str(one_level_factors))
+        info("Two-Level Factors: " + str(two_level_factors))
+        info("Three-Level Factors: " + str(three_level_factors))
 
-        if removed_inverse_factors or removed_factors:
-            inverse_factors = [f for f in inverse_factors if f not in removed_inverse_factors + removed_factors]
+        info("One-Level Terms: " + str(one_level_terms))
+        info("Two-Level Terms: " + str(two_level_terms))
+        info("Three-Level Terms: " + str(three_level_terms))
 
-        if removed_interactions:
-            interactions = [i for i in interactions if i not in removed_interactions]
+        if one_level_factors:
+            self.model["linear"] = [f for f in self.model["linear"] if f not in one_level_factors]
+            self.model["inverse"] = [f for f in self.model["inverse"] if f not in one_level_factors]
+        if one_level_terms:
+            self.model["interactions"] = [f for f in self.model["interactions"] if f not in one_level_terms]
+        if two_level_factors + two_level_terms:
+            self.model["quadratic"] = [f for f in self.model["quadratic"] if f not in two_level_factors + [t.strip("I()^/+123 ") for t in two_level_terms]]
+        if three_level_factors + three_level_terms:
+            self.model["cubic"] = [f for f in self.model["cubic"] if f not in three_level_factors + [t.strip("I()^/+123 ") for t in three_level_terms]]
 
-        for f in removed_factors:
-            fixed_factors[f] = int(federov_search_space.rx(1, f)[0])
+        for f in one_level_factors:
+            self.model["fixed_factors"][f] = int(federov_search_space.rx(1, f)[0])
 
-        info("New Factors: " + str(factors))
-        info("New Inverse Factors: " + str(inverse_factors))
-        info("New Interactions: " + str(interactions))
-        info("New Fixed Factors: " + str(fixed_factors))
+        info("Updated Model Info: " + str(self.model))
 
-        data["search_space"]    = output[0]
-        data["factors"]         = factors
-        data["inverse_factors"] = inverse_factors
-        data["interactions"]    = interactions
-        data["fixed_factors"]   = fixed_factors
-        return data
+        return output[0]
 
-    def generate_valid_sample(self, sample_size, fixed_variables):
+    def generate_valid_sample(self, sample_size):
         search_space_dataframe = {}
 
         for n in self.axis_names:
@@ -129,7 +149,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
             if candidate_point_key not in search_space:
                 perf_params = self.coordToPerfParams(candidate_point)
 
-                for k, v in fixed_variables.items():
+                for k, v in self.model["fixed_factors"].items():
                     perf_params[k] = self.parameter_values[k][int(v)]
 
                 is_valid = eval(self.constraint, copy.copy(perf_params),
@@ -255,21 +275,22 @@ class Doptanova(orio.main.tuner.search.search.Search):
         return pruned_data.rx(1, True)
 
 
-    def predict_best(self, regression, size, fixed_variables):
+    def predict_best(self, regression, size):
         info("Predicting Best")
-        data          = self.generate_valid_sample(size, fixed_variables)
+        data          = self.generate_valid_sample(size)
         predicted     = self.stats.predict(regression, data)
         predicted_min = min(predicted)
         return data.rx(predicted.ro == self.base.min(predicted), True)
 
-    def get_design_best(self, design, response, fixed_factors):
+    def get_design_best(self, design):
         info("Getting Best from Design")
-        info("Response: " + str(response))
-        info("Design Names: " + str(self.base.names(design)))
-        info("Design Response: " + str(design.rx(str(response[0]))))
+        info("Current Model: " + str(self.model))
 
-        best_line       = design.rx(design.rx2(str(response[0])).ro == self.base.min(design.rx(str(response[0]))), True)
-        design_names    = [str(n) for n in self.base.names(design) if n != response[0]]
+        info("Design Names: " + str(self.base.names(design)))
+        info("Design Response: " + str(design.rx(str(self.model["response"]))))
+
+        best_line       = design.rx(design.rx2(str(self.model["response"])).ro == self.base.min(design.rx(str(self.model["response"]))), True)
+        design_names    = [str(n) for n in self.base.names(design) if n != self.model["response"]]
         initial_factors = self.params["axis_names"]
 
         info("Current Design Names: " + str(design_names))
@@ -278,7 +299,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         design_line = [int(v[0]) for v in best_line.rx(1, True)]
         candidate   = [0] * len(initial_factors)
 
-        for k, v in fixed_factors.items():
+        for k, v in self.model["fixed_factors"].items():
             candidate[initial_factors.index(k)] = int(v)
 
         for i in range(len(design_names)):
@@ -286,11 +307,11 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         return candidate
 
-    def prune_data(self, data, predicted_best, fixed_variables):
+    def prune_data(self, data, predicted_best):
         info("Pruning Data")
         conditions = []
 
-        for k, v in fixed_variables.items():
+        for k, v in self.model["fixed_factors"].items():
             info("Predicted best column " + str(k) + ": " + str(predicted_best.rx2(str(k))))
             if conditions == []:
                 conditions = data.rx2(str(k)).ro == predicted_best.rx2(str(k))
@@ -313,7 +334,8 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         unique_variables = []
         for k in ordered_keys:
-            clean_key = k.replace("I(", "").strip("^2) ")
+            # TODO Deal with interactions
+            clean_key = k.strip("I()^/+123 ")
 
             if (clean_key not in unique_variables) and (prf_values[k] < prf_threshold):
                 unique_variables.append(clean_key)
@@ -354,13 +376,12 @@ class Doptanova(orio.main.tuner.search.search.Search):
                             prf_values, fixed_factors):
         info("Getting fixed variables")
         unique_variables = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
-        fixed_variables  = fixed_factors
-        info("Fixed Variables: " + str(fixed_variables))
         info("Unique Variables: " + str(unique_variables))
-        for v in unique_variables:
-            fixed_variables[v] = predicted_best.rx2(1, str(v))[0]
 
-        return fixed_variables
+        info("Current Model: " + str(self.model))
+
+        for v in unique_variables:
+            self.model["fixed_factors"][v] = predicted_best.rx2(1, str(v))[0]
 
     def prune_model(self, factors, inverse_factors, interactions,
                     ordered_prf_keys, prf_values):
@@ -443,7 +464,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info("Updated Constraint: " + str(constraint_text))
         return constraint
 
-    def measure_design(self, design, response, fixed_factors):
+    def measure_design(self, design):
         info("Measuring design of size " + str(len(design[0])))
 
         design_names    = [str(n) for n in self.base.names(design)]
@@ -451,7 +472,6 @@ class Doptanova(orio.main.tuner.search.search.Search):
         measurements    = []
 
         info("Current Design Names: " + str(design_names))
-        info("Initial Factors: " + str(initial_factors))
 
         for line in range(1, len(design[0]) + 1):
             if type(design.rx(line, True)[0]) is int:
@@ -461,7 +481,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
             candidate = [0] * len(initial_factors)
 
-            for k, v in fixed_factors.items():
+            for k, v in self.model["fixed_factors"].items():
                 candidate[initial_factors.index(k)] = int(v)
 
             for i in range(len(design_names)):
@@ -473,68 +493,63 @@ class Doptanova(orio.main.tuner.search.search.Search):
             else:
                 measurements.append(float('inf'))
 
-        design = self.base.cbind(design, DataFrame({response[0]: FloatVector(measurements)}))
-        design = design.rx(self.base.is_finite(design.rx2(response[0])), True)
+        design = self.base.cbind(design, DataFrame({self.model["response"]: FloatVector(measurements)}))
+        design = design.rx(self.base.is_finite(design.rx2(self.model["response"])), True)
 
         info("Complete design, with measurements:")
         info(str(design))
 
         return design
 
-    def dopt_anova_step(self, response, factors, inverse_factors, interactions,
-                        fixed_factors, budget, trials, step_number):
+    def dopt_anova_step(self, budget, trials, step_number):
         federov_samples = 300 * trials
         prediction_samples = 3 * federov_samples
-
-        federov_search_space = self.generate_valid_sample(federov_samples, fixed_factors)
+        federov_search_space = self.generate_valid_sample(federov_samples)
         federov_search_space = federov_search_space.rx(StrVector(factors))
 
-        full_model     = "".join([" ~ ",
-                                  " + ".join(factors)])
+        full_model = "~ "
 
-        if len(inverse_factors) > 0:
-            #full_model += " + " + " + ".join(["I(1 / (1 + {0}))".format(f) for f in inverse_factors])
-            full_model += " + " + " + ".join(["I({0} ^ 2)".format(f) for f in inverse_factors])
+        if len(self.model["interactions"]) > 0:
+            full_model += " + ".join(self.model["interactions"]) + " + "
+        if len(self.model["quadratic"]) > 0:
+            full_model += " + ".join(["I({0} ^ 2)".format(f) for f in self.model["quadratic"]]) + " + "
+        if len(self.model["linear"]) > 0:
+            full_model += " + ".join(self.model["linear"]) + " + "
+        if len(self.model["inverse"]) > 0:
+            full_model += " + ".join(["I(1 / (1 + {0}))".format(f) for f in self.model["inverse"]]) + " + "
+        if len(self.model["cubic"]) > 0:
+            full_model += " + ".join(["I({0} ^ 3)".format(f) for f in self.model["cubic"]])
 
-        if len(interactions):
-            full_model += " + " + " + ".join(interactions)
+        full_model = full_model.strip(" + ")
 
         info("Full Model: " + str(full_model))
 
-        clean_search_space_data = self.clean_search_space(federov_search_space,
-                                                          full_model,
-                                                          factors,
-                                                          inverse_factors,
-                                                          interactions,
-                                                          fixed_factors)
+        federov_search_space = self.clean_search_space(federov_search_space, full_model)
 
-        federov_search_space = clean_search_space_data["search_space"]
-        factors              = clean_search_space_data["factors"]
-        inverse_factors      = clean_search_space_data["inverse_factors"]
-        interactions         = clean_search_space_data["interactions"]
-        fixed_factors        = clean_search_space_data["fixed_factors"]
+        full_model = "~ "
 
-        full_model     = "".join([" ~ ",
-                                  " + ".join(factors)])
+        if len(self.model["interactions"]) > 0:
+            full_model += " + ".join(self.model["interactions"]) + " + "
+        if len(self.model["quadratic"]) > 0:
+            full_model += " + ".join(["I({0} ^ 2)".format(f) for f in self.model["quadratic"]]) + " + "
+        if len(self.model["linear"]) > 0:
+            full_model += " + ".join(self.model["linear"]) + " + "
+        if len(self.model["inverse"]) > 0:
+            full_model += " + ".join(["I(1 / (1 + {0}))".format(f) for f in self.model["inverse"]]) + " + "
+        if len(self.model["cubic"]) > 0:
+            full_model += " + ".join(["I({0} ^ 3)".format(f) for f in self.model["cubic"]])
 
-        if len(inverse_factors) > 0:
-            #full_model += " + " + " + ".join(["I(1 / (1 + {0}))".format(f) for f in inverse_factors])
-            full_model += " + " + " + ".join(["I({0} ^ 2)".format(f) for f in inverse_factors])
-
-        if len(interactions):
-            full_model += " + " + " + ".join(interactions)
+        full_model = full_model.strip(" + ")
 
         info("Updated Full Model: " + str(full_model))
 
         design_formula = full_model
-        lm_formula     = response[0] + full_model
+        lm_formula     = self.model["response"] + " " + full_model
 
-        fixed_variables = fixed_factors
-        info("Fixed Factors: " + str(fixed_factors))
+        info("Current Model: " + str(self.model))
         info("Computing D-Optimal Design")
 
-        info("Computing D-Optimal Design with " + str(trials) +
-             " experiments")
+        info("Computing D-Optimal Design with " + str(trials) + " experiments")
         info("Design Formula: " + str(design_formula))
 
         output = self.opt_federov(design_formula, trials, federov_search_space)
@@ -543,55 +558,38 @@ class Doptanova(orio.main.tuner.search.search.Search):
         info(str(design))
         info("D-Efficiency Approximation: " + str(output.rx("Dea")[0]))
 
-        design                 = self.measure_design(design, response, fixed_factors)
+        design                 = self.measure_design(design)
         used_experiments       = len(design[0])
         regression, prf_values = self.anova(design, lm_formula)
         ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
 
-        predicted_best = self.predict_best(regression, prediction_samples, fixed_variables)
-        # predicted_best  = self.predict_best_values(regression, prediction_samples, fixed_variables, ordered_prf_keys, prf_values)
+        predicted_best = self.predict_best(regression, prediction_samples)
+        # predicted_best  = self.predict_best_values(regression, prediction_samples, self.model["fixed_factors"], ordered_prf_keys, prf_values)
 
-        design_best     = self.get_design_best(design, response, fixed_variables)
-        fixed_variables = self.get_fixed_variables(predicted_best, ordered_prf_keys,
-                                                          prf_values, fixed_factors)
-
-        pruned_factors, pruned_inverse_factors, pruned_interactions = self.prune_model(factors, inverse_factors, interactions,
-                                                                                       ordered_prf_keys, prf_values)
+        design_best = self.get_design_best(design)
+        self.get_fixed_variables(predicted_best, ordered_prf_keys, prf_values)
+        self.prune_model(ordered_prf_keys, prf_values)
 
         info("Best Predicted: " + str(predicted_best))
         info("Best From Design: " + str(design_best))
-        info("Pruned Factors: " + str(pruned_factors))
-        info("Pruned Inverse Factors: " + str(pruned_inverse_factors))
-        info("Pruned Interactions: " + str(pruned_interactions))
-        info("Fixed Factors: " + str(fixed_variables))
+        info("Current Model: " + str(self.model))
 
-        return {"prf_values": prf_values,
-                "ordered_prf_keys": ordered_prf_keys,
-                "design_best": design_best,
-                "predicted_best": predicted_best,
-                "pruned_factors": pruned_factors,
-                "pruned_inverse_factors": pruned_inverse_factors,
-                "pruned_interactions": pruned_interactions,
-                "fixed_factors": fixed_variables,
-                "used_experiments": used_experiments}
+        return {
+                    "prf_values": prf_values,
+                    "ordered_prf_keys": ordered_prf_keys,
+                    "design_best": design_best,
+                    "predicted_best": predicted_best,
+                    "used_experiments": used_experiments
+               }
 
 
-    def dopt_anova(self, initial_factors, initial_inverse_factors, initial_interactions):
-        response = ["cost_mean"]
-
-        step_factors = initial_factors
-        step_inverse_factors = initial_inverse_factors
-        step_interactions = initial_interactions
-
-        iterations = 12
-
-        fixed_factors = {}
-
-        initial_budget = 1000
-        budget = initial_budget
+    def dopt_anova(self):
+        iterations       = 12
+        initial_budget   = 1000
+        budget           = initial_budget
         used_experiments = 0
-        best_value = float("inf")
-        best_point = []
+        best_value       = float("inf")
+        best_point       = []
 
         for i in range(iterations):
             if used_experiments >= initial_budget:
@@ -600,23 +598,18 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
             info("Step {0}".format(i))
 
-            trials = int(1.5 * (len(step_factors) + len(step_inverse_factors) + len(step_interactions)))
+            trials = len(self.model["interactions"]) +
+                     len(self.model["quadratic"]) +
+                     len(self.model["linear"]) +
+                     len(self.model["inverse"]) +
+                     len(self.model["cubic"]) + 5
 
-            step_data = self.dopt_anova_step(response,
-                                             step_factors,
-                                             step_inverse_factors,
-                                             step_interactions,
-                                             fixed_factors,
-                                             budget,
-                                             trials,
-                                             i)
+            step_data = self.dopt_anova_step(budget, trials, i)
 
-            step_factors          = step_data["pruned_factors"]
-            step_inverse_factors  = step_data["pruned_inverse_factors"]
-            step_interactions     = step_data["pruned_interactions"]
-            budget               -= step_data["used_experiments"]
-            used_experiments     += step_data["used_experiments"]
-            fixed_factors         = step_data["fixed_factors"]
+            budget           -= step_data["used_experiments"]
+            used_experiments += step_data["used_experiments"]
+
+            self.model["fixed_factors"] = step_data["fixed_factors"]
 
             starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
             info("Baseline Point:")
@@ -668,18 +661,21 @@ class Doptanova(orio.main.tuner.search.search.Search):
         '''
         info('\n----- begin DLMT -----')
 
-        initial_factors = self.params["axis_names"]
-        initial_inverse_factors = [f for f in initial_factors if self.parameter_ranges[f][1] > 2]
-        #initial_inverse_factors = []
-        initial_interactions = self.interactions
+        self.model = {
+                        "response": "cost_mean",
+                        "interactions": self.interactions,
+                        "quadratic": self.quadratic,
+                        "linear": self.linear,
+                        "inverse": self.inverse,
+                        "cubic": self.cubic,
+                        "fixed_factors": []
+                     }
 
-        info("Initial Factors: " + str(initial_factors))
-        info("Initial Inverse Factors: " + str(initial_inverse_factors))
-        info("Initial Interactions: " + str(initial_interactions))
+        info("Initial Model: " + str(self.model))
 
-        best_coord = None
+        best_coord     = None
         best_perf_cost = self.MAXFLOAT
-        old_perf_cost = best_perf_cost
+        old_perf_cost  = best_perf_cost
 
         # record the number of runs
         runs = 0
@@ -689,7 +685,7 @@ class Doptanova(orio.main.tuner.search.search.Search):
 
         info("Starting DLMT")
 
-        best_point, used_points = self.dopt_anova(initial_factors, initial_inverse_factors, initial_interactions)
+        best_point, used_points = self.dopt_anova()
 
         info("Ending DLMT")
         info("Best Point: " + str(best_point))
@@ -722,6 +718,14 @@ class Doptanova(orio.main.tuner.search.search.Search):
             print vname, rhs
             if vname == self.__INTERACTIONS:
                 self.interactions = eval(rhs)
+            if vname == self.__QUADRATIC:
+                self.quadratic = eval(rhs)
+            if vname == self.__LINEAR:
+                self.linear = eval(rhs)
+            if vname == self.__INVERSE:
+                self.inverse = eval(rhs)
+            if vname == self.__CUBIC:
+                self.cubic = eval(rhs)
             elif vname == 'total_runs':
                 self.total_runs = rhs
             else:
