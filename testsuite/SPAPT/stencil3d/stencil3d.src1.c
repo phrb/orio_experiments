@@ -85,7 +85,7 @@
   def search
   {
    arg algorithm = 'Randomsearch';
-   arg total_runs = 10000;
+   arg total_runs = 300;
   }
 
   def input_params
@@ -100,6 +100,10 @@
   decl static double b[N][N][N] = 0;
   decl double f1 = 0.5;
   decl double f2 = 0.6;
+  }
+
+  def validation {
+    arg validation_file = 'validation.c';
   }
 
 ) @*/   
