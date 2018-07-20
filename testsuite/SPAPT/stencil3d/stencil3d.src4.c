@@ -1,7 +1,7 @@
 /*@ begin PerfTuning (
   def build
   {
-  arg build_command = 'gcc -O3 -fopenmp '; 
+  arg build_command = 'gcc -O3 -fopenmp ';
   arg libs = '-lm -lrt';
   }
 
@@ -9,7 +9,7 @@
   {
     arg repetitions = 35;
   }
-  
+
   def performance_params
   {
 
@@ -23,7 +23,7 @@
 
 
 
-    # Unroll-jam 
+    # Unroll-jam
     param U1_I[]  = range(1,31);
     param U1_J[]  = range(1,31);
     param U1_K[]  = range(1,31);
@@ -47,11 +47,11 @@
 
 
   }
-  
+
   def search
   {
    arg algorithm = 'Randomsearch';
-   arg total_runs = 100000;
+   arg total_runs = 300;
   }
 
   def input_params
@@ -73,7 +73,7 @@
   }
 
 
-) @*/   
+) @*/
 
 
 #define max(x,y)    ((x) > (y)? (x) : (y))
@@ -89,7 +89,7 @@ int iii, jjj, kkk;
 /*@ begin Loop (
 
 
-for (t=0; t<=T-1; t++) 
+for (t=0; t<=T-1; t++)
   {
 
 transform Composite(
