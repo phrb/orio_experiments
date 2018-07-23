@@ -386,6 +386,7 @@ class DLMT(orio.main.tuner.search.search.Search):
     def prune_model(self, factors, inverse_factors, interactions,
                     ordered_prf_keys, prf_values):
         info("Pruning Model")
+
         unique_variables       = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
         pruned_factors         = [f for f in factors if not f in unique_variables]
         pruned_inverse_factors = [f for f in inverse_factors if not f in unique_variables]
