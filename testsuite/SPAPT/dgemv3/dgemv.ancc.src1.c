@@ -111,8 +111,8 @@
   
   def search
   {
-    arg algorithm = 'Doptanova';
-    arg total_runs = 10000;
+    arg algorithm = 'Randomsearch';
+    arg total_runs = 300;
   }
   
   def input_params
@@ -135,6 +135,11 @@
     decl dynamic double t6[M] = 0;
     decl dynamic double t10[M] = 0;
   }            
+  def validation {
+
+    arg validation_file = 'validation.c';
+
+  }
 ) @*/
 
 int i,j, k;
