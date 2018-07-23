@@ -217,6 +217,10 @@ def p_arg_type(p):
                 | SIMPLEX_SHRINKAGE_COEF
                 | SIMPLEX_LOCAL_DISTANCE
                 | DLMT_INTERACTIONS
+                | DLMT_CUBIC
+                | DLMT_QUADRATIC
+                | DLMT_INVERSE
+                | DLMT_LINEAR
                 | SIMPLEX_X0
                 | CUDACFG_INSTMIX
                 | VALIDATION_FILE
