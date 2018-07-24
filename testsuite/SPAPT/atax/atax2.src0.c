@@ -12,8 +12,9 @@
 
   def search
   {
-    arg algorithm = 'Dlmt';
+    arg algorithm = 'DLMT';
     arg total_runs = 75;
+    arg dlmt_linear = '["T1_I", "T1_J", "T1_K", "T2_I", "T2_J", "T2_K", "ACOPY_x", "ACOPY_y", "U1_I", "U_I", "U_J", "U_K", "RT_I", "RT_J", "RT_K", "SCR", "VEC1", "VEC2"]';
   }
 
   def performance_params
