@@ -383,13 +383,24 @@ class DLMT(orio.main.tuner.search.search.Search):
         for v in unique_variables:
             self.model["fixed_factors"][v] = predicted_best.rx2(1, str(v))[0]
 
-    def prune_model(self, factors, inverse_factors, interactions,
-                    ordered_prf_keys, prf_values):
+    def prune_model(self, ordered_prf_keys, prf_values):
         info("Pruning Model")
+
         unique_variables       = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
         pruned_factors         = [f for f in factors if not f in unique_variables]
         pruned_inverse_factors = [f for f in inverse_factors if not f in unique_variables]
         pruned_interactions    = []
+
+        # __INTERACTIONS = "interactions"
+        # __QUADRATIC    = "quadratic"
+        # __LINEAR       = "linear"
+        # __INVERSE      = "inverse"
+        # __CUBIC        = "cubic"
+        self.model["interactions"] = [f for f in self.model["interactions"] if not f in unique_variables]
+        self.model["quadratic"] = [f for f in self.model["quadratic"] if not f in unique_variables]
+        self.model["linear"] = [f for f in self.model["linear"] if not f in unique_variables]
+        self.model["inverse"] = [f for f in self.model["inverse"] if not f in unique_variables]
+        self.model["cubic"] = [f for f in self.model["cubic"] if not f in unique_variables]
 
         for i in interactions:
             interaction_factors = i.split(":")
@@ -505,7 +516,6 @@ class DLMT(orio.main.tuner.search.search.Search):
         federov_samples = 300 * trials
         prediction_samples = 3 * federov_samples
         federov_search_space = self.generate_valid_sample(federov_samples)
-        federov_search_space = federov_search_space.rx(StrVector(factors))
 
         full_model = "~ "
 
@@ -598,11 +608,7 @@ class DLMT(orio.main.tuner.search.search.Search):
 
             info("Step {0}".format(i))
 
-            trials = len(self.model["interactions"]) +
-                     len(self.model["quadratic"]) +
-                     len(self.model["linear"]) +
-                     len(self.model["inverse"]) +
-                     len(self.model["cubic"]) + 5
+            trials = len(self.model["interactions"]) + len(self.model["quadratic"]) + len(self.model["linear"]) + len(self.model["inverse"]) + len(self.model["cubic"]) + 5
 
             step_data = self.dopt_anova_step(budget, trials, i)
 
@@ -668,7 +674,7 @@ class DLMT(orio.main.tuner.search.search.Search):
                         "linear": self.linear,
                         "inverse": self.inverse,
                         "cubic": self.cubic,
-                        "fixed_factors": []
+                        "fixed_factors": {}
                      }
 
         info("Initial Model: " + str(self.model))
@@ -718,13 +724,13 @@ class DLMT(orio.main.tuner.search.search.Search):
             print vname, rhs
             if vname == self.__INTERACTIONS:
                 self.interactions = eval(rhs)
-            if vname == self.__QUADRATIC:
+            elif vname == self.__QUADRATIC:
                 self.quadratic = eval(rhs)
-            if vname == self.__LINEAR:
+            elif vname == self.__LINEAR:
                 self.linear = eval(rhs)
-            if vname == self.__INVERSE:
+            elif vname == self.__INVERSE:
                 self.inverse = eval(rhs)
-            if vname == self.__CUBIC:
+            elif vname == self.__CUBIC:
                 self.cubic = eval(rhs)
             elif vname == 'total_runs':
                 self.total_runs = rhs
