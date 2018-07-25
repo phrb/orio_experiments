@@ -12,8 +12,16 @@
 
   def search
   {
-    arg algorithm = 'Doptanova';
+    arg algorithm = 'DLMT';
     arg total_runs = 75;
+    # arg dlmt_quadratic = '["T1_I", "T1_J", "T1_K", "T2_I", "T2_J", "T2_K", "U1_I", "U_I", "U_J", "U_K", "RT_I", "RT_J", "RT_K"]';
+    # arg dlmt_cubic = '["T1_I", "T1_J", "T1_K", "T2_I", "T2_J", "T2_K", "U1_I", "U_I", "U_J", "U_K"]';
+    # arg dlmt_linear = '["T1_I", "T1_J", "T1_K", "ACOPY_x", "ACOPY_y", "SCR", "VEC1", "VEC2"]';
+    arg dlmt_linear = '["T1_I", "T1_J", "T1_K", "T2_I", "T2_J", "T2_K", "ACOPY_x", "ACOPY_y", "U1_I", "U_I", "U_J", "U_K", "RT_I", "RT_J", "RT_K", "SCR", "VEC1", "VEC2"]';
+    arg dlmt_quadratic = '["RT_I", "RT_J", "RT_K", "T1_I", "T1_J", "T1_K", "T2_I", "T2_J", "T2_K"]';
+    arg dlmt_cubic = '["T1_I", "T1_J", "T1_K", "U1_I", "U_I", "U_J", "U_K"]';
+    arg dlmt_inverse = '["U1_I", "U_I", "U_J", "U_K"]';
+    arg dlmt_interactions = '["T1_I:T1_J", "T1_J:T1_K", "T1_I:T1_K", "T2_I:T2_J", "T2_J:T2_K", "T2_I:T2_K"]';
   }
 
   def performance_params
@@ -49,7 +57,8 @@
     param VEC2[] = [False,True];
 
     # Parallelization
-    param OMP[] = [False,True];
+    # param OMP[] = [False,True];
+    # openmp = (OMP, 'omp parallel for private(iii,jjj,kkk,ii,jj,kk,i,j,k,y_copy,x_copy)')
 
     # Constraints
     constraint tileI = ((T2_I == 1) or (T2_I % T1_I == 0));
@@ -105,8 +114,7 @@ double* tmp=(double*) malloc(nx*sizeof(double));
     unrolljam = (['k','j','i'],[U_K,U_J,U_I]),
     scalarreplace = (SCR, 'double'),
     regtile = (['i','j','k'],[RT_I,RT_J,RT_K]),
-    vector = (VEC2, ['ivdep','vector always']),
-    openmp = (OMP, 'omp parallel for private(iii,jjj,kkk,ii,jj,kk,i,j,k,y_copy,x_copy)')
+    vector = (VEC2, ['ivdep','vector always'])
   )
   for (i = 0; i<=nx-1; i++) {
     tmp[i] = 0;

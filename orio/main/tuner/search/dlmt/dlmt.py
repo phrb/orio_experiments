@@ -29,8 +29,8 @@ class DLMT(orio.main.tuner.search.search.Search):
         self.algdesign = importr("AlgDesign")
         self.car       = importr("car")
 
-        # numpy.random.seed(11221)
-        # self.base.set_seed(11221)
+        numpy.random.seed(11221)
+        self.base.set_seed(11221)
 
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
@@ -119,9 +119,31 @@ class DLMT(orio.main.tuner.search.search.Search):
         if one_level_terms:
             self.model["interactions"] = [f for f in self.model["interactions"] if f not in one_level_terms]
         if two_level_factors + two_level_terms:
-            self.model["quadratic"] = [f for f in self.model["quadratic"] if f not in two_level_factors + [t.strip("I()^/+123 ") for t in two_level_terms]]
+            clean_two_level_terms = []
+
+            for t in two_level_terms:
+                t = t.strip(" ")
+                t = t.replace("I(1/(1 + ", "")
+                t = t.replace("))", "")
+                t = t.replace("I(", "")
+                t = t.replace("^2)", "")
+                t = t.replace("^3)", "")
+                clean_two_level_terms.append(t)
+
+            self.model["quadratic"] = [f for f in self.model["quadratic"] if f not in two_level_factors + [t.strip("I()^/+123 ") for t in clean_two_level_terms]]
         if three_level_factors + three_level_terms:
-            self.model["cubic"] = [f for f in self.model["cubic"] if f not in three_level_factors + [t.strip("I()^/+123 ") for t in three_level_terms]]
+            clean_three_level_terms = []
+
+            for t in three_level_terms:
+                t = t.strip(" ")
+                t = t.replace("I(1/(1 + ", "")
+                t = t.replace("))", "")
+                t = t.replace("I(", "")
+                t = t.replace("^2)", "")
+                t = t.replace("^3)", "")
+                clean_three_level_terms.append(t)
+
+            self.model["cubic"] = [f for f in self.model["cubic"] if f not in three_level_factors + [t.strip("I()^/+123 ") for t in clean_three_level_terms]]
 
         for f in one_level_factors:
             self.model["fixed_factors"][f] = int(federov_search_space.rx(1, f)[0])
@@ -335,7 +357,12 @@ class DLMT(orio.main.tuner.search.search.Search):
         unique_variables = []
         for k in ordered_keys:
             # TODO Deal with interactions
-            clean_key = k.strip("I()^/+123 ")
+            clean_key = k.strip(" ")
+            clean_key = clean_key.replace("I(1/(1 + ", "")
+            clean_key = clean_key.replace("))", "")
+            clean_key = clean_key.replace("I(", "")
+            clean_key = clean_key.replace("^2)", "")
+            clean_key = clean_key.replace("^3)", "")
 
             if (clean_key not in unique_variables) and (prf_values[k] < prf_threshold):
                 unique_variables.append(clean_key)
@@ -372,8 +399,7 @@ class DLMT(orio.main.tuner.search.search.Search):
 
         return unique_variables
 
-    def get_fixed_variables(self, predicted_best, ordered_prf_keys,
-                            prf_values, fixed_factors):
+    def get_fixed_variables(self, predicted_best, ordered_prf_keys, prf_values):
         info("Getting fixed variables")
         unique_variables = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
         info("Unique Variables: " + str(unique_variables))
@@ -385,28 +411,21 @@ class DLMT(orio.main.tuner.search.search.Search):
 
     def prune_model(self, ordered_prf_keys, prf_values):
         info("Pruning Model")
+        unique_variables = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
 
-        unique_variables       = self.get_ordered_fixed_variables(ordered_prf_keys, prf_values)
-        pruned_factors         = [f for f in factors if not f in unique_variables]
-        pruned_inverse_factors = [f for f in inverse_factors if not f in unique_variables]
-        pruned_interactions    = []
-
-        # __INTERACTIONS = "interactions"
-        # __QUADRATIC    = "quadratic"
-        # __LINEAR       = "linear"
-        # __INVERSE      = "inverse"
-        # __CUBIC        = "cubic"
         self.model["interactions"] = [f for f in self.model["interactions"] if not f in unique_variables]
-        self.model["quadratic"] = [f for f in self.model["quadratic"] if not f in unique_variables]
-        self.model["linear"] = [f for f in self.model["linear"] if not f in unique_variables]
-        self.model["inverse"] = [f for f in self.model["inverse"] if not f in unique_variables]
-        self.model["cubic"] = [f for f in self.model["cubic"] if not f in unique_variables]
+        self.model["quadratic"]    = [f for f in self.model["quadratic"] if not f in unique_variables]
+        self.model["linear"]       = [f for f in self.model["linear"] if not f in unique_variables]
+        self.model["inverse"]      = [f for f in self.model["inverse"] if not f in unique_variables]
+        self.model["cubic"]        = [f for f in self.model["cubic"] if not f in unique_variables]
 
-        for i in interactions:
-            interaction_factors = i.split(":")
+        pruned_interactions = []
+
+        for i in self.model["interactions"]:
+            factors = i.split(":")
             selected = True
 
-            for f in interaction_factors:
+            for f in factors:
                 if f in unique_variables:
                     selected = False
                     break
@@ -414,7 +433,7 @@ class DLMT(orio.main.tuner.search.search.Search):
             if selected:
                 pruned_interactions.append(i)
 
-        return pruned_factors, pruned_inverse_factors, pruned_interactions
+        self.model["interactions"] = pruned_interactions
 
     def get_federov_data(self, factors):
         low_level_limits  = IntVector([self.parameter_ranges[f][0] for f in factors])
@@ -592,7 +611,6 @@ class DLMT(orio.main.tuner.search.search.Search):
                     "used_experiments": used_experiments
                }
 
-
     def dopt_anova(self):
         iterations       = 12
         initial_budget   = 1000
@@ -608,14 +626,12 @@ class DLMT(orio.main.tuner.search.search.Search):
 
             info("Step {0}".format(i))
 
-            trials = len(self.model["interactions"]) + len(self.model["quadratic"]) + len(self.model["linear"]) + len(self.model["inverse"]) + len(self.model["cubic"]) + 5
+            trials = len(self.model["interactions"]) + len(self.model["quadratic"]) + len(self.model["linear"]) + len(self.model["inverse"]) + len(self.model["cubic"]) + 10
 
             step_data = self.dopt_anova_step(budget, trials, i)
 
             budget           -= step_data["used_experiments"]
             used_experiments += step_data["used_experiments"]
-
-            self.model["fixed_factors"] = step_data["fixed_factors"]
 
             starting_point = numpy.mean((self.getPerfCosts([[0] * self.total_dims]).values()[0])[0])
             info("Baseline Point:")
@@ -631,7 +647,7 @@ class DLMT(orio.main.tuner.search.search.Search):
             info(str(design_best))
             design_best_value = numpy.mean((self.getPerfCosts([design_best]).values()[0])[0])
 
-            info("Fixed Factors: " + str(fixed_factors))
+            info("Current Model: " + str(self.model))
 
             design_best_slowdown    = design_best_value / starting_point
             predicted_best_slowdown = predicted_best_value / starting_point
