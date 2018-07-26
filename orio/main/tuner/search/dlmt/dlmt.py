@@ -16,11 +16,14 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects import DataFrame, IntVector, FloatVector, StrVector, BoolVector, Formula, NULL, r
 
 class DLMT(orio.main.tuner.search.search.Search):
-    __INTERACTIONS = "interactions"
-    __QUADRATIC    = "quadratic"
-    __LINEAR       = "linear"
-    __INVERSE      = "inverse"
-    __CUBIC        = "cubic"
+    __INTERACTIONS      = "interactions"
+    __QUADRATIC         = "quadratic"
+    __LINEAR            = "linear"
+    __INVERSE           = "inverse"
+    __CUBIC             = "cubic"
+    __FEDEROV_SAMPLING  = "federov_sampling"
+    __STEPS             = "steps"
+    __EXTRA_EXPERIMENTS = "extra_experiments"
 
     def __init__(self, params):
         self.base      = importr("base")
@@ -51,12 +54,15 @@ class DLMT(orio.main.tuner.search.search.Search):
 
         info("Parameter Range Values: " + str(self.parameter_values))
 
-        self.model = {}
-        self.interactions = []
-        self.quadratic    = []
-        self.linear       = []
-        self.inverse      = []
-        self.cubic        = []
+        self.model             = {}
+        self.interactions      = []
+        self.quadratic         = []
+        self.linear            = []
+        self.inverse           = []
+        self.cubic             = []
+        self.federov_sampling  = 300
+        self.steps             = 12
+        self.extra_experiments = 10
 
         self.__readAlgoArgs()
 
@@ -65,6 +71,10 @@ class DLMT(orio.main.tuner.search.search.Search):
                 '%s search requires search time limit or '
                 + 'total number of search runs to be defined') %
                 self.__class__.__name__)
+
+        info("Federov Sampling Multiplier: " + str(self.federov_sampling))
+        info("ANOVA Steps: " + str(self.steps))
+        info("Extra Experiments in Designs: " + str(self.extra_experiments))
 
     def clean_search_space(self, federov_search_space, full_model):
         data = {}
@@ -186,6 +196,7 @@ class DLMT(orio.main.tuner.search.search.Search):
 
                     if len(search_space) % int(sample_size / 5) == 0:
                         info("Valid coordinates: " + str(len(search_space)) + "/" + str(sample_size))
+                        info("Tested coordinates: " + str(evaluated))
 
                 if evaluated % 1000000 == 0:
                     info("Tested coordinates: " + str(evaluated))
@@ -532,7 +543,7 @@ class DLMT(orio.main.tuner.search.search.Search):
         return design
 
     def dopt_anova_step(self, budget, trials, step_number):
-        federov_samples = 300 * trials
+        federov_samples = self.federov_sampling * trials
         prediction_samples = 3 * federov_samples
         federov_search_space = self.generate_valid_sample(federov_samples)
 
@@ -612,7 +623,7 @@ class DLMT(orio.main.tuner.search.search.Search):
                }
 
     def dopt_anova(self):
-        iterations       = 12
+        iterations       = self.steps
         initial_budget   = 1000
         budget           = initial_budget
         used_experiments = 0
@@ -626,7 +637,7 @@ class DLMT(orio.main.tuner.search.search.Search):
 
             info("Step {0}".format(i))
 
-            trials = len(self.model["interactions"]) + len(self.model["quadratic"]) + len(self.model["linear"]) + len(self.model["inverse"]) + len(self.model["cubic"]) + 10
+            trials = len(self.model["interactions"]) + len(self.model["quadratic"]) + len(self.model["linear"]) + len(self.model["inverse"]) + len(self.model["cubic"]) + self.extra_experiments
 
             step_data = self.dopt_anova_step(budget, trials, i)
 
@@ -748,6 +759,12 @@ class DLMT(orio.main.tuner.search.search.Search):
                 self.inverse = eval(rhs)
             elif vname == self.__CUBIC:
                 self.cubic = eval(rhs)
+            elif vname == self.__FEDEROV_SAMPLING:
+                self.federov_sampling = rhs
+            elif vname == self.__STEPS:
+                self.steps = rhs
+            elif vname == self.__EXTRA_EXPERIMENTS:
+                self.extra_experiments = rhs
             elif vname == 'total_runs':
                 self.total_runs = rhs
             else:
