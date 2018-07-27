@@ -32,8 +32,8 @@ class DLMT(orio.main.tuner.search.search.Search):
         self.algdesign = importr("AlgDesign")
         self.car       = importr("car")
 
-        numpy.random.seed(11221)
-        self.base.set_seed(11221)
+        #numpy.random.seed(11221)
+        #self.base.set_seed(11221)
 
         self.total_runs = 20
         orio.main.tuner.search.search.Search.__init__(self, params)
@@ -100,18 +100,18 @@ class DLMT(orio.main.tuner.search.search.Search):
              "three_level_factors" = three_level_factors,
              "one_level_terms" = one_level_terms,
              "two_level_terms" = two_level_terms,
-             "three_level_terns" = three_level_terms)
+             "three_level_terms" = three_level_terms)
         """ % (federov_search_space.r_repr(), Formula(full_model).r_repr())
 
         output = robjects.r(r_snippet)
 
-        one_level_factors   = output[1]
-        two_level_factors   = output[2]
-        three_level_factors = output[3]
+        one_level_factors   = [f for f in output[1]]
+        two_level_factors   = [f for f in output[2]]
+        three_level_factors = [f for f in output[3]]
 
-        one_level_terms   = output[4]
-        two_level_terms   = output[5]
-        three_level_terms = output[6]
+        one_level_terms   = [f for f in output[4]]
+        two_level_terms   = [f for f in output[5]]
+        three_level_terms = [f for f in output[6]]
 
         info("Clean Info:")
 
@@ -140,7 +140,9 @@ class DLMT(orio.main.tuner.search.search.Search):
                 t = t.replace("^3)", "")
                 clean_two_level_terms.append(t)
 
-            self.model["quadratic"] = [f for f in self.model["quadratic"] if f not in two_level_factors + [t.strip("I()^/+123 ") for t in clean_two_level_terms]]
+            info("Model Quadratic: " + str(self.model["quadratic"]))
+            info("Clean 2 Level Factors/Terms: " + str(two_level_factors + clean_two_level_terms))
+            self.model["quadratic"] = [f for f in self.model["quadratic"] if f not in two_level_factors + clean_two_level_terms]
         if three_level_factors + three_level_terms:
             clean_three_level_terms = []
 
@@ -153,7 +155,10 @@ class DLMT(orio.main.tuner.search.search.Search):
                 t = t.replace("^3)", "")
                 clean_three_level_terms.append(t)
 
-            self.model["cubic"] = [f for f in self.model["cubic"] if f not in three_level_factors + [t.strip("I()^/+123 ") for t in clean_three_level_terms]]
+
+            info("Model Cubic: " + str(self.model["cubic"]))
+            info("Clean 3 Level Factors/Terms: " + str(three_level_factors + clean_three_level_terms))
+            self.model["cubic"] = [f for f in self.model["cubic"] if f not in three_level_factors + clean_three_level_terms]
 
         for f in one_level_factors:
             self.model["fixed_factors"][f] = int(federov_search_space.rx(1, f)[0])
@@ -358,7 +363,7 @@ class DLMT(orio.main.tuner.search.search.Search):
         info(str(self.utils.str(pruned_data)))
         return pruned_data
 
-    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 3, prf_threshold = 0.05):
+    def get_ordered_fixed_variables(self, ordered_keys, prf_values, threshold = 60, prf_threshold = 0.05):
         info("Getting fixed variables")
         info("Prf Values: ")
         info(str(prf_values))
@@ -388,7 +393,7 @@ class DLMT(orio.main.tuner.search.search.Search):
 
         return unique_variables
 
-    def get_ordered_fixed_terms(self, ordered_keys, prf_values, threshold = 3, prf_threshold = 0.05):
+    def get_ordered_fixed_terms(self, ordered_keys, prf_values, threshold = 60, prf_threshold = 0.05):
         info("Getting fixed Model Terms")
         info("Prf Values: ")
         info(str(prf_values))

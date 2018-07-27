@@ -6,7 +6,7 @@
 /*@ begin PerfTuning (
   def build
   {
-    arg build_command = 'gcc -O3 -fopenmp -DDYNAMIC';
+    arg build_command = 'timeout 20m gcc -O3 -fopenmp -DDYNAMIC';
     arg libs = '-lm -lrt';
   }
 
@@ -113,9 +113,9 @@
   {
     arg algorithm = 'DLMT';
     arg total_runs = 100;
-    arg dlmt_federov_sampling = 20;
+    arg dlmt_federov_sampling = 25;
     arg dlmt_extra_experiments = 20;
-    arg dlmt_steps = 4;
+    arg dlmt_steps = 8;
     arg dlmt_linear = '["SCR", "VEC1", "VEC2", "VEC3", "VEC4", "VEC5", "VEC6", "VEC7", "VEC8", "VEC9", "VEC10"]';
     arg dlmt_quadratic = '[ "T1_I", "T1_J", "T1_Ia", "T1_Ja", "T3_I", "T3_J", "T3_Ia", "T3_Ja", "T5_I", "T5_J", "T5_Ia", "T5_Ja", "T7_I", "T7_J", "T7_Ia", "T7_Ja", "U1_I", "U1_J", "U2_I", "U3_I", "U3_J", "U4_I", "U5_I", "U5_J", "U6_I", "U7_I", "U7_J", "U8_I", "U9_I", "U10_I", "RT1_I", "RT1_J", "RT3_I", "RT3_J", "RT5_I", "RT5_J", "RT7_I", "RT7_J"]';
     #arg dlmt_interactions = '["T1_I:T1_J", "T1_J:T1_K", "T1_I:T1_K", "T2_I:T2_J", "T2_J:T2_K", "T2_I:T2_K"]';
