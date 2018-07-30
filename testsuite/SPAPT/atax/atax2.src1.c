@@ -1,7 +1,7 @@
 /*@ begin PerfTuning (
   def build
   {
-  arg build_command = 'gcc -O2 -fopenmp -DDYNAMIC';
+  arg build_command = 'timeout 20m gcc -O2 -fopenmp -DDYNAMIC';
   arg libs = '-lm';
   }
 
@@ -14,14 +14,18 @@
   {
     arg algorithm = 'DLMT';
     arg total_runs = 75;
+    arg dlmt_federov_sampling = 2;
+    arg dlmt_extra_experiments = 10;
+    arg dlmt_steps = 2;
     # arg dlmt_quadratic = '["T1_I", "T1_J", "T1_K", "T2_I", "T2_J", "T2_K", "U1_I", "U_I", "U_J", "U_K", "RT_I", "RT_J", "RT_K"]';
     # arg dlmt_cubic = '["T1_I", "T1_J", "T1_K", "T2_I", "T2_J", "T2_K", "U1_I", "U_I", "U_J", "U_K"]';
     # arg dlmt_linear = '["T1_I", "T1_J", "T1_K", "ACOPY_x", "ACOPY_y", "SCR", "VEC1", "VEC2"]';
     arg dlmt_linear = '["T1_I", "T1_J", "T1_K", "T2_I", "T2_J", "T2_K", "ACOPY_x", "ACOPY_y", "U1_I", "U_I", "U_J", "U_K", "RT_I", "RT_J", "RT_K", "SCR", "VEC1", "VEC2"]';
-    arg dlmt_quadratic = '["RT_I", "RT_J", "RT_K", "T1_I", "T1_J", "T1_K", "T2_I", "T2_J", "T2_K"]';
-    arg dlmt_cubic = '["T1_I", "T1_J", "T1_K", "U1_I", "U_I", "U_J", "U_K"]';
-    arg dlmt_inverse = '["U1_I", "U_I", "U_J", "U_K"]';
-    arg dlmt_interactions = '["T1_I:T1_J", "T1_J:T1_K", "T1_I:T1_K", "T2_I:T2_J", "T2_J:T2_K", "T2_I:T2_K"]';
+    arg dlmt_inverse = '["T1_I", "T1_J", "T1_K", "T2_I", "T2_J", "T2_K", "U1_I", "U_I", "U_J", "U_K", "RT_I", "RT_J", "RT_K"]';
+    # arg dlmt_quadratic = '["RT_I", "RT_J", "RT_K", "T1_I", "T1_J", "T1_K", "T2_I", "T2_J", "T2_K"]';
+    # arg dlmt_cubic = '["T1_I", "T1_J", "T1_K", "U1_I", "U_I", "U_J", "U_K"]';
+    # arg dlmt_inverse = '["U1_I", "U_I", "U_J", "U_K"]';
+    # arg dlmt_interactions = '["T1_I:T1_J", "T1_J:T1_K", "T1_I:T1_K", "T2_I:T2_J", "T2_J:T2_K", "T2_I:T2_K"]';
   }
 
   def performance_params

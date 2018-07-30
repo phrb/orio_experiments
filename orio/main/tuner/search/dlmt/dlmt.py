@@ -125,7 +125,6 @@ class DLMT(orio.main.tuner.search.search.Search):
 
         if one_level_factors:
             self.model["linear"] = [f for f in self.model["linear"] if f not in one_level_factors]
-            self.model["inverse"] = [f for f in self.model["inverse"] if f not in one_level_factors]
         if one_level_terms:
             self.model["interactions"] = [f for f in self.model["interactions"] if f not in one_level_terms]
         if two_level_factors + two_level_terms:
@@ -133,7 +132,7 @@ class DLMT(orio.main.tuner.search.search.Search):
 
             for t in two_level_terms:
                 t = t.strip(" ")
-                t = t.replace("I(1/(1 + ", "")
+                t = t.replace("I(1/(1e-06 + ", "")
                 t = t.replace("))", "")
                 t = t.replace("I(", "")
                 t = t.replace("^2)", "")
@@ -143,12 +142,13 @@ class DLMT(orio.main.tuner.search.search.Search):
             info("Model Quadratic: " + str(self.model["quadratic"]))
             info("Clean 2 Level Factors/Terms: " + str(two_level_factors + clean_two_level_terms))
             self.model["quadratic"] = [f for f in self.model["quadratic"] if f not in two_level_factors + clean_two_level_terms]
+            self.model["inverse"] = [f for f in self.model["inverse"] if f not in two_level_factors + clean_two_level_terms]
         if three_level_factors + three_level_terms:
             clean_three_level_terms = []
 
             for t in three_level_terms:
                 t = t.strip(" ")
-                t = t.replace("I(1/(1 + ", "")
+                t = t.replace("I(1/(1e-06 + ", "")
                 t = t.replace("))", "")
                 t = t.replace("I(", "")
                 t = t.replace("^2)", "")
@@ -374,7 +374,7 @@ class DLMT(orio.main.tuner.search.search.Search):
         for k in ordered_keys:
             # TODO Deal with interactions
             clean_key = k.strip(" ")
-            clean_key = clean_key.replace("I(1/(1 + ", "")
+            clean_key = clean_key.replace("I(1/(1e-06 + ", "")
             clean_key = clean_key.replace("))", "")
             clean_key = clean_key.replace("I(", "")
             clean_key = clean_key.replace("^2)", "")
@@ -561,7 +561,7 @@ class DLMT(orio.main.tuner.search.search.Search):
         if len(self.model["linear"]) > 0:
             full_model += " + ".join(self.model["linear"]) + " + "
         if len(self.model["inverse"]) > 0:
-            full_model += " + ".join(["I(1 / (1 + {0}))".format(f) for f in self.model["inverse"]]) + " + "
+            full_model += " + ".join(["I(1 / (1e-06 + {0}))".format(f) for f in self.model["inverse"]]) + " + "
         if len(self.model["cubic"]) > 0:
             full_model += " + ".join(["I({0} ^ 3)".format(f) for f in self.model["cubic"]])
 
@@ -580,7 +580,7 @@ class DLMT(orio.main.tuner.search.search.Search):
         if len(self.model["linear"]) > 0:
             full_model += " + ".join(self.model["linear"]) + " + "
         if len(self.model["inverse"]) > 0:
-            full_model += " + ".join(["I(1 / (1 + {0}))".format(f) for f in self.model["inverse"]]) + " + "
+            full_model += " + ".join(["I(1 / (1e-06 + {0}))".format(f) for f in self.model["inverse"]]) + " + "
         if len(self.model["cubic"]) > 0:
             full_model += " + ".join(["I({0} ^ 3)".format(f) for f in self.model["cubic"]])
 
@@ -673,8 +673,21 @@ class DLMT(orio.main.tuner.search.search.Search):
             info("Budget: {0}/{1}".format(used_experiments, initial_budget))
 
             if design_best_slowdown < predicted_best_slowdown:
+                info("Best point from design was better than predicted point")
                 current_best = design_best
                 current_best_value = design_best_value
+
+                info("Updating Fixed Factors with Design Best Point:")
+                info(str(design_best))
+
+                info("Current fixed factors:")
+                info(str(self.model["fixed_factors"]))
+
+                for k in self.model["fixed_factors"].keys():
+                    self.model["fixed_factors"][k] = design_best[self.params["axis_names"].index(k)]
+
+                info("New fixed factors:")
+                info(str(self.model["fixed_factors"]))
             else:
                 current_best = predicted_best
                 current_best_value = predicted_best_value
@@ -693,10 +706,6 @@ class DLMT(orio.main.tuner.search.search.Search):
         return best_point, used_experiments
 
     def searchBestCoord(self, startCoord = None):
-        '''
-        To explore the search space and retun the coordinate that yields the best performance
-        (i.e. minimum performance cost).
-        '''
         info('\n----- begin DLMT -----')
 
         self.model = {
