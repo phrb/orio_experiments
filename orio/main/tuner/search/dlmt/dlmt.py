@@ -84,7 +84,6 @@ class DLMT(orio.main.tuner.search.search.Search):
         formula <- %s
 
         model_matrix <- as.data.frame(model.matrix(formula, data))
-        clean_data <- Filter(function(x)(length(unique(x)) > 1), data)
 
         one_level_factors <- names(Filter(function(x)(length(unique(x)) < 2), data))
         two_level_factors <- names(Filter(function(x)(length(unique(x)) < 3), data))
@@ -94,8 +93,7 @@ class DLMT(orio.main.tuner.search.search.Search):
         two_level_terms <- names(Filter(function(x)(length(unique(x)) < 3), model_matrix))
         three_level_terms <- names(Filter(function(x)(length(unique(x)) < 4), model_matrix))
 
-        list("clean_data" = clean_data,
-             "one_level_factors" = one_level_factors,
+        list("one_level_factors" = one_level_factors,
              "two_level_factors" = two_level_factors,
              "three_level_factors" = three_level_factors,
              "one_level_terms" = one_level_terms,
@@ -105,13 +103,13 @@ class DLMT(orio.main.tuner.search.search.Search):
 
         output = robjects.r(r_snippet)
 
-        one_level_factors   = [f for f in output[1]]
-        two_level_factors   = [f for f in output[2]]
-        three_level_factors = [f for f in output[3]]
+        one_level_factors   = [f for f in output[0]]
+        two_level_factors   = [f for f in output[1]]
+        three_level_factors = [f for f in output[2]]
 
-        one_level_terms   = [f for f in output[4]]
-        two_level_terms   = [f for f in output[5]]
-        three_level_terms = [f for f in output[6]]
+        one_level_terms   = [f for f in output[3]]
+        two_level_terms   = [f for f in output[4]]
+        three_level_terms = [f for f in output[5]]
 
         info("Clean Info:")
 
@@ -164,8 +162,6 @@ class DLMT(orio.main.tuner.search.search.Search):
             self.model["fixed_factors"][f] = int(federov_search_space.rx(1, f)[0])
 
         info("Updated Model Info: " + str(self.model))
-
-        return output[0]
 
     def generate_valid_sample(self, sample_size):
         search_space_dataframe = {}
@@ -312,11 +308,18 @@ class DLMT(orio.main.tuner.search.search.Search):
 
         return pruned_data.rx(1, True)
 
+    def predict_best_reuse_data(self, regression, data):
+        info("Predicting Best")
+        predicted     = self.stats.predict(regression, data)
+        predicted_min = min(predicted)
+        return data.rx(predicted.ro == self.base.min(predicted), True)
+
 
     def predict_best(self, regression, size):
         info("Predicting Best")
         data          = self.generate_valid_sample(size)
         predicted     = self.stats.predict(regression, data)
+        predicted     = self.stats.predict(regression)
         predicted_min = min(predicted)
         return data.rx(predicted.ro == self.base.min(predicted), True)
 
@@ -569,7 +572,7 @@ class DLMT(orio.main.tuner.search.search.Search):
 
         info("Full Model: " + str(full_model))
 
-        federov_search_space = self.clean_search_space(federov_search_space, full_model)
+        self.clean_search_space(federov_search_space, full_model)
 
         full_model = "~ "
 
@@ -608,7 +611,8 @@ class DLMT(orio.main.tuner.search.search.Search):
         regression, prf_values = self.anova(design, lm_formula)
         ordered_prf_keys       = sorted(prf_values, key = prf_values.get)
 
-        predicted_best = self.predict_best(regression, prediction_samples)
+        predicted_best = self.predict_best_reuse_data(regression, federov_search_space)
+        #predicted_best = self.predict_best(regression, prediction_samples)
         # predicted_best  = self.predict_best_values(regression, prediction_samples, self.model["fixed_factors"], ordered_prf_keys, prf_values)
 
         design_best = self.get_design_best(design)
@@ -655,6 +659,23 @@ class DLMT(orio.main.tuner.search.search.Search):
 
             predicted_best = [int(v[0]) for v in step_data["predicted_best"].rx(1, True)]
             info("Predicted Best Point:")
+            info(str(predicted_best))
+            info("Length of Predicted Best: " + str(len(predicted_best)))
+            info("Original Factor Length: " + str(len(self.params["axis_names"])))
+
+            # initial_factors = self.params["axis_names"]
+            # candidate = [None] * len(initial_factors)
+
+            # for k, v in self.model["fixed_factors"].items():
+            #     candidate[initial_factors.index(k)] = int(v)
+
+            # j = 0
+            # for i in range(len(candidate)):
+            #     if candidate[i] == None:
+            #         candidate[i] = predicted_best[j]
+            #         j += 1
+
+            info("Measuring Predicted Best:")
             info(str(predicted_best))
             predicted_best_value = numpy.mean((self.getPerfCosts([predicted_best]).values()[0])[0])
 
