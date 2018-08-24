@@ -253,9 +253,14 @@ class DLMT(orio.main.tuner.search.search.Search):
         response  = lm_formula.split("~")[0].strip()
         variables = lm_formula.split("~")[1].strip()
 
-        r_snippet = """boxcox_t <- powerTransform(%s, data = %s)
-        regression <- lm(bcPower(%s, boxcox_t$lambda) ~ %s, data = %s)
-        regression""" %(lm_formula, design.r_repr(), response, variables, design.r_repr())
+        info("Current Response: " + str(response))
+        info("Current Varibales: " + str(variables))
+        info("Current Design: " + str(design))
+
+        r_snippet = """design <- %s
+        boxcox_t <- powerTransform(%s, data = design)
+        regression <- lm(bcPower(%s, boxcox_t$lambda) ~ %s, data = design)
+        regression""" %(design.r_repr(), lm_formula, response, variables)
 
         transformed_lm = robjects.r(r_snippet)
         return transformed_lm
