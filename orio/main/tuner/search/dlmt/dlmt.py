@@ -703,17 +703,18 @@ class DLMT(orio.main.tuner.search.search.Search):
                 current_best = design_best
                 current_best_value = design_best_value
 
-                info("Updating Fixed Factors with Design Best Point:")
-                info(str(design_best))
+                info("Keeping fixed factors from model prediction")
+                #info("Updating Fixed Factors with Design Best Point:")
+                #info(str(design_best))
 
-                info("Current fixed factors:")
-                info(str(self.model["fixed_factors"]))
+                #info("Current fixed factors:")
+                #info(str(self.model["fixed_factors"]))
 
-                for k in self.model["fixed_factors"].keys():
-                    self.model["fixed_factors"][k] = design_best[self.params["axis_names"].index(k)]
+                #for k in self.model["fixed_factors"].keys():
+                #    self.model["fixed_factors"][k] = design_best[self.params["axis_names"].index(k)]
 
-                info("New fixed factors:")
-                info(str(self.model["fixed_factors"]))
+                #info("New fixed factors:")
+                #info(str(self.model["fixed_factors"]))
             else:
                 current_best = predicted_best
                 current_best_value = predicted_best_value
