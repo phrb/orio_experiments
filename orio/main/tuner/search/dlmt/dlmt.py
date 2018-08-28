@@ -254,7 +254,7 @@ class DLMT(orio.main.tuner.search.search.Search):
         variables = lm_formula.split("~")[1].strip()
 
         info("Current Response: " + str(response))
-        info("Current Varibales: " + str(variables))
+        info("Current Variables: " + str(variables))
         info("Current Design: " + str(design))
 
         r_snippet = """design <- %s
